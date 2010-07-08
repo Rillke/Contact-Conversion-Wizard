@@ -37,6 +37,8 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.button_clear = new System.Windows.Forms.Button();
             this.panel_right = new System.Windows.Forms.Panel();
+            this.label9 = new System.Windows.Forms.Label();
+            this.combo_picexport = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
             this.combo_prefix = new System.Windows.Forms.ComboBox();
             this.label5 = new System.Windows.Forms.Label();
@@ -47,20 +49,6 @@
             this.btn_save_vCard = new System.Windows.Forms.Button();
             this.btn_save_Outlook = new System.Windows.Forms.Button();
             this.MyDataGridView = new System.Windows.Forms.DataGridView();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label_save = new System.Windows.Forms.Label();
-            this.btn_read_SnomCSV8 = new System.Windows.Forms.Button();
-            this.btn_save_SnomCSV8 = new System.Windows.Forms.Button();
-            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.combo_typeprefer = new System.Windows.Forms.ComboBox();
-            this.combo_namestyle = new System.Windows.Forms.ComboBox();
-            this.combo_outlookimport = new System.Windows.Forms.ComboBox();
-            this.panel_left = new System.Windows.Forms.Panel();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
             this.Fullname = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.MyColLastname = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.MyColFirstname = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -75,6 +63,23 @@
             this.City = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.eMail = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.VIP = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Photo = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label_save = new System.Windows.Forms.Label();
+            this.btn_read_SnomCSV8 = new System.Windows.Forms.Button();
+            this.btn_save_SnomCSV8 = new System.Windows.Forms.Button();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.combo_typeprefer = new System.Windows.Forms.ComboBox();
+            this.combo_namestyle = new System.Windows.Forms.ComboBox();
+            this.combo_outlookimport = new System.Windows.Forms.ComboBox();
+            this.panel_left = new System.Windows.Forms.Panel();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
+            this.textBox_PicPath = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
             this.panel_right.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MyDataGridView)).BeginInit();
             this.panel_left.SuspendLayout();
@@ -152,6 +157,10 @@
             // panel_right
             // 
             this.panel_right.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.panel_right.Controls.Add(this.label10);
+            this.panel_right.Controls.Add(this.textBox_PicPath);
+            this.panel_right.Controls.Add(this.label9);
+            this.panel_right.Controls.Add(this.combo_picexport);
             this.panel_right.Controls.Add(this.label2);
             this.panel_right.Controls.Add(this.combo_prefix);
             this.panel_right.Location = new System.Drawing.Point(633, 533);
@@ -159,10 +168,32 @@
             this.panel_right.Size = new System.Drawing.Size(367, 104);
             this.panel_right.TabIndex = 7;
             // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(12, 31);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(118, 13);
+            this.label9.TabIndex = 4;
+            this.label9.Text = "Export Contact Pictures";
+            // 
+            // combo_picexport
+            // 
+            this.combo_picexport.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.combo_picexport.FormattingEnabled = true;
+            this.combo_picexport.Items.AddRange(new object[] {
+            "No",
+            "Yes"});
+            this.combo_picexport.Location = new System.Drawing.Point(138, 27);
+            this.combo_picexport.Name = "combo_picexport";
+            this.combo_picexport.Size = new System.Drawing.Size(221, 21);
+            this.combo_picexport.TabIndex = 3;
+            this.toolTip1.SetToolTip(this.combo_picexport, "Please select whether you want to export contact pictures or ignore them\r\n");
+            // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 10);
+            this.label2.Location = new System.Drawing.Point(12, 6);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(113, 13);
             this.label2.TabIndex = 2;
@@ -182,7 +213,7 @@
             "0032 (BE - Belgium)",
             "001 (US - United States)",
             "Custom Prefix Code"});
-            this.combo_prefix.Location = new System.Drawing.Point(138, 6);
+            this.combo_prefix.Location = new System.Drawing.Point(138, 2);
             this.combo_prefix.Name = "combo_prefix";
             this.combo_prefix.Size = new System.Drawing.Size(221, 21);
             this.combo_prefix.TabIndex = 0;
@@ -268,14 +299,13 @@
             // btn_save_Outlook
             // 
             this.btn_save_Outlook.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn_save_Outlook.Enabled = false;
             this.btn_save_Outlook.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn_save_Outlook.Location = new System.Drawing.Point(836, 71);
             this.btn_save_Outlook.Name = "btn_save_Outlook";
             this.btn_save_Outlook.Size = new System.Drawing.Size(167, 35);
             this.btn_save_Outlook.TabIndex = 15;
             this.btn_save_Outlook.Text = "Outlook";
-            this.toolTip1.SetToolTip(this.btn_save_Outlook, "Not implemented yet!");
+            this.toolTip1.SetToolTip(this.btn_save_Outlook, "Save contacts to an Outlook folder of your choice!");
             this.btn_save_Outlook.UseVisualStyleBackColor = true;
             this.btn_save_Outlook.Click += new System.EventHandler(this.btn_save_Outlook_Click);
             // 
@@ -302,7 +332,8 @@
             this.ZIP,
             this.City,
             this.eMail,
-            this.VIP});
+            this.VIP,
+            this.Photo});
             this.MyDataGridView.Location = new System.Drawing.Point(177, 32);
             this.MyDataGridView.MultiSelect = false;
             this.MyDataGridView.Name = "MyDataGridView";
@@ -310,6 +341,126 @@
             this.MyDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.MyDataGridView.Size = new System.Drawing.Size(653, 495);
             this.MyDataGridView.TabIndex = 17;
+            // 
+            // Fullname
+            // 
+            this.Fullname.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.Fullname.HeaderText = "Combined Name";
+            this.Fullname.Name = "Fullname";
+            this.Fullname.ReadOnly = true;
+            this.Fullname.Width = 101;
+            // 
+            // MyColLastname
+            // 
+            this.MyColLastname.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.MyColLastname.HeaderText = "Lastname";
+            this.MyColLastname.Name = "MyColLastname";
+            this.MyColLastname.ReadOnly = true;
+            this.MyColLastname.Width = 78;
+            // 
+            // MyColFirstname
+            // 
+            this.MyColFirstname.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.MyColFirstname.HeaderText = "Firstname";
+            this.MyColFirstname.Name = "MyColFirstname";
+            this.MyColFirstname.ReadOnly = true;
+            this.MyColFirstname.Width = 77;
+            // 
+            // MyColCompany
+            // 
+            this.MyColCompany.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.MyColCompany.HeaderText = "Company";
+            this.MyColCompany.Name = "MyColCompany";
+            this.MyColCompany.ReadOnly = true;
+            this.MyColCompany.Width = 76;
+            // 
+            // MyColHome
+            // 
+            this.MyColHome.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.MyColHome.HeaderText = "Home";
+            this.MyColHome.Name = "MyColHome";
+            this.MyColHome.ReadOnly = true;
+            this.MyColHome.Width = 60;
+            // 
+            // MyColWork
+            // 
+            this.MyColWork.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.MyColWork.HeaderText = "Work";
+            this.MyColWork.Name = "MyColWork";
+            this.MyColWork.ReadOnly = true;
+            this.MyColWork.Width = 58;
+            // 
+            // MyColMobile
+            // 
+            this.MyColMobile.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.MyColMobile.HeaderText = "Mobile";
+            this.MyColMobile.Name = "MyColMobile";
+            this.MyColMobile.ReadOnly = true;
+            this.MyColMobile.Width = 63;
+            // 
+            // MyColHomeFax
+            // 
+            this.MyColHomeFax.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.MyColHomeFax.HeaderText = "HomeFax";
+            this.MyColHomeFax.Name = "MyColHomeFax";
+            this.MyColHomeFax.ReadOnly = true;
+            this.MyColHomeFax.Width = 77;
+            // 
+            // MyColWorkFax
+            // 
+            this.MyColWorkFax.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.MyColWorkFax.HeaderText = "WorkFax";
+            this.MyColWorkFax.Name = "MyColWorkFax";
+            this.MyColWorkFax.ReadOnly = true;
+            this.MyColWorkFax.Width = 75;
+            // 
+            // Street
+            // 
+            this.Street.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.Street.HeaderText = "Street";
+            this.Street.Name = "Street";
+            this.Street.ReadOnly = true;
+            this.Street.Width = 60;
+            // 
+            // ZIP
+            // 
+            this.ZIP.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.ZIP.HeaderText = "ZIP Code";
+            this.ZIP.Name = "ZIP";
+            this.ZIP.ReadOnly = true;
+            this.ZIP.Width = 71;
+            // 
+            // City
+            // 
+            this.City.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.City.HeaderText = "City";
+            this.City.Name = "City";
+            this.City.ReadOnly = true;
+            this.City.Width = 49;
+            // 
+            // eMail
+            // 
+            this.eMail.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.eMail.HeaderText = "eMail";
+            this.eMail.Name = "eMail";
+            this.eMail.ReadOnly = true;
+            this.eMail.Width = 57;
+            // 
+            // VIP
+            // 
+            this.VIP.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.VIP.HeaderText = "VIP";
+            this.VIP.Name = "VIP";
+            this.VIP.ReadOnly = true;
+            this.VIP.Width = 49;
+            // 
+            // Photo
+            // 
+            this.Photo.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.Photo.HeaderText = "Photo";
+            this.Photo.Name = "Photo";
+            this.Photo.ReadOnly = true;
+            this.Photo.Width = 60;
             // 
             // label6
             // 
@@ -477,131 +628,22 @@
             this.label8.TabIndex = 23;
             this.label8.Text = "Options affecting Export";
             // 
-            // Fullname
+            // textBox_PicPath
             // 
-            this.Fullname.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.Fullname.FillWeight = 30F;
-            this.Fullname.HeaderText = "Combined Name";
-            this.Fullname.Name = "Fullname";
-            this.Fullname.ReadOnly = true;
-            this.Fullname.Width = 101;
+            this.textBox_PicPath.Location = new System.Drawing.Point(15, 73);
+            this.textBox_PicPath.Name = "textBox_PicPath";
+            this.textBox_PicPath.Size = new System.Drawing.Size(344, 20);
+            this.textBox_PicPath.TabIndex = 5;
+            this.textBox_PicPath.Text = "file:///var/InternerSpeicher/FRITZ/fonpix-custom/";
             // 
-            // MyColLastname
+            // label10
             // 
-            this.MyColLastname.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.MyColLastname.FillWeight = 20F;
-            this.MyColLastname.HeaderText = "Lastname";
-            this.MyColLastname.Name = "MyColLastname";
-            this.MyColLastname.ReadOnly = true;
-            this.MyColLastname.Width = 78;
-            // 
-            // MyColFirstname
-            // 
-            this.MyColFirstname.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.MyColFirstname.FillWeight = 20F;
-            this.MyColFirstname.HeaderText = "Firstname";
-            this.MyColFirstname.Name = "MyColFirstname";
-            this.MyColFirstname.ReadOnly = true;
-            this.MyColFirstname.Width = 77;
-            // 
-            // MyColCompany
-            // 
-            this.MyColCompany.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.MyColCompany.FillWeight = 20F;
-            this.MyColCompany.HeaderText = "Company";
-            this.MyColCompany.Name = "MyColCompany";
-            this.MyColCompany.ReadOnly = true;
-            this.MyColCompany.Width = 76;
-            // 
-            // MyColHome
-            // 
-            this.MyColHome.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.MyColHome.FillWeight = 15F;
-            this.MyColHome.HeaderText = "Home";
-            this.MyColHome.Name = "MyColHome";
-            this.MyColHome.ReadOnly = true;
-            this.MyColHome.Width = 60;
-            // 
-            // MyColWork
-            // 
-            this.MyColWork.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.MyColWork.FillWeight = 15F;
-            this.MyColWork.HeaderText = "Work";
-            this.MyColWork.Name = "MyColWork";
-            this.MyColWork.ReadOnly = true;
-            this.MyColWork.Width = 58;
-            // 
-            // MyColMobile
-            // 
-            this.MyColMobile.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.MyColMobile.FillWeight = 15F;
-            this.MyColMobile.HeaderText = "Mobile";
-            this.MyColMobile.Name = "MyColMobile";
-            this.MyColMobile.ReadOnly = true;
-            this.MyColMobile.Width = 63;
-            // 
-            // MyColHomeFax
-            // 
-            this.MyColHomeFax.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.MyColHomeFax.FillWeight = 15F;
-            this.MyColHomeFax.HeaderText = "HomeFax";
-            this.MyColHomeFax.Name = "MyColHomeFax";
-            this.MyColHomeFax.ReadOnly = true;
-            this.MyColHomeFax.Width = 77;
-            // 
-            // MyColWorkFax
-            // 
-            this.MyColWorkFax.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.MyColWorkFax.FillWeight = 15F;
-            this.MyColWorkFax.HeaderText = "WorkFax";
-            this.MyColWorkFax.Name = "MyColWorkFax";
-            this.MyColWorkFax.ReadOnly = true;
-            this.MyColWorkFax.Width = 75;
-            // 
-            // Street
-            // 
-            this.Street.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.Street.FillWeight = 15F;
-            this.Street.HeaderText = "Street";
-            this.Street.Name = "Street";
-            this.Street.ReadOnly = true;
-            this.Street.Width = 60;
-            // 
-            // ZIP
-            // 
-            this.ZIP.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.ZIP.FillWeight = 7F;
-            this.ZIP.HeaderText = "ZIP Code";
-            this.ZIP.Name = "ZIP";
-            this.ZIP.ReadOnly = true;
-            this.ZIP.Width = 71;
-            // 
-            // City
-            // 
-            this.City.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.City.FillWeight = 12F;
-            this.City.HeaderText = "City";
-            this.City.Name = "City";
-            this.City.ReadOnly = true;
-            this.City.Width = 49;
-            // 
-            // eMail
-            // 
-            this.eMail.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.eMail.FillWeight = 20F;
-            this.eMail.HeaderText = "eMail";
-            this.eMail.Name = "eMail";
-            this.eMail.ReadOnly = true;
-            this.eMail.Width = 57;
-            // 
-            // VIP
-            // 
-            this.VIP.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.VIP.FillWeight = 6F;
-            this.VIP.HeaderText = "VIP";
-            this.VIP.Name = "VIP";
-            this.VIP.ReadOnly = true;
-            this.VIP.Width = 49;
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(14, 56);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(175, 13);
+            this.label10.TabIndex = 6;
+            this.label10.Text = "Fritz!Box path to embedded images:";
             // 
             // Form1
             // 
@@ -687,6 +729,11 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn City;
         private System.Windows.Forms.DataGridViewTextBoxColumn eMail;
         private System.Windows.Forms.DataGridViewTextBoxColumn VIP;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Photo;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.ComboBox combo_picexport;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.TextBox textBox_PicPath;
     }
 }
 

@@ -11,11 +11,17 @@ namespace Fritz_XML_Wizard
     public partial class Form1 : Form
     {
         System.Collections.Hashtable myGroupDataHash;
+        string MySaveFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + System.IO.Path.DirectorySeparatorChar + "ContactConversionWizard";
 
         public Form1()
         {
             InitializeComponent();
             this.Text = this.ProductName + " v" + Application.ProductVersion;
+
+            if (!System.IO.Directory.Exists(MySaveFolder))
+            { System.IO.Directory.CreateDirectory(MySaveFolder); }
+
+            
             myGroupDataHash = new System.Collections.Hashtable();
 
             // initialize country selection combobox to the country the windows OS is set to
@@ -53,6 +59,7 @@ namespace Fritz_XML_Wizard
             combo_typeprefer.SelectedIndex = 0;
             combo_outlookimport.SelectedIndex = 0;
             combo_VIP.SelectedIndex = 0;
+            combo_picexport.SelectedIndex = 0;
         }
 
         private string CleanUpNumber(string number, string country_prefix)
@@ -307,7 +314,7 @@ namespace Fritz_XML_Wizard
                 btn_read_FritzAdress.Enabled = true;
                 btn_read_SnomCSV8.Enabled = false;   // needs implementing
 
-                btn_save_Outlook.Enabled = false;    // needs implementing
+                btn_save_Outlook.Enabled = true;
                 btn_save_FritzXML.Enabled = true;
                 btn_save_vCard.Enabled = false;      // needs implementing
                 btn_save_FritzAdress.Enabled = true;
@@ -347,8 +354,12 @@ namespace Fritz_XML_Wizard
             {
                 // extract GroupDataList from hashtable contents
                 GroupDataContact contactData = (GroupDataContact)contactHash.Value;
-
-                MyDataGridView.Rows.Add(new string[] { contactData.combinedname, contactData.lastname, contactData.firstname, contactData.company, contactData.home, contactData.work, contactData.mobile, contactData.homefax, contactData.workfax, contactData.street, contactData.zip, contactData.city, contactData.email, contactData.VIP });
+                string PhotoPresent = "No";
+                if (contactData.jpeg != null)
+                {
+                    PhotoPresent = "Yes";
+                }
+                MyDataGridView.Rows.Add(new string[] { contactData.combinedname, contactData.lastname, contactData.firstname, contactData.company, contactData.home, contactData.work, contactData.mobile, contactData.homefax, contactData.workfax, contactData.street, contactData.zip, contactData.city, contactData.email, contactData.VIP, PhotoPresent });
             }
 
             MyDataGridView.Sort(MyDataGridView.Columns[0], 0);
@@ -363,6 +374,44 @@ namespace Fritz_XML_Wizard
         {
             myGroupDataHash = new System.Collections.Hashtable();
             update_datagrid();
+        }
+
+        public bool writeByteArrayToFile(byte[] buff, string fileName)
+        {
+            string savePath = System.IO.Path.Combine(MySaveFolder, fileName);
+
+            bool response = false;
+
+            try
+            {
+                System.IO.FileStream fs = new System.IO.FileStream(savePath, System.IO.FileMode.Create, System.IO.FileAccess.ReadWrite);
+                System.IO.BinaryWriter bw = new System.IO.BinaryWriter(fs);
+                bw.Write(buff);
+                bw.Close();
+                response = true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error writing to file \"" + savePath + "\":" + ex.Message);
+            }
+
+            return response;
+        }
+
+        public Microsoft.Office.Interop.Outlook.Attachment GetContactPhoto(Microsoft.Office.Interop.Outlook.ContactItem contact)
+        {
+            // Find the attchment where PR_ATTACHMENT_CONTACTPHOTO is true
+            foreach (Microsoft.Office.Interop.Outlook.Attachment attachment in contact.Attachments)
+            {
+                bool isContactPhoto = (bool)attachment.PropertyAccessor.GetProperty("http://schemas.microsoft.com/mapi/proptag/0x7FFF000B");
+                if (isContactPhoto)
+                {
+                    return attachment;
+                    // You can then use the Attachment.SaveAsFile method to save the file as a JPEG image.
+                }
+            }
+
+            return null;
         }
 
         // Import Functionality
@@ -475,7 +524,6 @@ namespace Fritz_XML_Wizard
             diable_buttons(false);
         }  // just click handler
 
-
         private ReadDataReturn read_data_Outlook(bool customfolder)
         {
             // read all information from Outlook and save all contacts that have at least one phone or fax number
@@ -537,6 +585,18 @@ namespace Fritz_XML_Wizard
                 myContact.zip = (myContactItem.MailingAddressPostalCode == null) ? string.Empty : myContactItem.MailingAddressPostalCode;
                 myContact.city = (myContactItem.MailingAddressCity == null) ? string.Empty : myContactItem.MailingAddressCity;
                 myContact.email = (myContactItem.Email1Address == null) ? string.Empty : myContactItem.Email1Address;
+
+                // store picture in myContact.jpeg, if present:
+                Microsoft.Office.Interop.Outlook.Attachment myAttachmentPhoto = GetContactPhoto(myContactItem);
+                if (myAttachmentPhoto != null)
+                {
+                    string tempname = System.IO.Path.GetTempFileName();
+                    myAttachmentPhoto.SaveAsFile(tempname);
+                    byte[] encodedDataAsBytes = System.IO.File.ReadAllBytes(tempname);
+                    System.IO.File.Delete(tempname);
+                    myContact.jpeg = encodedDataAsBytes;
+                }
+
                 // generate full name from parts or from FileAs field, depending on combobox selection
                 switch (combo_outlookimport.SelectedIndex)
                 {
@@ -554,6 +614,7 @@ namespace Fritz_XML_Wizard
                 string nickname = (myContactItem.NickName == null) ? string.Empty : myContactItem.NickName;
 
                 myContact.VIP = CheckVIPandSPEEDDIALflags(nickname, NotesBody, false);
+
 
                 if (myContact.combinedname != "" && (myContact.home != string.Empty || myContact.work != string.Empty || myContact.mobile != string.Empty || myContact.homefax != string.Empty || myContact.workfax != string.Empty) && (NotesBody.Contains("CCW-IGNORE") == false))
                 {
@@ -959,6 +1020,18 @@ namespace Fritz_XML_Wizard
 
                     if (vParseLine.StartsWith("CATEGORIES", StringComparison.OrdinalIgnoreCase) == true) { continue; }
                     if (vParseLine.StartsWith("X-ABUID", StringComparison.OrdinalIgnoreCase) == true) { continue; }
+
+                    if (vParseLine.StartsWith("PHOTO", StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        if (vParseLine.StartsWith("PHOTO;BASE64:"))
+                        {
+                            string encodedData = vParseLine.Substring("PHOTO;BASE64:".Length).Replace(" ", "");
+                            byte[] encodedDataAsBytes = System.Convert.FromBase64String(encodedData);
+                            myContact.jpeg = encodedDataAsBytes;
+                        }
+                        continue;
+                    }
+                    
                     if (vParseLine.StartsWith("END:VCARD", StringComparison.OrdinalIgnoreCase) == true)
                     {
                         // übergibt notes und nickname der methode die VIP und Speeddial extrahiert
@@ -1168,7 +1241,11 @@ namespace Fritz_XML_Wizard
 
         private void btn_save_Outlook_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("TODO - Not implemented yet");
+            diable_buttons(true);
+
+            save_data_Outlook(myGroupDataHash);
+            diable_buttons(false);
+
         }    // just click handler
 
         private void btn_save_FritzXML_Click(object sender, EventArgs e)
@@ -1267,14 +1344,101 @@ namespace Fritz_XML_Wizard
             // and reenable user interface
             diable_buttons(false);
         }  // just click handler
+       
+        private void save_data_Outlook(System.Collections.Hashtable workDataHash)
+        {
+            // get the country ID from the combobox or from user input
+            string country_id = RetrieveCountryID(combo_prefix.SelectedItem.ToString());
+
+            // some basic initialization of the outlook support
+            Microsoft.Office.Interop.Outlook.Application outlookObj = null;
+            Microsoft.Office.Interop.Outlook.MAPIFolder outlookFolder = null;
+
+            // connect to outlook, if possible. Else, complain and abort.
+            try { outlookObj = new Microsoft.Office.Interop.Outlook.Application(); }
+            catch (Exception outlook_exception) { MessageBox.Show("Unable to access Outlook!" + Environment.NewLine + Environment.NewLine + "This program needs Outlook to continue, are you sure it's installed and working?" + Environment.NewLine + Environment.NewLine + "Error returned was: " + outlook_exception.ToString() + Environment.NewLine); }
+
+            // sucessfully connected to outlook, do some further setup work
+            Microsoft.Office.Interop.Outlook.NameSpace outlookNS = outlookObj.GetNamespace("MAPI");
+
+            // Allow the user to chose a custom destination folder
+            outlookFolder = outlookNS.PickFolder();
+            if (outlookFolder == null)
+            { return; } // if no folder has been selected, user must have pressed cancel and therefore we abort
+
+            // iterate through the contacts in workDatahash and save them to the selected Outlook Folder
+            int count = 0;
+            foreach (System.Collections.DictionaryEntry contactHash in workDataHash)
+            {
+                // extract GroupDataList from hashtable contents
+                GroupDataContact contactData = (GroupDataContact)contactHash.Value;
+
+                // clean up phone number
+                contactData.home = CleanUpNumber(contactData.home, country_id);
+                contactData.work = CleanUpNumber(contactData.work, country_id);
+                contactData.homefax = CleanUpNumber(contactData.homefax, country_id);
+                contactData.workfax = CleanUpNumber(contactData.workfax, country_id);
+                contactData.mobile = CleanUpNumber(contactData.mobile, country_id);
+
+                // create new contact
+                Microsoft.Office.Interop.Outlook.ContactItem newContact = (Microsoft.Office.Interop.Outlook.ContactItem)outlookFolder.Items.Add(Microsoft.Office.Interop.Outlook.OlItemType.olContactItem);
+
+                newContact.FirstName = contactData.firstname;
+                newContact.LastName = contactData.lastname;
+                newContact.Email1Address = contactData.email;
+                newContact.MailingAddressCity = contactData.city;
+                newContact.MailingAddressStreet = contactData.street;
+                newContact.MailingAddressPostalCode = contactData.zip;
+                newContact.HomeTelephoneNumber = contactData.home;
+                newContact.HomeFaxNumber = contactData.homefax;
+                newContact.BusinessTelephoneNumber = contactData.work;
+                newContact.BusinessFaxNumber = contactData.workfax;
+                newContact.FileAs = contactData.combinedname;
+                newContact.CompanyName = contactData.company;
+                newContact.MobileTelephoneNumber = contactData.mobile;
+
+                // VIP Functionality (fully implemented now)
+                if (contactData.VIP.StartsWith("Yes")) { newContact.Body += "VIP" + Environment.NewLine; }
+
+                // Speeddial Functionality (fully implemented now)
+                if (contactData.VIP.IndexOf(":") != -1)
+                { // then we have a quickdial number then add it to the prio entry
+                    int qd_number = Convert.ToInt32(contactData.VIP.Substring(contactData.VIP.IndexOf(":") + 1));
+                    newContact.Body += "SPEEDDIAL:" + qd_number.ToString("00");
+                }
+
+                // Contact Picture Functionality, more info on this here: http://www.c-sharpcorner.com/UploadFile/Nimusoft/OutlookwithNET06262007081811AM/OutlookwithNET.aspx
+                if (combo_picexport.SelectedIndex == 1 && contactData.jpeg != null)
+                {
+                    string tempname = System.IO.Path.GetTempFileName();
+                    System.IO.File.WriteAllBytes(tempname, contactData.jpeg);
+                    newContact.AddPicture(tempname);
+                    System.IO.File.Delete(tempname);
+                }
+
+                newContact.Save();
+                count++;
+
+            } // end of foreach loop for the contacts
+
+            // tell the user what has been done
+            MessageBox.Show(count + " contacts have been written to the selected Outlook folder!" + Environment.NewLine);
 
 
-        // Outlook Export not implemented here yet
+        }
 
         private void save_data_FritzXML(string filename, System.Collections.Hashtable workDataHash)
         {
             // get the country ID from the combobox or from user input
             string country_id = RetrieveCountryID(combo_prefix.SelectedItem.ToString());
+
+            // create output path for fonpix, if necessary
+            string pic_export_path = "";
+            if (combo_picexport.SelectedIndex == 1)
+            {
+                pic_export_path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(filename), System.IO.Path.GetFileNameWithoutExtension(filename) + " - fonpix");
+                if (!System.IO.Directory.Exists(pic_export_path)) { System.IO.Directory.CreateDirectory(pic_export_path); }
+            }
 
             // process with exporting
             string resultstring;
@@ -1307,10 +1471,22 @@ namespace Fritz_XML_Wizard
                 contactData.work = CleanUpNumber(contactData.work, country_id);
                 contactData.mobile = CleanUpNumber(contactData.mobile, country_id);
                 // write contact header
-                contactstring += "<contact>\n<category>";
-                if (contactData.VIP.StartsWith("Yes")) { contactstring += "1"; } // if VIP then assign category 1, else 0
-                else { contactstring += "0"; }
-                contactstring += "</category>\n<person>\n<realName>" + SaveAsName + "</realName>\n<imageUrl />\n</person>\n<telephony>\n";
+
+                // generate VIP ID - if VIP then assign category 1, else 0
+                string VIPid = "0";
+                if (contactData.VIP.StartsWith("Yes")) { VIPid = "1"; }
+
+
+                // if picture export is set to yes and picture is stored, then export it to a jpeg file and add imageURL to export XML
+                string imageURLstring = "";
+                if (combo_picexport.SelectedIndex == 1 && contactData.jpeg != null)
+                {
+                    string picfile = System.IO.Path.ChangeExtension(System.IO.Path.GetRandomFileName(), "jpg");
+                    writeByteArrayToFile(contactData.jpeg, System.IO.Path.Combine(pic_export_path, picfile));
+                    imageURLstring = "<imageURL>" + textBox_PicPath.Text + picfile + "</imageURL>\n";
+                }
+
+                contactstring += "<contact>\n<category>" + VIPid + "</category>\n<person>\n<realName>" + SaveAsName + "</realName>\n" + imageURLstring + "</person>\n<telephony>\n";
 
                 // prepare quickdial and preferred number setting:
                 string pref_QD_string = "prio=\"1\"";
@@ -1720,6 +1896,7 @@ namespace Fritz_XML_Wizard
         public string mobile;
         public string combinedname;
         public string VIP;
+        public byte[] jpeg;
         public string preferred
         {
             get
@@ -1768,6 +1945,7 @@ namespace Fritz_XML_Wizard
         email = "";
         combinedname = "";
         VIP = "";
+        jpeg = null;
         }
 
     }         // class to store all the information collected about a contact before adding it to a hashtable of those
