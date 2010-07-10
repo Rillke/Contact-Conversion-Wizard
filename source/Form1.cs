@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Fritz_XML_Wizard
+namespace Contact_Conversion_Wizard
 {
     public partial class Form1 : Form
     {
@@ -294,7 +294,6 @@ namespace Fritz_XML_Wizard
                 btn_read_FritzXML.Enabled = false;
                 btn_read_vCard.Enabled = false;
                 btn_read_FritzAdress.Enabled = false;
-                btn_read_SnomCSV8.Enabled = false;
 
                 btn_save_Outlook.Enabled = false;
                 btn_save_FritzXML.Enabled = false;
@@ -312,14 +311,13 @@ namespace Fritz_XML_Wizard
                 btn_read_FritzXML.Enabled = true;
                 btn_read_vCard.Enabled = true;
                 btn_read_FritzAdress.Enabled = true;
-                btn_read_SnomCSV8.Enabled = false;   // needs implementing
 
                 btn_save_Outlook.Enabled = true;
                 btn_save_FritzXML.Enabled = true;
                 btn_save_vCard.Enabled = false;      // needs implementing
                 btn_save_FritzAdress.Enabled = true;
                 btn_save_SnomCSV7.Enabled = true;
-                btn_save_SnomCSV8.Enabled = false;   // needs implementing
+                btn_save_SnomCSV8.Enabled = true;
                 
                 button_clear.Enabled = true;
 
@@ -403,14 +401,15 @@ namespace Fritz_XML_Wizard
             // Find the attchment where PR_ATTACHMENT_CONTACTPHOTO is true
             foreach (Microsoft.Office.Interop.Outlook.Attachment attachment in contact.Attachments)
             {
-                bool isContactPhoto = (bool)attachment.PropertyAccessor.GetProperty("http://schemas.microsoft.com/mapi/proptag/0x7FFF000B");
-                if (isContactPhoto)
-                {
-                    return attachment;
-                    // You can then use the Attachment.SaveAsFile method to save the file as a JPEG image.
+                try
+                    {
+                    bool isContactPhoto = (bool)attachment.PropertyAccessor.GetProperty("http://schemas.microsoft.com/mapi/proptag/0x7FFF000B");
+                    if (isContactPhoto) { return attachment; } // You can then use the Attachment.SaveAsFile method to save the file as a JPEG image.
+                    }
+                catch 
+                    { // do nothing, somehow attachment processing lead to a crash }
                 }
             }
-
             return null;
         }
 
@@ -502,27 +501,6 @@ namespace Fritz_XML_Wizard
             diable_buttons(false);
         }   // just click handler
 
-        private void btn_read_SnomXMLv8_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog Load_Dialog = new OpenFileDialog();
-            Load_Dialog.Title = "Select the Snom v8 XML file you wish to load";
-            Load_Dialog.Filter = "CSV Files|*.csv";
-
-            if (Load_Dialog.ShowDialog() == DialogResult.Cancel)
-            {
-                return;
-            }
-
-            // processing starts, so now we will disable the buttons first to make sure the user knows this by not having buttons to click on
-            diable_buttons(true);
-
-            ReadDataReturn myReadDataReturn = read_data_SnomXMLv8(Load_Dialog.FileName);
-            if (myReadDataReturn.duplicates != "") MessageBox.Show(myReadDataReturn.duplicates, "The following duplicate entries could not be imported");
-            add_to_database(myReadDataReturn.importedHash);
-            update_datagrid();
-
-            diable_buttons(false);
-        }  // just click handler
 
         private ReadDataReturn read_data_Outlook(bool customfolder)
         {
@@ -587,14 +565,17 @@ namespace Fritz_XML_Wizard
                 myContact.email = (myContactItem.Email1Address == null) ? string.Empty : myContactItem.Email1Address;
 
                 // store picture in myContact.jpeg, if present:
-                Microsoft.Office.Interop.Outlook.Attachment myAttachmentPhoto = GetContactPhoto(myContactItem);
-                if (myAttachmentPhoto != null)
+                if (myContactItem.HasPicture == true)
                 {
-                    string tempname = System.IO.Path.GetTempFileName();
-                    myAttachmentPhoto.SaveAsFile(tempname);
-                    byte[] encodedDataAsBytes = System.IO.File.ReadAllBytes(tempname);
-                    System.IO.File.Delete(tempname);
-                    myContact.jpeg = encodedDataAsBytes;
+                    Microsoft.Office.Interop.Outlook.Attachment myAttachmentPhoto = GetContactPhoto(myContactItem);
+                    if (myAttachmentPhoto != null)
+                    {
+                        string tempname = System.IO.Path.GetTempFileName();
+                        myAttachmentPhoto.SaveAsFile(tempname);
+                        byte[] encodedDataAsBytes = System.IO.File.ReadAllBytes(tempname);
+                        System.IO.File.Delete(tempname);
+                        myContact.jpeg = encodedDataAsBytes;
+                    }
                 }
 
                 // generate full name from parts or from FileAs field, depending on combobox selection
@@ -727,7 +708,7 @@ namespace Fritz_XML_Wizard
 
             string duplicates = "";
 
-            try
+            // try
             {
                 // do whats necessary to import a VCF File!
                 // for further use: spec can be found here: http://www.ietf.org/rfc/rfc2426.txt
@@ -736,6 +717,7 @@ namespace Fritz_XML_Wizard
                 string vcard_fullname = "";
                 string vcard_notes = "";
                 string vcard_nickname = "";
+                char[] char_split_array = { ';', ',' };
 
                 int address_value_stored = 0;
                 int email_value_stored = 0;
@@ -830,8 +812,8 @@ namespace Fritz_XML_Wizard
 
                         string types = vParseLine.Substring(0, vParseLine.IndexOf(":"));
                         types = types.ToLower().Replace("type=", "");
-                        string[] typearray = types.Split(';');
-
+                        string[] typearray = types.Split(char_split_array);
+                        
                         bool bit_preferred = false;
                         bool bit_fax = false;
                         string bit_type = "";
@@ -918,7 +900,7 @@ namespace Fritz_XML_Wizard
 
                         string types = vParseLine.Substring(0, vParseLine.IndexOf(":"));
                         types = types.ToLower().Replace("type=", "");
-                        string[] typearray = types.Split(';');
+                        string[] typearray = types.Split(char_split_array);
 
                         bool bit_preferred = false;
                         string bit_type = "";
@@ -1037,8 +1019,12 @@ namespace Fritz_XML_Wizard
                         // übergibt notes und nickname der methode die VIP und Speeddial extrahiert
                         myContact.VIP = CheckVIPandSPEEDDIALflags(vcard_nickname, vcard_notes, false);
 
-                        // if vcard_fullname is identical to companyname, use only company name and do not use N: line (which contains duplicate information)
-                        if (myContact.company == vcard_fullname) { myContact.firstname = ""; myContact.lastname = ""; }
+                        // if vcard_fullname is identical to companyname (but not empty), use only company name and do not use N: line (which contains duplicate information)
+                        if ((myContact.company == vcard_fullname) && (vcard_fullname != "")) { myContact.firstname = ""; myContact.lastname = ""; }
+
+                        // if all name fields except (Bugfix for exports from jFritz v0.7.3.10, not needed for 0.7.3.33 which properly exports a "N: " field as required)
+                        if (myContact.firstname == "" && myContact.lastname == "" && myContact.company == "" && vcard_fullname != "") { myContact.lastname = vcard_fullname; }
+
 
                         // generate fullname from parts for hash-ident
                         myContact.combinedname = GenerateFullName(myContact.firstname, myContact.lastname, myContact.company, combo_namestyle.SelectedIndex);
@@ -1059,10 +1045,10 @@ namespace Fritz_XML_Wizard
                 }
 
             }
-            catch (Exception vcard_exception)
-            {
-                MessageBox.Show("Unable to parse given vCard file!" + Environment.NewLine + "Contact Conversion Wizard has been tested with vCard files generated by MacOS X 10.6 \"Address book\" and Google Mail vCard exports" + Environment.NewLine + "If you think this file should have been imported properly, please report a bug!" + Environment.NewLine + Environment.NewLine + "Error returned was: " + vcard_exception.ToString() + Environment.NewLine);
-            }
+            // catch (Exception vcard_exception)
+            // {
+            //     MessageBox.Show("Unable to parse given vCard file!" + Environment.NewLine + "Contact Conversion Wizard has been tested with vCard files generated by MacOS X 10.6 \"Address book\" and Google Mail vCard exports" + Environment.NewLine + "If you think this file should have been imported properly, please report a bug!" + Environment.NewLine + Environment.NewLine + "Error returned was: " + vcard_exception.ToString() + Environment.NewLine);
+            // }
 
             return (new ReadDataReturn(duplicates, loadDataHash));
         }     // should work fine
@@ -1162,80 +1148,6 @@ namespace Fritz_XML_Wizard
             file1.Close();
             return (new ReadDataReturn(duplicates, loadDataHash));
         }                   // should work fine
-
-        private ReadDataReturn read_data_SnomXMLv8(string filename) 
-        {
-            // WORK IN PROGRESS, so far this is the code from import Fritz!XML
-
-            System.Collections.Hashtable loadDataHash = new System.Collections.Hashtable();
-            string duplicates = "";
-
-            GroupDataContact myContact = new GroupDataContact();
-            System.IO.StreamReader file1 = new System.IO.StreamReader(filename, Encoding.GetEncoding("ISO-8859-1"));
-
-            try
-            {
-
-                System.Xml.XmlReaderSettings xml_settings = new System.Xml.XmlReaderSettings();
-                xml_settings.ConformanceLevel = System.Xml.ConformanceLevel.Fragment;
-                xml_settings.IgnoreWhitespace = true;
-                xml_settings.IgnoreComments = true;
-                System.Xml.XmlReader r = System.Xml.XmlReader.Create(file1, xml_settings);
-
-                r.MoveToContent();
-
-                while (r.ReadToFollowing("contact"))                // loop starts here, if we are able to arrive at a new contact
-                {
-                    myContact = new GroupDataContact();                 // then we first clean out myContact Storage
-
-                    // and then proceed to retrieve the name
-                    r.ReadToFollowing("person");                            // we arrive at person enclosure
-                    r.ReadToFollowing("realName");                          // we arrive at person enclosure
-                    myContact.lastname = r.ReadElementContentAsString();    // we read the person enclosure's contents
-                    myContact.combinedname = myContact.lastname; // and also save them to the combined name field, because thats the only one we have
-                    r.ReadToFollowing("telephony");                         // we go to the phone number section
-                    r.ReadToFollowing("number");                            // retrieve the first number
-
-                    // and then retrieve all Elements in the number part
-                    while (r.NodeType == System.Xml.XmlNodeType.Element)
-                    {
-                        if (r.GetAttribute("type") == "home")
-                        {
-                            if (r.GetAttribute("prio") == "1") { myContact.preferred = "home"; }
-                            myContact.home = r.ReadElementContentAsString();
-                        }
-                        if (r.GetAttribute("type") == "work")
-                        {
-                            if (r.GetAttribute("prio") == "1") { myContact.preferred = "work"; }
-                            myContact.work = r.ReadElementContentAsString();
-                        }
-                        if (r.GetAttribute("type") == "mobile")
-                        {
-                            if (r.GetAttribute("prio") == "1") { myContact.preferred = "mobile"; }
-                            myContact.mobile = r.ReadElementContentAsString();
-                        }
-                    }
-
-
-                    // Now all information should be stored in the array, so save it to the hashtable!
-                    try
-                    {
-                        loadDataHash.Add(myContact.lastname, myContact);
-                    }
-                    catch (ArgumentException)
-                    { duplicates += "Duplicate entry in source (Fritz!Box XML file): " + myContact.combinedname + Environment.NewLine; }
-
-                }
-
-            }
-            catch (System.Xml.XmlException e)
-            {
-                Console.WriteLine("error occured: " + e.Message);
-            }
-
-            file1.Close();
-            return (new ReadDataReturn(duplicates, loadDataHash));
-        }                  // needs full implementing (nothing here so far)
 
         // Export Functionality
 
@@ -1374,11 +1286,11 @@ namespace Fritz_XML_Wizard
                 GroupDataContact contactData = (GroupDataContact)contactHash.Value;
 
                 // clean up phone number
-                contactData.home = CleanUpNumber(contactData.home, country_id);
-                contactData.work = CleanUpNumber(contactData.work, country_id);
-                contactData.homefax = CleanUpNumber(contactData.homefax, country_id);
-                contactData.workfax = CleanUpNumber(contactData.workfax, country_id);
-                contactData.mobile = CleanUpNumber(contactData.mobile, country_id);
+                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id);
+                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id);
+                string CleanUpNumberHomefax = CleanUpNumber(contactData.homefax, country_id);
+                string CleanUpNumberWorkfax = CleanUpNumber(contactData.workfax, country_id);
+                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id);
 
                 // create new contact
                 Microsoft.Office.Interop.Outlook.ContactItem newContact = (Microsoft.Office.Interop.Outlook.ContactItem)outlookFolder.Items.Add(Microsoft.Office.Interop.Outlook.OlItemType.olContactItem);
@@ -1389,13 +1301,13 @@ namespace Fritz_XML_Wizard
                 newContact.MailingAddressCity = contactData.city;
                 newContact.MailingAddressStreet = contactData.street;
                 newContact.MailingAddressPostalCode = contactData.zip;
-                newContact.HomeTelephoneNumber = contactData.home;
-                newContact.HomeFaxNumber = contactData.homefax;
-                newContact.BusinessTelephoneNumber = contactData.work;
-                newContact.BusinessFaxNumber = contactData.workfax;
+                newContact.HomeTelephoneNumber = CleanUpNumberHome;
+                newContact.HomeFaxNumber = CleanUpNumberHomefax;
+                newContact.BusinessTelephoneNumber = CleanUpNumberWork;
+                newContact.BusinessFaxNumber = CleanUpNumberWorkfax;
                 newContact.FileAs = contactData.combinedname;
                 newContact.CompanyName = contactData.company;
-                newContact.MobileTelephoneNumber = contactData.mobile;
+                newContact.MobileTelephoneNumber = CleanUpNumberMobile;
 
                 // VIP Functionality (fully implemented now)
                 if (contactData.VIP.StartsWith("Yes")) { newContact.Body += "VIP" + Environment.NewLine; }
@@ -1467,9 +1379,10 @@ namespace Fritz_XML_Wizard
                 // replace "&"
                 SaveAsName = SaveAsName.Replace("&", "&amp;");
                 // clean up phone number
-                contactData.home = CleanUpNumber(contactData.home, country_id);
-                contactData.work = CleanUpNumber(contactData.work, country_id);
-                contactData.mobile = CleanUpNumber(contactData.mobile, country_id);
+                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id);
+                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id);
+                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id);
+
                 // write contact header
 
                 // generate VIP ID - if VIP then assign category 1, else 0
@@ -1498,33 +1411,33 @@ namespace Fritz_XML_Wizard
 
 
                 // add home phone number
-                if (contactData.home != "")
+                if (CleanUpNumberHome != "")
                 {
                     if (contactData.preferred == "home")
-                    { contactstring += "<number type=\"home\" " + pref_QD_string + ">" + contactData.home + "</number>\n"; }
+                    { contactstring += "<number type=\"home\" " + pref_QD_string + ">" + CleanUpNumberHome + "</number>\n"; }
                     else
-                    { contactstring += "<number type=\"home\">" + contactData.home + "</number>\n"; }
+                    { contactstring += "<number type=\"home\">" + CleanUpNumberHome + "</number>\n"; }
 
                 }
                 else { contactstring += "<number type=\"home\" />\n"; }
 
                 // add work phone number
-                if (contactData.work != "")
+                if (CleanUpNumberWork != "")
                 {
                     if (contactData.preferred == "work")
-                    { contactstring += "<number type=\"work\" " + pref_QD_string + ">" + contactData.work + "</number>\n"; }
+                    { contactstring += "<number type=\"work\" " + pref_QD_string + ">" + CleanUpNumberWork + "</number>\n"; }
                     else
-                    { contactstring += "<number type=\"work\">" + contactData.work + "</number>\n"; }
+                    { contactstring += "<number type=\"work\">" + CleanUpNumberWork + "</number>\n"; }
                 }
                 else { contactstring += "<number type=\"work\" />\n"; }
 
                 // add mobile phone number
-                if (contactData.mobile != "")
+                if (CleanUpNumberMobile != "")
                 {
                     if (contactData.preferred == "mobile")
-                    { contactstring += "<number type=\"mobile\" " + pref_QD_string + ">" + contactData.mobile + "</number>\n"; }
+                    { contactstring += "<number type=\"mobile\" " + pref_QD_string + ">" + CleanUpNumberMobile + "</number>\n"; }
                     else
-                    { contactstring += "<number type=\"mobile\">" + contactData.mobile + "</number>\n"; }
+                    { contactstring += "<number type=\"mobile\">" + CleanUpNumberMobile + "</number>\n"; }
                 }
                 else { contactstring += "<number type=\"mobile\" />\n"; }
 
@@ -1588,33 +1501,33 @@ namespace Fritz_XML_Wizard
                 }
 
                 // clean up phone numbers
-                contactData.homefax = CleanUpNumber(contactData.homefax, country_id);
-                contactData.workfax = CleanUpNumber(contactData.workfax, country_id);
-                contactData.home = CleanUpNumber(contactData.home, country_id);
-                contactData.work = CleanUpNumber(contactData.work, country_id);
-                contactData.mobile = CleanUpNumber(contactData.mobile, country_id);
+                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id);
+                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id);
+                string CleanUpNumberHomefax = CleanUpNumber(contactData.homefax, country_id);
+                string CleanUpNumberWorkfax = CleanUpNumber(contactData.workfax, country_id);
+                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id);
 
                 string[,] save_iterate_array;
 
-                
-                if ((contactData.homefax != "" && contactData.workfax != "") || (contactData.home != "" && contactData.work != ""))
+
+                if ((CleanUpNumberHomefax != "" && CleanUpNumberWorkfax != "") || (CleanUpNumberHome != "" && CleanUpNumberWork != ""))
                 { // we need to save two separate entries since there are there are either seperate phone numbers or fax numbers for work and home (or both)
                     save_iterate_array = new string[2, 4];
                     save_iterate_array[0, 0] = LimitNameLength(contactData.combinedname, 22) + " (privat)";
-                    save_iterate_array[0, 1] = contactData.homefax;
-                    save_iterate_array[0, 2] = contactData.home;
+                    save_iterate_array[0, 1] = CleanUpNumberHomefax;
+                    save_iterate_array[0, 2] = CleanUpNumberHome;
                     save_iterate_array[1, 0] = LimitNameLength(contactData.combinedname, 22) + " (gesch.)";
-                    save_iterate_array[1, 1] = contactData.workfax;
-                    save_iterate_array[1, 2] = contactData.work;
+                    save_iterate_array[1, 1] = CleanUpNumberWorkfax;
+                    save_iterate_array[1, 2] = CleanUpNumberWork;
                 }
                 else
                 { // we need to save only 1 entry
                     save_iterate_array = new string[1, 4];
                     save_iterate_array[0, 0] = LimitNameLength(contactData.combinedname, 31);
-                    if (contactData.homefax != "") { save_iterate_array[0, 1] = contactData.homefax; }
-                    if (contactData.workfax != "") { save_iterate_array[0, 1] = contactData.workfax; }
-                    if (contactData.home != "") { save_iterate_array[0, 2] = contactData.home; }
-                    if (contactData.work != "") { save_iterate_array[0, 2] = contactData.work; }
+                    if (CleanUpNumberHomefax != "") { save_iterate_array[0, 1] = CleanUpNumberHomefax; }
+                    if (CleanUpNumberWorkfax != "") { save_iterate_array[0, 1] = CleanUpNumberWorkfax; }
+                    if (CleanUpNumberHome != "") { save_iterate_array[0, 2] = CleanUpNumberHome; }
+                    if (CleanUpNumberWork != "") { save_iterate_array[0, 2] = CleanUpNumberWork; }
                 }
 
                 // we will now save VIP and speeddial information to the first of those two entries
@@ -1638,7 +1551,7 @@ namespace Fritz_XML_Wizard
 
                     try
                     {
-                        MySaveDataHash.Add(save_iterate_array[i, 0], save_iterate_array[i, 0] + "\t" + contactData.company + "\t" + contactData.lastname + "\t" + contactData.firstname + "\t" + string.Empty + "\t" + contactData.street + "\t" + contactData.zip + "\t" + contactData.city + "\t" + "\t" + save_iterate_array[i, 2] + "\t" + save_iterate_array[i, 1] + "\t" + "\t" + "\t" + "\t" + "\t" + "A" + "\t" + "\t" + save_iterate_array[i, 3] + "\t" + contactData.mobile + "\t" + contactData.email + "\t" + "\r\n");
+                        MySaveDataHash.Add(save_iterate_array[i, 0], save_iterate_array[i, 0] + "\t" + contactData.company + "\t" + contactData.lastname + "\t" + contactData.firstname + "\t" + string.Empty + "\t" + contactData.street + "\t" + contactData.zip + "\t" + contactData.city + "\t" + "\t" + save_iterate_array[i, 2] + "\t" + save_iterate_array[i, 1] + "\t" + "\t" + "\t" + "\t" + "\t" + "A" + "\t" + "\t" + save_iterate_array[i, 3] + "\t" + CleanUpNumberMobile + "\t" + contactData.email + "\t" + "\r\n");
                     }
                     catch (ArgumentException) // unable to add to MySaveFaxDataHash, must mean that something with saveasname is already in there!
                     {
@@ -1685,19 +1598,18 @@ namespace Fritz_XML_Wizard
                 { continue; /* if yes, abort this foreach loop and contine to the next one */ }
 
                 // clean up phone number
-                contactData.home = CleanUpNumber(contactData.home, country_id);
-                contactData.work = CleanUpNumber(contactData.work, country_id);
-                contactData.mobile = CleanUpNumber(contactData.mobile, country_id);
-
+                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id);
+                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id);
+                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id);
 
                 // add privat/gesch. to name if necessary (if two entries for one name necessary)
                 string name_home = contactData.combinedname;
                 string name_work = contactData.combinedname;
                 string name_mobile = contactData.combinedname;
                 int nr_in_use = 0;
-                if (contactData.home != "") { nr_in_use++; }
-                if (contactData.work != "") { nr_in_use++; }
-                if (contactData.mobile != "") { nr_in_use++; }
+                if (CleanUpNumberHome != "") { nr_in_use++; }
+                if (CleanUpNumberWork != "") { nr_in_use++; }
+                if (CleanUpNumberMobile != "") { nr_in_use++; }
 
                 if (nr_in_use > 1)
                 {
@@ -1720,11 +1632,11 @@ namespace Fritz_XML_Wizard
                 }
 
                 // write contact line, maybe twice
-                if (contactData.home != "")
+                if (CleanUpNumberHome != "")
                 {
                     try
                     {
-                        MySaveDataHash.Add(name_home, "\"" + name_home + "\",\"" + contactData.home + "\"\r\n");
+                        MySaveDataHash.Add(name_home, "\"" + name_home + "\",\"" + CleanUpNumberHome + "\"\r\n");
                     }
                     catch (ArgumentException) // unable to add to MySaveFaxDataHash, must mean that something with (modified) contactData.combinedname is already in there!
                     {
@@ -1732,11 +1644,11 @@ namespace Fritz_XML_Wizard
                     }
                 }
 
-                if (contactData.work != "")
+                if (CleanUpNumberWork != "")
                 {
                     try
                     {
-                        MySaveDataHash.Add(name_work, "\"" + name_work + "\",\"" + contactData.work + "\"\r\n");
+                        MySaveDataHash.Add(name_work, "\"" + name_work + "\",\"" + CleanUpNumberWork + "\"\r\n");
                     }
                     catch (ArgumentException) // unable to add to MySaveFaxDataHash, must mean that something with (modified) contactData.combinedname is already in there!
                     {
@@ -1744,11 +1656,11 @@ namespace Fritz_XML_Wizard
                     }
                 }
 
-                if (contactData.mobile != "")
+                if (CleanUpNumberMobile != "")
                 {
                     try
                     {
-                        MySaveDataHash.Add(name_mobile, "\"" + name_mobile + "\",\"" + contactData.mobile + "\"\r\n");
+                        MySaveDataHash.Add(name_mobile, "\"" + name_mobile + "\",\"" + CleanUpNumberMobile + "\"\r\n");
                     }
                     catch (ArgumentException) // unable to add to MySaveFaxDataHash, must mean that something with (modified) contactData.combinedname is already in there!
                     {
@@ -1779,8 +1691,8 @@ namespace Fritz_XML_Wizard
             // process with exporting
             string resultstring;
 
-            // write the header (none needed for snom)
-            resultstring = "\"Name\",\"Number\"\r\n";
+            // write no header (none needed for snom v8)
+            resultstring = "";
 
             System.Collections.Hashtable MySaveDataHash = new System.Collections.Hashtable();
 
@@ -1794,76 +1706,183 @@ namespace Fritz_XML_Wizard
                 { continue; /* if yes, abort this foreach loop and contine to the next one */ }
 
                 // clean up phone number
-                contactData.home = CleanUpNumber(contactData.home, country_id);
-                contactData.work = CleanUpNumber(contactData.work, country_id);
-                contactData.mobile = CleanUpNumber(contactData.mobile, country_id);
+                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id);
+                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id);
+                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id);
 
+                // limit full name to 31 chars
+                string name_contact = LimitNameLength(contactData.combinedname, 31);
 
-                // add privat/gesch. to name if necessary (if two entries for one name necessary)
-                string name_home = contactData.combinedname;
-                string name_work = contactData.combinedname;
-                string name_mobile = contactData.combinedname;
-                int nr_in_use = 0;
-                if (contactData.home != "") { nr_in_use++; }
-                if (contactData.work != "") { nr_in_use++; }
-                if (contactData.mobile != "") { nr_in_use++; }
+                // we now do all sorts of complicated stuff to generate a seemingly simple array of numbers and types
+                int phone_numbers = 0;
+                if (CleanUpNumberHome != "") { phone_numbers++; }
+                if (CleanUpNumberWork != "") { phone_numbers++; }
+                if (CleanUpNumberMobile != "") { phone_numbers++; }
 
-                if (nr_in_use > 1)
+                string[,] phones = new string[phone_numbers, 3];
+
+                if (contactData.preferred == "")
                 {
-                    // limit to 26 chars
-                    name_home = LimitNameLength(name_home, 26);
-                    name_work = LimitNameLength(name_work, 26);
-                    name_mobile = LimitNameLength(name_mobile, 26);
+                    if (CleanUpNumberHome != "") { contactData.preferred = "home"; }
+                    else if (CleanUpNumberWork != "") { contactData.preferred = "work"; }
+                    else if (CleanUpNumberMobile != "") { contactData.preferred = "mobile"; }
+                }
 
-                    // then add 5 additional chars
-                    name_home += " home";
-                    name_work += " work";
-                    name_mobile += " mobile";
+                // start with the (now set) preffered number
+                switch (contactData.preferred)
+                {
+                    case "home":
+                        phones[0, 0] = "home";
+                        phones[0, 1] = CleanUpNumberHome;
+                        if (contactData.VIP.StartsWith("Yes")) { phones[0, 2] = "vip"; }
+                        CleanUpNumberHome = "";
+                        break;
+                    case "work":
+                        phones[0, 0] = "work";
+                        phones[0, 1] = CleanUpNumberWork;
+                        if (contactData.VIP.StartsWith("Yes")) { phones[0, 2] = "vip"; }
+                        CleanUpNumberWork = "";
+                        break;
+                    case "mobile":
+                        phones[0, 0] = "mobile";
+                        phones[0, 1] = CleanUpNumberMobile;
+                        if (contactData.VIP.StartsWith("Yes")) { phones[0, 2] = "vip"; }
+                        CleanUpNumberMobile = "";
+                        break;
+                    default:
+                        MessageBox.Show("Default case while parsing contactData.preferred, this should not have happened. Report this bug please!");
+                        break;
+                }
+
+                if (phone_numbers >= 2)
+                {
+                    if (CleanUpNumberHome != "")
+                    {
+                        phones[1, 0] = "home";
+                        phones[1, 1] = CleanUpNumberHome;
+                        if (contactData.VIP.StartsWith("Yes")) { phones[1, 2] = "vip"; }
+                        CleanUpNumberHome = "";
+                    }
+                    else if (CleanUpNumberWork != "")
+                    {
+                        phones[1, 0] = "work";
+                        phones[1, 1] = CleanUpNumberWork;
+                        if (contactData.VIP.StartsWith("Yes")) { phones[1, 2] = "vip"; }
+                        CleanUpNumberWork = "";
+                    }
+                    else if (CleanUpNumberMobile != "")
+                    {
+                        phones[1, 0] = "mobile";
+                        phones[1, 1] = CleanUpNumberMobile;
+                        if (contactData.VIP.StartsWith("Yes")) { phones[1, 2] = "vip"; }
+                        CleanUpNumberMobile = "";
+                    }
+                }
+
+                if (phone_numbers == 3)
+                {
+                    if (CleanUpNumberHome != "")
+                    {
+                        phones[2, 0] = "home";
+                        phones[2, 1] = CleanUpNumberHome;
+                        if (contactData.VIP.StartsWith("Yes")) { phones[2, 2] = "vip"; }
+                        CleanUpNumberHome = "";
+                    }
+                    else if (CleanUpNumberWork != "")
+                    {
+                        phones[2, 0] = "work";
+                        phones[2, 1] = CleanUpNumberWork;
+                        if (contactData.VIP.StartsWith("Yes")) { phones[2, 2] = "vip"; }
+                        CleanUpNumberWork = "";
+                    }
+                    else if (CleanUpNumberMobile != "")
+                    {
+                        phones[2, 0] = "mobile";
+                        phones[2, 1] = CleanUpNumberMobile;
+                        if (contactData.VIP.StartsWith("Yes")) { phones[2, 2] = "vip"; }
+                        CleanUpNumberMobile = "";
+                    }
+                }
+
+                string sep = "\",\"";
+                string out_string = "";
+
+                if (phone_numbers > 1)
+                {
+
+                    out_string += "\"" + name_contact
+                                        + sep + phones[0, 1]
+                                        + sep + "MASTER"
+                                        + sep + string.Empty
+                                        + sep + contactData.firstname
+                                        + sep + contactData.lastname
+                                        + sep + string.Empty
+                                        + sep + string.Empty
+                                        + sep + contactData.email
+                                        + sep + string.Empty
+                                        + sep + string.Empty
+                                        + sep + string.Empty
+                                        + sep + "false"
+                                        + sep + string.Empty
+                                        + sep + phones[0, 0]
+                                        + sep + string.Empty
+                                        + "\"" + "\r\n";
+
+                    // now that the phones[phone_numbers, 2] array is complete, iterate through it and write the subcontact code for the csv:
+                    for (int i = 0; i < phone_numbers; i++)
+                    {
+                        out_string += "\"" + string.Empty
+                                                    + sep + phones[i, 1] // actual number
+                                                    + sep + phones[i, 2] // add vip if VIP
+                                                    + sep + string.Empty
+                                                    + sep + "Member_Alias"
+                                                    + sep + phones[0, 1] // main number
+                                                    + sep + string.Empty
+                                                    + sep + string.Empty
+                                                    + sep + string.Empty
+                                                    + sep + string.Empty
+                                                    + sep + string.Empty
+                                                    + sep + string.Empty
+                                                    + sep + "false"
+                                                    + sep + string.Empty
+                                                    + sep + phones[i, 0]
+                                                    + sep + string.Empty
+                                                    + "\"" + "\r\n";
+                    }
                 }
                 else
                 {
-                    // limit to 31 chars
-                    name_home = LimitNameLength(name_home, 31);
-                    name_work = LimitNameLength(name_work, 31);
-                    name_mobile = LimitNameLength(name_mobile, 31);
+                    // only one contact, so don't write subcontacts but only simplified version
+
+                    out_string += "\"" + name_contact
+                    + sep + phones[0, 1]
+                    + sep + phones[0, 2] // add VIP if VIP
+                    + sep + string.Empty
+                    + sep + contactData.firstname
+                    + sep + contactData.lastname
+                    + sep + string.Empty
+                    + sep + string.Empty
+                    + sep + contactData.email
+                    + sep + string.Empty
+                    + sep + string.Empty
+                    + sep + string.Empty
+                    + sep + "false"
+                    + sep + string.Empty
+                    + sep + phones[0, 0]
+                    + sep + string.Empty
+                    + "\"" + "\r\n";
                 }
 
                 // write contact line, maybe twice
-                if (contactData.home != "")
-                {
                     try
                     {
-                        MySaveDataHash.Add(name_home, "\"" + name_home + "\",\"" + contactData.home + "\"\r\n");
-                    }
-                    catch (ArgumentException) // unable to add to MySaveFaxDataHash, must mean that something with (modified) contactData.combinedname is already in there!
-                    {
-                        MessageBox.Show("Unable to export the entry \"" + name_home + "\", another entry with this name already exists! Ignoring duplicate.");
-                    }
-                }
+                        MySaveDataHash.Add(name_contact, out_string);
 
-                if (contactData.work != "")
-                {
-                    try
-                    {
-                        MySaveDataHash.Add(name_work, "\"" + name_work + "\",\"" + contactData.work + "\"\r\n");
                     }
                     catch (ArgumentException) // unable to add to MySaveFaxDataHash, must mean that something with (modified) contactData.combinedname is already in there!
                     {
-                        MessageBox.Show("Unable to export the entry \"" + name_work + "\", another entry with this name already exists! Ignoring duplicate.");
+                        MessageBox.Show("Unable to export the entry \"" + name_contact + "\", another entry with this name already exists! Ignoring duplicate.");
                     }
-                }
-
-                if (contactData.mobile != "")
-                {
-                    try
-                    {
-                        MySaveDataHash.Add(name_mobile, "\"" + name_mobile + "\",\"" + contactData.mobile + "\"\r\n");
-                    }
-                    catch (ArgumentException) // unable to add to MySaveFaxDataHash, must mean that something with (modified) contactData.combinedname is already in there!
-                    {
-                        MessageBox.Show("Unable to export the entry \"" + name_mobile + "\", another entry with this name already exists! Ignoring duplicate.");
-                    }
-                }
 
             } // end of foreach loop for the contacts
 
@@ -1879,7 +1898,6 @@ namespace Fritz_XML_Wizard
             // tell the user this has been done
             MessageBox.Show("Contacts written to " + filename + " !" + Environment.NewLine);
         }                               // currently being implemented
-
     }
 
     public class GroupDataContact
@@ -1971,17 +1989,14 @@ namespace Fritz_XML_Wizard
         {
             data_received = my_data_received.Split(';');
 
-            postofficebox = data_received[0];
-            extendedaddress = data_received[1];
-            streetaddress = data_received[2];
-            locality = data_received[3];
-            region = data_received[4];
-            postalcode = data_received[5];
-            country = data_received[6];
-
-
-
-
+            if (data_received.Length > 0) { postofficebox = data_received[0]; }
+            if (data_received.Length > 1) { extendedaddress = data_received[1]; }
+            if (data_received.Length > 2) { streetaddress = data_received[2]; }
+            if (data_received.Length > 3) { locality = data_received[3]; }
+            if (data_received.Length > 4) { region = data_received[4]; }
+            if (data_received.Length > 5) { postalcode = data_received[5]; }
+            if (data_received.Length > 6) { country = data_received[6]; }
+            
             if (streetaddress == "" && postalcode == "" && locality == "" && extendedaddress != "")  // if no information present in normal fields and we have extended information
             {   // now parse the suff we have and fill the parsed fields with stuff that makes more sense:
             

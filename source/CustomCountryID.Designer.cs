@@ -1,4 +1,4 @@
-﻿namespace Fritz_XML_Wizard
+﻿namespace Contact_Conversion_Wizard
 {
     partial class CustomCountryID
     {

@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Fritz_XML_Wizard
+namespace Contact_Conversion_Wizard
 {
     public partial class CustomCountryID : Form
     {

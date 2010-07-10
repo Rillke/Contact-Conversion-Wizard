@@ -1,4 +1,4 @@
-﻿namespace Fritz_XML_Wizard
+﻿namespace Contact_Conversion_Wizard
 {
     partial class Form1
     {
@@ -37,6 +37,8 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.button_clear = new System.Windows.Forms.Button();
             this.panel_right = new System.Windows.Forms.Panel();
+            this.label10 = new System.Windows.Forms.Label();
+            this.textBox_PicPath = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
             this.combo_picexport = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -66,7 +68,6 @@
             this.Photo = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.label6 = new System.Windows.Forms.Label();
             this.label_save = new System.Windows.Forms.Label();
-            this.btn_read_SnomCSV8 = new System.Windows.Forms.Button();
             this.btn_save_SnomCSV8 = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.combo_typeprefer = new System.Windows.Forms.ComboBox();
@@ -78,8 +79,6 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
-            this.textBox_PicPath = new System.Windows.Forms.TextBox();
-            this.label10 = new System.Windows.Forms.Label();
             this.panel_right.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MyDataGridView)).BeginInit();
             this.panel_left.SuspendLayout();
@@ -167,6 +166,23 @@
             this.panel_right.Name = "panel_right";
             this.panel_right.Size = new System.Drawing.Size(367, 104);
             this.panel_right.TabIndex = 7;
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(14, 56);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(175, 13);
+            this.label10.TabIndex = 6;
+            this.label10.Text = "Fritz!Box path to embedded images:";
+            // 
+            // textBox_PicPath
+            // 
+            this.textBox_PicPath.Location = new System.Drawing.Point(15, 73);
+            this.textBox_PicPath.Name = "textBox_PicPath";
+            this.textBox_PicPath.Size = new System.Drawing.Size(344, 20);
+            this.textBox_PicPath.TabIndex = 5;
+            this.textBox_PicPath.Text = "file:///var/InternerSpeicher/FRITZ/fonpix-custom/";
             // 
             // label9
             // 
@@ -483,30 +499,18 @@
             this.label_save.TabIndex = 19;
             this.label_save.Text = "Save data to:";
             // 
-            // btn_read_SnomCSV8
-            // 
-            this.btn_read_SnomCSV8.Enabled = false;
-            this.btn_read_SnomCSV8.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_read_SnomCSV8.Location = new System.Drawing.Point(4, 276);
-            this.btn_read_SnomCSV8.Name = "btn_read_SnomCSV8";
-            this.btn_read_SnomCSV8.Size = new System.Drawing.Size(167, 35);
-            this.btn_read_SnomCSV8.TabIndex = 20;
-            this.btn_read_SnomCSV8.Text = "Snom CSV v8";
-            this.toolTip1.SetToolTip(this.btn_read_SnomCSV8, "Not implemented yet!");
-            this.btn_read_SnomCSV8.UseVisualStyleBackColor = true;
-            this.btn_read_SnomCSV8.Click += new System.EventHandler(this.btn_read_SnomXMLv8_Click);
-            // 
             // btn_save_SnomCSV8
             // 
             this.btn_save_SnomCSV8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn_save_SnomCSV8.Enabled = false;
             this.btn_save_SnomCSV8.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn_save_SnomCSV8.Location = new System.Drawing.Point(836, 276);
             this.btn_save_SnomCSV8.Name = "btn_save_SnomCSV8";
             this.btn_save_SnomCSV8.Size = new System.Drawing.Size(167, 35);
             this.btn_save_SnomCSV8.TabIndex = 21;
             this.btn_save_SnomCSV8.Text = "Snom CSV v8";
-            this.toolTip1.SetToolTip(this.btn_save_SnomCSV8, "Not implemented yet!");
+            this.toolTip1.SetToolTip(this.btn_save_SnomCSV8, "Complex CSV Export for Snom Phones with v8.x Firmware:\r\nExports: Combined Name / " +
+                    "First Name / Last Name / Number / eMail,\r\nwith full support for subcontacts and " +
+                    "VIP flag!\r\n");
             this.btn_save_SnomCSV8.UseVisualStyleBackColor = true;
             this.btn_save_SnomCSV8.Click += new System.EventHandler(this.btn_save_SnomXMLv8_Click);
             // 
@@ -628,23 +632,6 @@
             this.label8.TabIndex = 23;
             this.label8.Text = "Options affecting Export";
             // 
-            // textBox_PicPath
-            // 
-            this.textBox_PicPath.Location = new System.Drawing.Point(15, 73);
-            this.textBox_PicPath.Name = "textBox_PicPath";
-            this.textBox_PicPath.Size = new System.Drawing.Size(344, 20);
-            this.textBox_PicPath.TabIndex = 5;
-            this.textBox_PicPath.Text = "file:///var/InternerSpeicher/FRITZ/fonpix-custom/";
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(14, 56);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(175, 13);
-            this.label10.TabIndex = 6;
-            this.label10.Text = "Fritz!Box path to embedded images:";
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -654,7 +641,6 @@
             this.Controls.Add(this.label7);
             this.Controls.Add(this.panel_left);
             this.Controls.Add(this.btn_save_SnomCSV8);
-            this.Controls.Add(this.btn_read_SnomCSV8);
             this.Controls.Add(this.label_save);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.MyDataGridView);
@@ -701,7 +687,6 @@
         private System.Windows.Forms.DataGridView MyDataGridView;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label_save;
-        private System.Windows.Forms.Button btn_read_SnomCSV8;
         private System.Windows.Forms.Button btn_save_SnomCSV8;
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.Panel panel_left;

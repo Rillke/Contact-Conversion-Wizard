@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace Fritz_XML_Wizard
+namespace Contact_Conversion_Wizard
 {
     static class Program
     {
