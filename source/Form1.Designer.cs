@@ -65,6 +65,7 @@
             this.City = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.eMail = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.VIP = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Speeddial = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Photo = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.label6 = new System.Windows.Forms.Label();
             this.label_save = new System.Windows.Forms.Label();
@@ -79,6 +80,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
+            this.btn_save_TalkSurfCSV = new System.Windows.Forms.Button();
             this.panel_right.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MyDataGridView)).BeginInit();
             this.panel_left.SuspendLayout();
@@ -349,6 +351,7 @@
             this.City,
             this.eMail,
             this.VIP,
+            this.Speeddial,
             this.Photo});
             this.MyDataGridView.Location = new System.Drawing.Point(177, 32);
             this.MyDataGridView.MultiSelect = false;
@@ -469,6 +472,14 @@
             this.VIP.Name = "VIP";
             this.VIP.ReadOnly = true;
             this.VIP.Width = 49;
+            // 
+            // Speeddial
+            // 
+            this.Speeddial.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.Speeddial.HeaderText = "Speeddial";
+            this.Speeddial.Name = "Speeddial";
+            this.Speeddial.ReadOnly = true;
+            this.Speeddial.Width = 79;
             // 
             // Photo
             // 
@@ -632,11 +643,26 @@
             this.label8.TabIndex = 23;
             this.label8.Text = "Options affecting Export";
             // 
+            // btn_save_TalkSurfCSV
+            // 
+            this.btn_save_TalkSurfCSV.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_save_TalkSurfCSV.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_save_TalkSurfCSV.Location = new System.Drawing.Point(836, 317);
+            this.btn_save_TalkSurfCSV.Name = "btn_save_TalkSurfCSV";
+            this.btn_save_TalkSurfCSV.Size = new System.Drawing.Size(167, 35);
+            this.btn_save_TalkSurfCSV.TabIndex = 24;
+            this.btn_save_TalkSurfCSV.Text = "Talk+Surf CSV";
+            this.toolTip1.SetToolTip(this.btn_save_TalkSurfCSV, "CSV Export (Non-Unicode) for Gigasets old Talk & Surf 6.0 Software.\r\nExports a sh" +
+                    "ortened name and the phone numbers.\r\n");
+            this.btn_save_TalkSurfCSV.UseVisualStyleBackColor = true;
+            this.btn_save_TalkSurfCSV.Click += new System.EventHandler(this.btn_save_TalkSurfCSV_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1004, 639);
+            this.Controls.Add(this.btn_save_TalkSurfCSV);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.panel_left);
@@ -700,6 +726,10 @@
         private System.Windows.Forms.ComboBox combo_VIP;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.ComboBox combo_picexport;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.TextBox textBox_PicPath;
         private System.Windows.Forms.DataGridViewTextBoxColumn Fullname;
         private System.Windows.Forms.DataGridViewTextBoxColumn MyColLastname;
         private System.Windows.Forms.DataGridViewTextBoxColumn MyColFirstname;
@@ -714,11 +744,9 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn City;
         private System.Windows.Forms.DataGridViewTextBoxColumn eMail;
         private System.Windows.Forms.DataGridViewTextBoxColumn VIP;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Speeddial;
         private System.Windows.Forms.DataGridViewTextBoxColumn Photo;
-        private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.ComboBox combo_picexport;
-        private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.TextBox textBox_PicPath;
+        private System.Windows.Forms.Button btn_save_TalkSurfCSV;
     }
 }
 

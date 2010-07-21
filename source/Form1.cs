@@ -70,13 +70,14 @@ namespace Contact_Conversion_Wizard
             return_str = return_str.Replace(" ", "");
             return_str = return_str.Replace("(", "");
             return_str = return_str.Replace(")", "");
-            return_str = return_str.Replace("*", "");
+            // return_str = return_str.Replace("*", ""); ( we are no longer replacing this, since this is actually used by the Fritz!Box for internal numbers)
             return_str = return_str.Replace("#", "");
+            return_str = return_str.Replace("-", "");
             return_str = return_str.Replace("x", "");
 
             // clean up country code
             if (return_str.StartsWith("+")) { return_str = "00" + return_str.Substring(1); }
-            if (return_str.StartsWith(country_prefix)) { return_str = return_str.Replace(country_prefix, "0"); }
+            if (return_str.StartsWith(country_prefix)) { return_str = "0" + return_str.Substring(country_prefix.Length); }
 
             return return_str;
         }
@@ -101,7 +102,7 @@ namespace Contact_Conversion_Wizard
             return my_country_id;
         }
 
-        private string CheckVIPandSPEEDDIALflags(string myNickname, string myStringToCheck, bool ignoreComboBox)
+        private string CheckVIPflag(string myNickname, string myStringToCheck, bool ignoreComboBox)
         {
             string result_temp = "No"; // be default, VIP is set to no
             int select_mode = combo_VIP.SelectedIndex;
@@ -118,36 +119,62 @@ namespace Contact_Conversion_Wizard
                     if (myStringToCheck.Contains("VIP") == true) { result_temp = "Yes"; }
                     break;
                 default:
-                    MessageBox.Show("Default case in CheckVIPandSPEEDDIALflags, this should not have happened, report this bug!");
+                    MessageBox.Show("Default case in CheckVIPflag, this should not have happened, report this bug!");
                     break;
-
-            }
-
-            if (myStringToCheck.Contains("SPEEDDIAL:") == true)
-            {
-                int speeddialnumber = -1;
-                string parsestring = "";
-                try
-                {
-                    string substring = myStringToCheck.Substring(myStringToCheck.IndexOf("SPEEDDIAL:") + 10);
-                    if (substring.Length > 2) { substring = substring.Substring(0, 2); }
-                    foreach (char c in substring)
-                    {
-                        if (char.IsNumber(c) == true)
-                        {
-                            parsestring += c.ToString();
-                        }
-                    }
-                    speeddialnumber = Convert.ToInt32(parsestring);
-                }
-                catch
-                {
-                    // do nothing, here because speeddial might be at end of string or char following might not be a number
-                }
-                if (speeddialnumber != -1) { result_temp += ":" + speeddialnumber; }
             }
 
             return result_temp;
+        }
+
+        private string CheckSPEEDDIALflag(string myStringToCheck)
+        {
+            if (myStringToCheck.Contains("SPEEDDIAL(") == true) // if something found in comments
+            {
+                string speedstring = myStringToCheck.Substring(myStringToCheck.IndexOf("SPEEDDIAL(") + 10); // cut away everything before the keyword
+                if (speedstring.Contains(")") == true)
+                {
+                    speedstring = speedstring.Substring(0, speedstring.IndexOf(")"));                       // cut away everything after the keyword contents
+
+                    string[] partialstrings = speedstring.Split(',');                                       // split the contents
+
+                    if (partialstrings.Length == 1)                           // if 1 or 2 contents, continue
+                    {
+                        int Num;
+                        bool isNum = int.TryParse(speedstring, out Num);
+                        if (isNum)
+                        {
+                            if (Num < 100)
+                            { return Num.ToString("00");}
+                            else
+                            { return ""; }
+
+                        }
+                        else // must be a vanity code without a speeddial number
+                        {
+                            if (speedstring.Length <= 8)
+                            { return "XX," + speedstring; }
+                            else // too long to be anything
+                            { return ""; }
+                        }
+                    }
+
+                    if (partialstrings.Length == 2)
+                    {
+                        int Num;
+                        bool isNum = int.TryParse(partialstrings[0], out Num);
+                        if (isNum == true && partialstrings[1].Length <= 8)
+                        { // all should be ok
+                            return Num.ToString("00") + "," + partialstrings[1]; 
+                        }
+                        if (partialstrings[0] == "XX" && partialstrings[1].Length <= 8)
+                        {  // wildcard entry, all ok here
+                            return "XX" + "," + partialstrings[1]; 
+                        }
+                    }
+                }
+            }
+
+            return "";
         }
 
         private string GenerateFullName(string Firstname, string Lastname, string theCompany, int style)
@@ -301,6 +328,7 @@ namespace Contact_Conversion_Wizard
                 btn_save_FritzAdress.Enabled = false;
                 btn_save_SnomCSV7.Enabled = false;
                 btn_save_SnomCSV8.Enabled = false;
+                btn_save_TalkSurfCSV.Enabled = false;
                 
                 button_clear.Enabled = false; 
             }
@@ -318,6 +346,7 @@ namespace Contact_Conversion_Wizard
                 btn_save_FritzAdress.Enabled = true;
                 btn_save_SnomCSV7.Enabled = true;
                 btn_save_SnomCSV8.Enabled = true;
+                btn_save_TalkSurfCSV.Enabled = true;
                 
                 button_clear.Enabled = true;
 
@@ -357,7 +386,7 @@ namespace Contact_Conversion_Wizard
                 {
                     PhotoPresent = "Yes";
                 }
-                MyDataGridView.Rows.Add(new string[] { contactData.combinedname, contactData.lastname, contactData.firstname, contactData.company, contactData.home, contactData.work, contactData.mobile, contactData.homefax, contactData.workfax, contactData.street, contactData.zip, contactData.city, contactData.email, contactData.VIP, PhotoPresent });
+                MyDataGridView.Rows.Add(new string[] { contactData.combinedname, contactData.lastname, contactData.firstname, contactData.company, contactData.home, contactData.work, contactData.mobile, contactData.homefax, contactData.workfax, contactData.street, contactData.zip, contactData.city, contactData.email, contactData.isVIP, contactData.speeddial, PhotoPresent });
             }
 
             MyDataGridView.Sort(MyDataGridView.Columns[0], 0);
@@ -594,7 +623,8 @@ namespace Contact_Conversion_Wizard
                 string NotesBody = (myContactItem.Body == null) ? string.Empty : myContactItem.Body;
                 string nickname = (myContactItem.NickName == null) ? string.Empty : myContactItem.NickName;
 
-                myContact.VIP = CheckVIPandSPEEDDIALflags(nickname, NotesBody, false);
+                myContact.isVIP = CheckVIPflag(nickname, NotesBody, false);
+                myContact.speeddial = CheckSPEEDDIALflag(NotesBody);
 
 
                 if (myContact.combinedname != "" && (myContact.home != string.Empty || myContact.work != string.Empty || myContact.mobile != string.Empty || myContact.homefax != string.Empty || myContact.workfax != string.Empty) && (NotesBody.Contains("CCW-IGNORE") == false))
@@ -635,15 +665,13 @@ namespace Contact_Conversion_Wizard
                 while (r.ReadToFollowing("contact"))                // loop starts here, if we are able to arrive at a new contact
                 {
                     myContact = new GroupDataContact();                 // then we first clean out myContact Storage
-                    string myContactVIPsettings = "";
 
                     // and then proceed to retrieve the name
                     r.ReadToFollowing("category");                           // we arrive at category enclosure
                     if (r.ReadElementContentAsString() == "1")
                     {
-                        myContactVIPsettings = "VIP ";
+                        myContact.isVIP = "Yes ";
                     }
-                    // if (r.ReadElementContentAsString() == 1) { myContactVIPsettings = "VIP "; } // check if in VIP category
                     r.ReadToFollowing("realName");                          // we have already arrived at person enclosure due to category, so we proceed to the realname tag
                     myContact.lastname = r.ReadElementContentAsString();    // we read the person enclosure's contents
                     myContact.combinedname = myContact.lastname; // and also save them to the combined name field, because thats the only one we have
@@ -654,9 +682,17 @@ namespace Contact_Conversion_Wizard
                     while (r.NodeType == System.Xml.XmlNodeType.Element)
                     {
                         string quickdial_item = r.GetAttribute("quickdial");
+                        string vanity_item = r.GetAttribute("vanity");
                         if (quickdial_item != null)
                         {
-                            myContactVIPsettings += "SPEEDDIAL:" + quickdial_item;
+                            if (vanity_item != null)
+                            { // both quickdial and vanity are present
+                                myContact.speeddial = quickdial_item + "," + vanity_item;
+                            }
+                            else 
+                            { // only quickdial is present
+                                myContact.speeddial += quickdial_item;
+                            }
                         }
 
                         if (r.GetAttribute("type") == "home")
@@ -678,8 +714,6 @@ namespace Contact_Conversion_Wizard
                             continue;
                         }
                     }
-
-                    myContact.VIP = CheckVIPandSPEEDDIALflags("", myContactVIPsettings, true);
 
                     // Now all information should be stored in the array, so save it to the hashtable!
                     try
@@ -1017,7 +1051,8 @@ namespace Contact_Conversion_Wizard
                     if (vParseLine.StartsWith("END:VCARD", StringComparison.OrdinalIgnoreCase) == true)
                     {
                         // übergibt notes und nickname der methode die VIP und Speeddial extrahiert
-                        myContact.VIP = CheckVIPandSPEEDDIALflags(vcard_nickname, vcard_notes, false);
+                        myContact.isVIP = CheckVIPflag(vcard_nickname, vcard_notes, false);
+                        myContact.speeddial = CheckSPEEDDIALflag(vcard_notes);
 
                         // if vcard_fullname is identical to companyname (but not empty), use only company name and do not use N: line (which contains duplicate information)
                         if ((myContact.company == vcard_fullname) && (vcard_fullname != "")) { myContact.firstname = ""; myContact.lastname = ""; }
@@ -1103,7 +1138,8 @@ namespace Contact_Conversion_Wizard
                     myContact.city = cDataArray[7];
 
                     // check if contact is supposed to be VIP or has Speeddial Settings
-                    myContact.VIP = CheckVIPandSPEEDDIALflags("", cDataArray[8], false);
+                    myContact.isVIP = CheckVIPflag("", cDataArray[8], false);
+                    myContact.speeddial = CheckSPEEDDIALflag(cDataArray[8]);
 
                     // depending on setting, import phone and fax number into home or work fields)
                     int wheretostore = combo_typeprefer.SelectedIndex;
@@ -1216,7 +1252,7 @@ namespace Contact_Conversion_Wizard
         private void btn_save_SnomXMLv7_Click(object sender, EventArgs e)
         {
             SaveFileDialog SaveCSV_Dialog = new SaveFileDialog();
-            SaveCSV_Dialog.Title = "Select the CSV file you wish to create";
+            SaveCSV_Dialog.Title = "Select the Snom v7 CSV file you wish to create";
             SaveCSV_Dialog.DefaultExt = "csv";
             SaveCSV_Dialog.Filter = "CSV files (*.csv)|*.csv";
             SaveCSV_Dialog.InitialDirectory = Environment.SpecialFolder.Desktop.ToString();
@@ -1238,7 +1274,7 @@ namespace Contact_Conversion_Wizard
         private void btn_save_SnomXMLv8_Click(object sender, EventArgs e)
         {
             SaveFileDialog SaveCSV_Dialog = new SaveFileDialog();
-            SaveCSV_Dialog.Title = "Select the CSV file you wish to create";
+            SaveCSV_Dialog.Title = "Select the Snom v8 CSV file you wish to create";
             SaveCSV_Dialog.DefaultExt = "csv";
             SaveCSV_Dialog.Filter = "CSV files (*.csv)|*.csv";
             SaveCSV_Dialog.InitialDirectory = Environment.SpecialFolder.Desktop.ToString();
@@ -1256,7 +1292,29 @@ namespace Contact_Conversion_Wizard
             // and reenable user interface
             diable_buttons(false);
         }  // just click handler
-       
+
+        private void btn_save_TalkSurfCSV_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog SaveCSV_Dialog = new SaveFileDialog();
+            SaveCSV_Dialog.Title = "Select the Talk&Surf CSV file you wish to create";
+            SaveCSV_Dialog.DefaultExt = "csv";
+            SaveCSV_Dialog.Filter = "CSV files (*.csv)|*.csv";
+            SaveCSV_Dialog.InitialDirectory = Environment.SpecialFolder.Desktop.ToString();
+            SaveCSV_Dialog.FileName = "export_talksurf";
+
+            if (SaveCSV_Dialog.ShowDialog() == DialogResult.Cancel)
+            {
+                return;
+            }
+
+            diable_buttons(true);
+
+            save_data_TalkSurfCSV(SaveCSV_Dialog.FileName, myGroupDataHash);
+
+            // and reenable user interface
+            diable_buttons(false);
+        }   // just click handler
+
         private void save_data_Outlook(System.Collections.Hashtable workDataHash)
         {
             // get the country ID from the combobox or from user input
@@ -1310,14 +1368,10 @@ namespace Contact_Conversion_Wizard
                 newContact.MobileTelephoneNumber = CleanUpNumberMobile;
 
                 // VIP Functionality (fully implemented now)
-                if (contactData.VIP.StartsWith("Yes")) { newContact.Body += "VIP" + Environment.NewLine; }
+                if (contactData.isVIP == "Yes") { newContact.Body += "VIP" + Environment.NewLine; }
 
-                // Speeddial Functionality (fully implemented now)
-                if (contactData.VIP.IndexOf(":") != -1)
-                { // then we have a quickdial number then add it to the prio entry
-                    int qd_number = Convert.ToInt32(contactData.VIP.Substring(contactData.VIP.IndexOf(":") + 1));
-                    newContact.Body += "SPEEDDIAL:" + qd_number.ToString("00");
-                }
+                // Speeddial Functionality
+                if (contactData.speeddial != "") { newContact.Body += "SPEEDDIAL(" + contactData.speeddial + ")"; }
 
                 // Contact Picture Functionality, more info on this here: http://www.c-sharpcorner.com/UploadFile/Nimusoft/OutlookwithNET06262007081811AM/OutlookwithNET.aspx
                 if (combo_picexport.SelectedIndex == 1 && contactData.jpeg != null)
@@ -1358,6 +1412,9 @@ namespace Contact_Conversion_Wizard
             // write the header
             resultstring = "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n<phonebooks>\n<phonebook>";
 
+            // initialize quickdial_remaining veriable
+            int qd_remaining = 97;
+
             // initialize hashtable to store generated data results
             System.Collections.Hashtable MySaveDataHash = new System.Collections.Hashtable();
 
@@ -1387,8 +1444,7 @@ namespace Contact_Conversion_Wizard
 
                 // generate VIP ID - if VIP then assign category 1, else 0
                 string VIPid = "0";
-                if (contactData.VIP.StartsWith("Yes")) { VIPid = "1"; }
-
+                if (contactData.isVIP == "Yes") { VIPid = "1"; }
 
                 // if picture export is set to yes and picture is stored, then export it to a jpeg file and add imageURL to export XML
                 string imageURLstring = "";
@@ -1401,14 +1457,47 @@ namespace Contact_Conversion_Wizard
 
                 contactstring += "<contact>\n<category>" + VIPid + "</category>\n<person>\n<realName>" + SaveAsName + "</realName>\n" + imageURLstring + "</person>\n<telephony>\n";
 
-                // prepare quickdial and preferred number setting:
+                // prepare preferred number setting:
                 string pref_QD_string = "prio=\"1\"";
-                if (contactData.VIP.IndexOf(":") != -1)
-                { // then we have a quickdial number then add it to the prio entry
-                    int qd_number = Convert.ToInt32(contactData.VIP.Substring(contactData.VIP.IndexOf(":")+1));
-                    pref_QD_string += " quickdial=\"" + qd_number.ToString("00") +"\"";
-                }
 
+                // add quickdial and vanity information to it
+                if (contactData.speeddial != "")
+                { // then we have a quickdial number then add it to the prio entry
+
+                    string qd_number = "";
+                    string qd_vanity = "";
+
+                    if (contactData.speeddial.Contains(","))
+                    { // two parts (01,VANITY or XX,VANITY)
+                        qd_number = contactData.speeddial.Substring(0, contactData.speeddial.IndexOf(','));
+                        qd_vanity = contactData.speeddial.Substring(contactData.speeddial.IndexOf(',') + 1);
+                    
+                        // now handle automatic distribution of quickdial numbers for vanities without number
+                        if ((qd_number == "XX") && (qd_remaining > 9)) { qd_number = qd_remaining.ToString(); qd_remaining--; }
+                        if (qd_number == "XX")
+                        { // no remaining numbers left, so we cannot assign any quickdial number or vanity code (the field quickdial will be set to "" in the XML anyway but that probably won't matter)
+                            qd_number = "";
+                            qd_vanity = "";
+                        }
+                    }
+                    else
+                    { // only 1 part, can only be number
+                        qd_number = contactData.speeddial;
+                    }
+                    
+                    // add quickdial number which always has to exist here (unless the autodistribtion of numbers above ran out of available numbers)
+                    if (qd_number != "")
+                    {
+                        pref_QD_string += " quickdial=\"" + qd_number + "\"";
+                        
+                        // and if we also have a vanity entry, then add this one too
+                        if (qd_vanity != "")
+                        {
+                            pref_QD_string += " vanity=\"" + qd_vanity + "\"";
+                        }
+                    }
+                    
+                }
 
                 // add home phone number
                 if (CleanUpNumberHome != "")
@@ -1470,7 +1559,7 @@ namespace Contact_Conversion_Wizard
             if (MySaveDataHash.Count > 300) { errorwarning = Environment.NewLine + "Warning: Over 300 contacts have been exported! This might or might not be officially supported by AVM's Fritz!Box and may cause problems. Proceed with care!"; }
             MessageBox.Show(MySaveDataHash.Count + " contacts written to " + filename + " !" + Environment.NewLine + errorwarning);
             
-        }                               // this should work really well, after all this is the main purpose of the wizard
+        }                              
 
         // vCard Export not implemented here yet
 
@@ -1531,18 +1620,14 @@ namespace Contact_Conversion_Wizard
                 }
 
                 // we will now save VIP and speeddial information to the first of those two entries
-                if (contactData.VIP == "Yes")
+                if (contactData.isVIP == "Yes")
                 {
-                    save_iterate_array[0, 3] = "VIP";
+                    save_iterate_array[0, 3] = "VIP ";
                 }
-                if (contactData.VIP.StartsWith("Yes:") == true)
+
+                if (contactData.speeddial != "")
                 {
-                    save_iterate_array[0, 3] = "VIP,";
-                    save_iterate_array[0, 3] += "SPEEDDIAL:" + contactData.VIP.Substring(4);
-                }
-                if (contactData.VIP.StartsWith("No:") == true)
-                {
-                    save_iterate_array[0, 3] = "SPEEDDIAL:" + contactData.VIP.Substring(3);
+                    save_iterate_array[0, 3] += "SPEEDDIAL(" + contactData.speeddial + ")";
                 }
 
                 // write contact line, maybe twice
@@ -1573,7 +1658,7 @@ namespace Contact_Conversion_Wizard
 
             // tell the user this has been done
             MessageBox.Show("Contacts written to " + filename + " !" + Environment.NewLine);
-        }      // now fully implemented with all fields and functions for v2.0
+        }    
 
         private void save_data_SnomCSV7(string filename, System.Collections.Hashtable workDataHash)
         {
@@ -1640,7 +1725,7 @@ namespace Contact_Conversion_Wizard
                     }
                     catch (ArgumentException) // unable to add to MySaveFaxDataHash, must mean that something with (modified) contactData.combinedname is already in there!
                     {
-                        MessageBox.Show("Unable to export the entry \"" + name_home + "\", another entry with this name already exists! Ignoring duplicate.");
+                        MessageBox.Show("Unable to export the shortened entry \"" + name_home + "\",\r\nanother entry with this name already exists!\r\n\r\nIgnoring duplicate for contact source: " + contactData.combinedname);
                     }
                 }
 
@@ -1652,7 +1737,7 @@ namespace Contact_Conversion_Wizard
                     }
                     catch (ArgumentException) // unable to add to MySaveFaxDataHash, must mean that something with (modified) contactData.combinedname is already in there!
                     {
-                        MessageBox.Show("Unable to export the entry \"" + name_work + "\", another entry with this name already exists! Ignoring duplicate.");
+                        MessageBox.Show("Unable to export the shortened entry \"" + name_work + "\",\r\nanother entry with this name already exists!\r\n\r\nIgnoring duplicate for contact source: " + contactData.combinedname);
                     }
                 }
 
@@ -1664,7 +1749,7 @@ namespace Contact_Conversion_Wizard
                     }
                     catch (ArgumentException) // unable to add to MySaveFaxDataHash, must mean that something with (modified) contactData.combinedname is already in there!
                     {
-                        MessageBox.Show("Unable to export the entry \"" + name_mobile + "\", another entry with this name already exists! Ignoring duplicate.");
+                        MessageBox.Show("Unable to export the shortened entry \"" + name_mobile + "\",\r\nanother entry with this name already exists!\r\n\r\nIgnoring duplicate for contact source: " + contactData.combinedname);
                     }
                 }
 
@@ -1681,7 +1766,7 @@ namespace Contact_Conversion_Wizard
 
             // tell the user this has been done
             MessageBox.Show("Contacts written to " + filename + " !" + Environment.NewLine);
-        }                               // should work fine, only exports name and number
+        }                             
 
         private void save_data_SnomCSV8(string filename, System.Collections.Hashtable workDataHash)
         {
@@ -1734,19 +1819,19 @@ namespace Contact_Conversion_Wizard
                     case "home":
                         phones[0, 0] = "home";
                         phones[0, 1] = CleanUpNumberHome;
-                        if (contactData.VIP.StartsWith("Yes")) { phones[0, 2] = "vip"; }
+                        if (contactData.isVIP == "Yes") { phones[0, 2] = "vip"; }
                         CleanUpNumberHome = "";
                         break;
                     case "work":
                         phones[0, 0] = "work";
                         phones[0, 1] = CleanUpNumberWork;
-                        if (contactData.VIP.StartsWith("Yes")) { phones[0, 2] = "vip"; }
+                        if (contactData.isVIP == "Yes") { phones[0, 2] = "vip"; }
                         CleanUpNumberWork = "";
                         break;
                     case "mobile":
                         phones[0, 0] = "mobile";
                         phones[0, 1] = CleanUpNumberMobile;
-                        if (contactData.VIP.StartsWith("Yes")) { phones[0, 2] = "vip"; }
+                        if (contactData.isVIP == "Yes") { phones[0, 2] = "vip"; }
                         CleanUpNumberMobile = "";
                         break;
                     default:
@@ -1760,21 +1845,21 @@ namespace Contact_Conversion_Wizard
                     {
                         phones[1, 0] = "home";
                         phones[1, 1] = CleanUpNumberHome;
-                        if (contactData.VIP.StartsWith("Yes")) { phones[1, 2] = "vip"; }
+                        if (contactData.isVIP == "Yes") { phones[1, 2] = "vip"; }
                         CleanUpNumberHome = "";
                     }
                     else if (CleanUpNumberWork != "")
                     {
                         phones[1, 0] = "work";
                         phones[1, 1] = CleanUpNumberWork;
-                        if (contactData.VIP.StartsWith("Yes")) { phones[1, 2] = "vip"; }
+                        if (contactData.isVIP == "Yes") { phones[1, 2] = "vip"; }
                         CleanUpNumberWork = "";
                     }
                     else if (CleanUpNumberMobile != "")
                     {
                         phones[1, 0] = "mobile";
                         phones[1, 1] = CleanUpNumberMobile;
-                        if (contactData.VIP.StartsWith("Yes")) { phones[1, 2] = "vip"; }
+                        if (contactData.isVIP == "Yes") { phones[1, 2] = "vip"; }
                         CleanUpNumberMobile = "";
                     }
                 }
@@ -1785,21 +1870,21 @@ namespace Contact_Conversion_Wizard
                     {
                         phones[2, 0] = "home";
                         phones[2, 1] = CleanUpNumberHome;
-                        if (contactData.VIP.StartsWith("Yes")) { phones[2, 2] = "vip"; }
+                        if (contactData.isVIP == "Yes") { phones[2, 2] = "vip"; }
                         CleanUpNumberHome = "";
                     }
                     else if (CleanUpNumberWork != "")
                     {
                         phones[2, 0] = "work";
                         phones[2, 1] = CleanUpNumberWork;
-                        if (contactData.VIP.StartsWith("Yes")) { phones[2, 2] = "vip"; }
+                        if (contactData.isVIP == "Yes") { phones[2, 2] = "vip"; }
                         CleanUpNumberWork = "";
                     }
                     else if (CleanUpNumberMobile != "")
                     {
                         phones[2, 0] = "mobile";
                         phones[2, 1] = CleanUpNumberMobile;
-                        if (contactData.VIP.StartsWith("Yes")) { phones[2, 2] = "vip"; }
+                        if (contactData.isVIP == "Yes") { phones[2, 2] = "vip"; }
                         CleanUpNumberMobile = "";
                     }
                 }
@@ -1897,7 +1982,116 @@ namespace Contact_Conversion_Wizard
 
             // tell the user this has been done
             MessageBox.Show("Contacts written to " + filename + " !" + Environment.NewLine);
-        }                               // currently being implemented
+        }
+
+        private void save_data_TalkSurfCSV(string filename, System.Collections.Hashtable workDataHash)
+        {
+            // get the country ID from the combobox or from user input
+            string country_id = RetrieveCountryID(combo_prefix.SelectedItem.ToString());
+
+            // process with exporting
+            string resultstring;
+
+            // write the header (none needed for snom)
+            resultstring = "Name,Number\r\n";
+
+            System.Collections.Hashtable MySaveDataHash = new System.Collections.Hashtable();
+
+            foreach (System.Collections.DictionaryEntry contactHash in workDataHash)
+            {
+                // extract GroupDataList from hashtable contents
+                GroupDataContact contactData = (GroupDataContact)contactHash.Value;
+
+                //  check if all relevant phone numbers for this export here are empty
+                if (contactData.home == string.Empty && contactData.work == string.Empty && contactData.mobile == string.Empty)
+                { continue; /* if yes, abort this foreach loop and contine to the next one */ }
+
+                // clean up phone number
+                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id);
+                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id);
+                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id);
+
+                // add privat/gesch. to name if necessary (if seperate entries for one name necessary) - and remove "," because talk&surf can't handle it properly
+                string name_home = contactData.combinedname.Replace(",", "");
+                string name_work = contactData.combinedname.Replace(",", "");
+                string name_mobile = contactData.combinedname.Replace(",", "");
+                int nr_in_use = 0;
+                if (CleanUpNumberHome != "") { nr_in_use++; }
+                if (CleanUpNumberWork != "") { nr_in_use++; }
+                if (CleanUpNumberMobile != "") { nr_in_use++; }
+
+                if (nr_in_use > 1)
+                {
+                    // limit to 26 chars
+                    name_home = LimitNameLength(name_home, 14);
+                    name_work = LimitNameLength(name_work, 14);
+                    name_mobile = LimitNameLength(name_mobile, 14);
+
+                    // then add 5 additional chars
+                    name_home += " H";
+                    name_work += " W";
+                    name_mobile += " M";
+                }
+                else
+                {
+                    // limit to 31 chars
+                    name_home = LimitNameLength(name_home, 16);
+                    name_work = LimitNameLength(name_work, 16);
+                    name_mobile = LimitNameLength(name_mobile, 16);
+                }
+
+                // write contact line, maybe twice
+                if (CleanUpNumberHome != "")
+                {
+                    try
+                    {
+                        MySaveDataHash.Add(name_home, name_home + "," + CleanUpNumberHome + "\r\n");
+                    }
+                    catch (ArgumentException) // unable to add to MySaveFaxDataHash, must mean that something with (modified) contactData.combinedname is already in there!
+                    {
+                        MessageBox.Show("Unable to export the shortened entry \"" + name_home + "\",\r\nanother entry with this name already exists!\r\n\r\nIgnoring duplicate for contact source: " + contactData.combinedname);
+                    }
+                }
+
+                if (CleanUpNumberWork != "")
+                {
+                    try
+                    {
+                        MySaveDataHash.Add(name_work, name_work + "," + CleanUpNumberWork + "\r\n");
+                    }
+                    catch (ArgumentException) // unable to add to MySaveFaxDataHash, must mean that something with (modified) contactData.combinedname is already in there!
+                    {
+                        MessageBox.Show("Unable to export the shortened entry \"" + name_work + "\",\r\nanother entry with this name already exists!\r\n\r\nIgnoring duplicate for contact source: " + contactData.combinedname);
+                    }
+                }
+
+                if (CleanUpNumberMobile != "")
+                {
+                    try
+                    {
+                        MySaveDataHash.Add(name_mobile, name_mobile + "," + CleanUpNumberMobile + "\r\n");
+                    }
+                    catch (ArgumentException) // unable to add to MySaveFaxDataHash, must mean that something with (modified) contactData.combinedname is already in there!
+                    {
+                        MessageBox.Show("Unable to export the shortened entry \"" + name_mobile + "\",\r\nanother entry with this name already exists!\r\n\r\nIgnoring duplicate for contact source: " + contactData.combinedname);
+                    }
+                }
+
+            } // end of foreach loop for the contacts
+
+            // retrieve stuff from hastable and put in resultstring:
+            foreach (System.Collections.DictionaryEntry saveDataHash in MySaveDataHash)
+            {
+                resultstring += (string)saveDataHash.Value;
+            }
+
+            // actually write the file to disk
+            System.IO.File.WriteAllText(filename, resultstring, Encoding.GetEncoding("ISO-8859-1"));
+
+            // tell the user this has been done
+            MessageBox.Show("Contacts written to " + filename + " !" + Environment.NewLine);
+        }                             
+
     }
 
     public class GroupDataContact
@@ -1913,7 +2107,8 @@ namespace Contact_Conversion_Wizard
         public string workfax;
         public string mobile;
         public string combinedname;
-        public string VIP;
+        public string isVIP;
+        public string speeddial;
         public byte[] jpeg;
         public string preferred
         {
@@ -1962,7 +2157,8 @@ namespace Contact_Conversion_Wizard
         city = "";
         email = "";
         combinedname = "";
-        VIP = "";
+        isVIP = "";
+        speeddial = "";
         jpeg = null;
         }
 
