@@ -5,6 +5,8 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using LumenWorks.Framework.IO.Csv;
+
 
 namespace Contact_Conversion_Wizard
 {
@@ -284,7 +286,7 @@ namespace Contact_Conversion_Wizard
                     if (Firstname != "" && Lastname != "" && theCompany != "") { my_fullname = Firstname + ", " + Lastname;                        /* use both names  + company */ }
                     break;
                 default:
-                    Console.WriteLine("Unsupported Output Name Style, this error should not have occured. Please report this!");
+                    MessageBox.Show("Unsupported Output Name Style, this error should not have occured. Please report this!");
                     break;
             }
 
@@ -321,6 +323,7 @@ namespace Contact_Conversion_Wizard
                 btn_read_FritzXML.Enabled = false;
                 btn_read_vCard.Enabled = false;
                 btn_read_FritzAdress.Enabled = false;
+                btn_read_genericCSV.Enabled = false;
 
                 btn_save_Outlook.Enabled = false;
                 btn_save_FritzXML.Enabled = false;
@@ -339,10 +342,11 @@ namespace Contact_Conversion_Wizard
                 btn_read_FritzXML.Enabled = true;
                 btn_read_vCard.Enabled = true;
                 btn_read_FritzAdress.Enabled = true;
+                btn_read_genericCSV.Enabled = true;
 
                 btn_save_Outlook.Enabled = true;
                 btn_save_FritzXML.Enabled = true;
-                btn_save_vCard.Enabled = false;      // needs implementing
+                btn_save_vCard.Enabled = true;
                 btn_save_FritzAdress.Enabled = true;
                 btn_save_SnomCSV7.Enabled = true;
                 btn_save_SnomCSV8.Enabled = true;
@@ -529,6 +533,33 @@ namespace Contact_Conversion_Wizard
 
             diable_buttons(false);
         }   // just click handler
+
+        private void btn_read_genericCSV_Click(object sender, EventArgs e)
+        {
+            // check whether the user had the shift key pressed while calling this function and store this in a variable for further use
+            bool shiftpressed_for_non_unicode = false;
+            if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift) { shiftpressed_for_non_unicode = true; }
+
+            OpenFileDialog Load_Dialog = new OpenFileDialog();
+            Load_Dialog.Title = "Select the comma separated CSV file you wish to load";
+            Load_Dialog.Filter = "CSV (Comma separated)|*.csv";
+
+            if (Load_Dialog.ShowDialog() == DialogResult.Cancel)
+            {
+                return;
+            }
+
+            // processing starts, so now we will disable the buttons first to make sure the user knows this by not having buttons to click on
+            diable_buttons(true);
+
+            ReadDataReturn myReadDataReturn = read_data_genericCSV(Load_Dialog.FileName, shiftpressed_for_non_unicode);
+            if (myReadDataReturn.duplicates != "") MessageBox.Show(myReadDataReturn.duplicates, "The following duplicate entries could not be imported");
+            add_to_database(myReadDataReturn.importedHash);
+            update_datagrid();
+
+            diable_buttons(false);
+        }   // just click handler                       
+
 
 
         private ReadDataReturn read_data_Outlook(bool customfolder)
@@ -728,7 +759,7 @@ namespace Contact_Conversion_Wizard
             }
             catch (System.Xml.XmlException e)
             {
-                Console.WriteLine("error occured: " + e.Message);
+                MessageBox.Show("error occured: " + e.Message);
             }
 
             file1.Close();
@@ -781,7 +812,7 @@ namespace Contact_Conversion_Wizard
                 foreach (string ParseLine in vParseLines)
                 {
                     // replaced escaped ":" characters, they should not be a problem when parsing
-                    string vParseLine = ParseLine.Replace("\\:", ":");
+                    string vParseLine = ParseLine.Replace("\\:", ":").Replace("\\\\", "\\").Replace("\\;",",").Replace("\\,", ",");
 
                     // if line starts with item1, remove this to allow normal processing (apple used this, item2 and up are therefore silently ignored)
                     if (vParseLine.StartsWith("item1.", StringComparison.OrdinalIgnoreCase) == true)
@@ -1179,11 +1210,133 @@ namespace Contact_Conversion_Wizard
                 } // end while loop going through the lines of the file
             }
             catch (Exception e)
-            { Console.WriteLine("Error occured while parsing file: " + e.Message); }
+            { MessageBox.Show("Error occured while parsing file: " + e.Message); }
 
             file1.Close();
             return (new ReadDataReturn(duplicates, loadDataHash));
         }                   // should work fine
+
+        private ReadDataReturn read_data_genericCSV(string filename, bool file_is_not_unicode)
+        {
+            // uses CSVreader Library from http://www.codeproject.com/KB/database/CsvReader.aspx under MIT License
+            System.Collections.Hashtable loadDataHash = new System.Collections.Hashtable();
+            string duplicates = "";
+
+            GroupDataContact myContact = new GroupDataContact();
+
+            List<string[]> LineList = new List<string[]>();
+            int fieldCount;
+            string[] headers;
+
+            System.IO.StreamReader myReader;
+            if (file_is_not_unicode == false)
+            { myReader = new System.IO.StreamReader(filename, Encoding.Unicode); }
+            else
+            { myReader = new System.IO.StreamReader(filename, Encoding.GetEncoding("ISO-8859-1")); }
+
+            // open the file "data.csv" which is a CSV file with headers
+            using (CsvReader csv = new CsvReader(myReader, true, ','))
+            
+            {
+                fieldCount = csv.FieldCount;
+                headers = csv.GetFieldHeaders();
+
+                while (csv.ReadNextRecord())
+                {
+                    string[] temparray = new string[fieldCount];
+                    csv.CopyCurrentRecordTo(temparray);
+                    LineList.Add(temparray);
+                }
+            }
+
+            // read first line and place it in header
+            
+            int[] assign_helper = new int[fieldCount];
+            // 13 fields can be used for:
+            // (3) lastname / firstname / company 
+            // (3) home / work / mobile
+            // (2) homefax / workfax
+            // (5) street / zip / city / email / comments
+
+            CSV_Row_Assigner my_assigner = new CSV_Row_Assigner(headers, LineList, ref assign_helper);
+            my_assigner.ShowDialog();
+            my_assigner.Dispose();
+
+            // actually do some stuff
+
+            for (int i = 0; i < LineList.Count; i++)
+            {
+                myContact = new GroupDataContact();                 // then we first clean out myContact Storage
+                myContact.isVIP = "No"; // by default, it's not a VIP unless afterwards changed
+
+                for (int j = 0; j < fieldCount; j++)
+                {
+                    if (assign_helper[j] != -1)
+                    {
+                        switch (assign_helper[j])
+                        {
+                            case 0: // Lastname
+                                myContact.lastname = LineList[i][j]; 
+                                break;
+                            case 1: // Firstname
+                                myContact.firstname = LineList[i][j];
+                                break;
+                            case 2: // Company
+                                myContact.company = LineList[i][j];
+                                break;
+                            case 3: // Home Phone Nr.
+                                myContact.home = LineList[i][j];
+                                break;
+                            case 4: // Work Phone Nr.
+                                myContact.work = LineList[i][j];
+                                break;
+                            case 5: // Mobile Phone Nr.
+                                myContact.mobile = LineList[i][j];
+                                break;
+                            case 6: // Home Fax Nr.
+                                myContact.homefax = LineList[i][j];
+                                break;
+                            case 7: // Work Fax Nr.
+                                myContact.workfax = LineList[i][j];
+                                break;
+                            case 8: // Street
+                                myContact.street = LineList[i][j];
+                                break;
+                            case 9: // ZIP Code
+                                myContact.zip = LineList[i][j];
+                                break;
+                            case 10: // City
+                                myContact.city = LineList[i][j];
+                                break;
+                            case 11: // eMail
+                                myContact.email = LineList[i][j];
+                                break;
+                            case 12: // Notes
+                                // check if contact is supposed to be VIP or has Speeddial Settings
+                                myContact.isVIP = CheckVIPflag("", LineList[i][j], false);
+                                myContact.speeddial = CheckSPEEDDIALflag(LineList[i][j]);
+                                break;
+                            default:
+                                MessageBox.Show("Default case in switch (assign_helper[j]) - this should not have happened, please report this bug!");
+                                break;
+                        }
+                    }
+                }
+                // Now all information should be stored in the array, so save it to the hashtable!
+                myContact.combinedname = GenerateFullName(myContact.firstname, myContact.lastname, myContact.company, combo_namestyle.SelectedIndex);
+
+                // if we have a combined name and at least one number
+                if (myContact.combinedname != "" && (myContact.home != string.Empty || myContact.work != string.Empty || myContact.mobile != string.Empty || myContact.homefax != string.Empty || myContact.workfax != string.Empty))
+                {
+                    try // we try to save it to the contact database
+                    { loadDataHash.Add(myContact.combinedname, myContact); }
+                    catch (ArgumentException)
+                    { duplicates += "Duplicate entry in source (Fritz!Adr Text with Tabstops file): " + myContact.combinedname + Environment.NewLine; }
+                }
+            }
+            
+            return (new ReadDataReturn(duplicates, loadDataHash));
+        }
 
         // Export Functionality
 
@@ -1220,7 +1373,29 @@ namespace Contact_Conversion_Wizard
 
         private void btn_save_vCard_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("TODO - Not implemented yet");
+            // check whether the user had the shift key pressed while calling this function and store this in a variable for further use
+            bool shiftpressed_for_only_phone = false;
+            if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift) { shiftpressed_for_only_phone = true; }
+
+            SaveFileDialog SaveVCF_Dialog = new SaveFileDialog();
+            SaveVCF_Dialog.Title = "Select the vCard file you wish to create";
+            SaveVCF_Dialog.DefaultExt = "vcf";
+            SaveVCF_Dialog.Filter = "VCF files (*.vcf)|*.vcf";
+            SaveVCF_Dialog.InitialDirectory = Environment.SpecialFolder.Desktop.ToString();
+            SaveVCF_Dialog.FileName = "vCard Export";
+
+            if (SaveVCF_Dialog.ShowDialog() == DialogResult.Cancel)
+            {
+                return;
+            }
+
+            diable_buttons(true);
+
+            save_data_vCard(SaveVCF_Dialog.FileName, myGroupDataHash, shiftpressed_for_only_phone);
+
+            // and reenable user interface
+            diable_buttons(false);
+
         }      // just click handler
 
         private void btn_save_FritzAdr_Click(object sender, EventArgs e)
@@ -1314,6 +1489,7 @@ namespace Contact_Conversion_Wizard
             // and reenable user interface
             diable_buttons(false);
         }   // just click handler
+
 
         private void save_data_Outlook(System.Collections.Hashtable workDataHash)
         {
@@ -1559,9 +1735,137 @@ namespace Contact_Conversion_Wizard
             if (MySaveDataHash.Count > 300) { errorwarning = Environment.NewLine + "Warning: Over 300 contacts have been exported! This might or might not be officially supported by AVM's Fritz!Box and may cause problems. Proceed with care!"; }
             MessageBox.Show(MySaveDataHash.Count + " contacts written to " + filename + " !" + Environment.NewLine + errorwarning);
             
-        }                              
+        }
 
-        // vCard Export not implemented here yet
+        private void save_data_vCard(string filename, System.Collections.Hashtable workDataHash, bool export_only_phone)
+        {
+            // get the country ID from the combobox or from user input
+            string country_id = RetrieveCountryID(combo_prefix.SelectedItem.ToString());
+
+            System.Collections.Hashtable MySaveDataHash = new System.Collections.Hashtable();
+            foreach (System.Collections.DictionaryEntry contactHash in workDataHash)
+            {
+                // process with exporting
+                StringBuilder sb_resultstring = new StringBuilder();
+
+                // extract GroupDataList from hashtable contents
+                GroupDataContact contactData = (GroupDataContact)contactHash.Value;
+
+                // clean up phone numbers
+                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id);
+                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id);
+                string CleanUpNumberHomefax = CleanUpNumber(contactData.homefax, country_id);
+                string CleanUpNumberWorkfax = CleanUpNumber(contactData.workfax, country_id);
+                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id);
+                string CleanUpStreet = contactData.street.Replace("\\", "\\\\").Replace(";", "\\;").Replace(",", "\\,");
+                string CleanUpCity = contactData.city.Replace("\\", "\\\\").Replace(";", "\\;").Replace(",", "\\,");
+                string CleanUpZIP = contactData.zip.Replace("\\", "\\\\").Replace(";", "\\;").Replace(",", "\\,");
+                string CleanUpeMail = contactData.email.Replace("\\", "\\\\").Replace(";", "\\;").Replace(",", "\\,");
+                string CleanUpFirstName = contactData.firstname.Replace("\\", "\\\\").Replace(";", "\\;").Replace(",", "\\,");
+                string CleanUpLastName = contactData.lastname.Replace("\\", "\\\\").Replace(";", "\\;").Replace(",", "\\,");
+                string CleanUpCompany = contactData.company.Replace("\\", "\\\\").Replace(";", "\\;").Replace(",", "\\,");
+                string CleanUpCombined = contactData.combinedname.Replace("\\", "\\\\").Replace(";", "\\;").Replace(",", "\\,");
+
+                // if we only wish to export phone numbers => check if all relevant phone fields for this export are empty
+                if (export_only_phone == true && (CleanUpNumberHome == string.Empty && CleanUpNumberWork == string.Empty && CleanUpNumberMobile == string.Empty))
+                {
+                    MessageBox.Show("Contact |" + CleanUpCombined + "| ignored, due to missing numbers");
+                    // if yes, abort this foreach loop and contine to the next one
+                    continue;
+                }
+
+                sb_resultstring.AppendLine("BEGIN:VCARD");
+                sb_resultstring.AppendLine("VERSION:3.0");
+                sb_resultstring.AppendLine("N:" + CleanUpLastName + ";" + CleanUpFirstName + ";;;");
+                sb_resultstring.AppendLine("FN:" + CleanUpCombined);
+                if (CleanUpCompany != string.Empty) { sb_resultstring.AppendLine("ORG:" + CleanUpCompany + ";"); }
+
+                // save home phone number
+                if (CleanUpNumberHome != string.Empty)
+                {
+                    if (contactData.preferred == "home")
+                    { sb_resultstring.AppendLine("TEL;type=HOME;type=pref:" + CleanUpNumberHome); }
+                    else
+                    { sb_resultstring.AppendLine("TEL;type=HOME:" + CleanUpNumberHome); }
+                }
+
+                // save work phone number
+                if (CleanUpNumberWork != string.Empty)
+                {
+                    if (contactData.preferred == "work")
+                    { sb_resultstring.AppendLine("TEL;type=WORK;type=pref:" + CleanUpNumberWork); }
+                    else
+                    { sb_resultstring.AppendLine("TEL;type=WORK:" + CleanUpNumberWork); }
+                }
+
+                // save mobile phone number
+                if (CleanUpNumberMobile != string.Empty)
+                {
+                    if (contactData.preferred == "mobile")
+                    { sb_resultstring.AppendLine("TEL;type=CELL;type=pref:" + CleanUpNumberMobile); }
+                    else
+                    { sb_resultstring.AppendLine("TEL;type=CELL:" + CleanUpNumberMobile); }
+                }
+
+                // save home fax phone number
+                if (CleanUpNumberHomefax != string.Empty)
+                {
+                    sb_resultstring.AppendLine("TEL;type=HOME;type=FAX:" + CleanUpNumberHomefax);
+                }
+
+                // save work fax phone number
+                if (CleanUpNumberWorkfax != string.Empty)
+                {
+                    sb_resultstring.AppendLine("TEL;type=WORK;type=FAX:" + CleanUpNumberWorkfax);
+                }
+
+                // save street, zip and city information, if one of them is available
+                if (!(CleanUpStreet == string.Empty && CleanUpZIP == string.Empty && CleanUpCity == string.Empty))
+                {
+                    sb_resultstring.AppendLine("ADR;type=HOME;type=pref:;;" + CleanUpStreet + ";" + CleanUpCity + ";;" + CleanUpZIP + ";");
+                }
+
+                // save email
+                if (CleanUpeMail != string.Empty)
+                {
+                    sb_resultstring.AppendLine("EMAIL;type=INTERNET;type=pref:" + CleanUpeMail);
+                }
+
+                // we will now save VIP and speeddial information to the first of those two entries
+                string extra_comments = string.Empty;
+                if (contactData.isVIP == "Yes") { extra_comments = "VIP "; }
+                if (contactData.speeddial != "") { extra_comments += "SPEEDDIAL(" + contactData.speeddial + ")"; }
+                if (extra_comments != string.Empty)
+                {
+                    sb_resultstring.AppendLine("NOTE:" + extra_comments);
+                }
+
+                sb_resultstring.AppendLine("END:VCARD");
+
+                try
+                {
+                    MySaveDataHash.Add(contactData.combinedname, sb_resultstring.ToString());
+                }
+                catch (ArgumentException) // unable to add to MySaveFaxDataHash, must mean that something with saveasname is already in there!
+                {
+                    MessageBox.Show("Unable to export the entry \"" + contactData.combinedname + "\", another entry with this name already exists! Ignoring duplicate.");
+                }
+
+            } // end of foreach loop for the contacts
+
+            StringBuilder resultstring = new StringBuilder();
+            // retrieve stuff from hastable and put in resultstring:
+            foreach (System.Collections.DictionaryEntry saveDataHash in MySaveDataHash)
+            {
+                resultstring.Append((string)saveDataHash.Value);
+            }
+
+            // actually write the file to disk
+            System.IO.File.WriteAllText(filename, resultstring.ToString(), Encoding.Unicode);
+
+            // tell the user this has been done
+            MessageBox.Show("Contacts written to " + filename + " !" + Environment.NewLine);
+        }
 
         private void save_data_FritzAdress(string filename, System.Collections.Hashtable workDataHash, bool only_export_fax)
         {
@@ -2090,7 +2394,7 @@ namespace Contact_Conversion_Wizard
 
             // tell the user this has been done
             MessageBox.Show("Contacts written to " + filename + " !" + Environment.NewLine);
-        }                             
+        }
 
     }
 

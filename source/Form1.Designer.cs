@@ -74,13 +74,14 @@
             this.combo_typeprefer = new System.Windows.Forms.ComboBox();
             this.combo_namestyle = new System.Windows.Forms.ComboBox();
             this.combo_outlookimport = new System.Windows.Forms.ComboBox();
+            this.btn_save_TalkSurfCSV = new System.Windows.Forms.Button();
+            this.btn_read_genericCSV = new System.Windows.Forms.Button();
             this.panel_left = new System.Windows.Forms.Panel();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
-            this.btn_save_TalkSurfCSV = new System.Windows.Forms.Button();
             this.panel_right.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MyDataGridView)).BeginInit();
             this.panel_left.SuspendLayout();
@@ -303,14 +304,13 @@
             // btn_save_vCard
             // 
             this.btn_save_vCard.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn_save_vCard.Enabled = false;
             this.btn_save_vCard.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn_save_vCard.Location = new System.Drawing.Point(836, 153);
             this.btn_save_vCard.Name = "btn_save_vCard";
             this.btn_save_vCard.Size = new System.Drawing.Size(167, 35);
             this.btn_save_vCard.TabIndex = 14;
             this.btn_save_vCard.Text = "vCard";
-            this.toolTip1.SetToolTip(this.btn_save_vCard, "Not implemented yet!");
+            this.toolTip1.SetToolTip(this.btn_save_vCard, resources.GetString("btn_save_vCard.ToolTip"));
             this.btn_save_vCard.UseVisualStyleBackColor = true;
             this.btn_save_vCard.Click += new System.EventHandler(this.btn_save_vCard_Click);
             // 
@@ -578,6 +578,32 @@
             this.combo_outlookimport.TabIndex = 6;
             this.toolTip1.SetToolTip(this.combo_outlookimport, resources.GetString("combo_outlookimport.ToolTip"));
             // 
+            // btn_save_TalkSurfCSV
+            // 
+            this.btn_save_TalkSurfCSV.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_save_TalkSurfCSV.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_save_TalkSurfCSV.Location = new System.Drawing.Point(836, 317);
+            this.btn_save_TalkSurfCSV.Name = "btn_save_TalkSurfCSV";
+            this.btn_save_TalkSurfCSV.Size = new System.Drawing.Size(167, 35);
+            this.btn_save_TalkSurfCSV.TabIndex = 24;
+            this.btn_save_TalkSurfCSV.Text = "Talk+Surf CSV";
+            this.toolTip1.SetToolTip(this.btn_save_TalkSurfCSV, "CSV Export (Non-Unicode) for Gigasets old Talk & Surf 6.0 Software.\r\nExports a sh" +
+                    "ortened name and the phone numbers.\r\n");
+            this.btn_save_TalkSurfCSV.UseVisualStyleBackColor = true;
+            this.btn_save_TalkSurfCSV.Click += new System.EventHandler(this.btn_save_TalkSurfCSV_Click);
+            // 
+            // btn_read_genericCSV
+            // 
+            this.btn_read_genericCSV.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_read_genericCSV.Location = new System.Drawing.Point(4, 235);
+            this.btn_read_genericCSV.Name = "btn_read_genericCSV";
+            this.btn_read_genericCSV.Size = new System.Drawing.Size(167, 35);
+            this.btn_read_genericCSV.TabIndex = 25;
+            this.btn_read_genericCSV.Text = "Generic CSV";
+            this.toolTip1.SetToolTip(this.btn_read_genericCSV, resources.GetString("btn_read_genericCSV.ToolTip"));
+            this.btn_read_genericCSV.UseVisualStyleBackColor = true;
+            this.btn_read_genericCSV.Click += new System.EventHandler(this.btn_read_genericCSV_Click);
+            // 
             // panel_left
             // 
             this.panel_left.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -643,25 +669,12 @@
             this.label8.TabIndex = 23;
             this.label8.Text = "Options affecting Export";
             // 
-            // btn_save_TalkSurfCSV
-            // 
-            this.btn_save_TalkSurfCSV.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn_save_TalkSurfCSV.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_save_TalkSurfCSV.Location = new System.Drawing.Point(836, 317);
-            this.btn_save_TalkSurfCSV.Name = "btn_save_TalkSurfCSV";
-            this.btn_save_TalkSurfCSV.Size = new System.Drawing.Size(167, 35);
-            this.btn_save_TalkSurfCSV.TabIndex = 24;
-            this.btn_save_TalkSurfCSV.Text = "Talk+Surf CSV";
-            this.toolTip1.SetToolTip(this.btn_save_TalkSurfCSV, "CSV Export (Non-Unicode) for Gigasets old Talk & Surf 6.0 Software.\r\nExports a sh" +
-                    "ortened name and the phone numbers.\r\n");
-            this.btn_save_TalkSurfCSV.UseVisualStyleBackColor = true;
-            this.btn_save_TalkSurfCSV.Click += new System.EventHandler(this.btn_save_TalkSurfCSV_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1004, 639);
+            this.Controls.Add(this.btn_read_genericCSV);
             this.Controls.Add(this.btn_save_TalkSurfCSV);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.label7);
@@ -747,6 +760,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Speeddial;
         private System.Windows.Forms.DataGridViewTextBoxColumn Photo;
         private System.Windows.Forms.Button btn_save_TalkSurfCSV;
+        private System.Windows.Forms.Button btn_read_genericCSV;
     }
 }
 
