@@ -5,7 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
-using LumenWorks.Framework.IO.Csv;
+            
 
 
 namespace Contact_Conversion_Wizard
@@ -23,7 +23,6 @@ namespace Contact_Conversion_Wizard
             if (!System.IO.Directory.Exists(MySaveFolder))
             { System.IO.Directory.CreateDirectory(MySaveFolder); }
 
-            
             myGroupDataHash = new System.Collections.Hashtable();
 
             // initialize country selection combobox to the country the windows OS is set to
@@ -95,10 +94,12 @@ namespace Contact_Conversion_Wizard
             else
             {
                 // Ask the user for the correct country code
-                CustomCountryID MyCustomCountryID = new CustomCountryID();
-                MyCustomCountryID.ShowDialog();
-                my_country_id = MyCustomCountryID.country_id_transfer;
-                MyCustomCountryID.Dispose();
+                
+
+                SimpleInputDialog MySimpleInputDialog = new SimpleInputDialog("Please enter your local Country Prefix here (in the format 00x or 00xx)", "CustomCountryID", true);
+                MySimpleInputDialog.ShowDialog();
+                my_country_id = MySimpleInputDialog.resultstring;
+                MySimpleInputDialog.Dispose();
             }
 
             return my_country_id;
@@ -332,6 +333,7 @@ namespace Contact_Conversion_Wizard
                 btn_save_SnomCSV7.Enabled = false;
                 btn_save_SnomCSV8.Enabled = false;
                 btn_save_TalkSurfCSV.Enabled = false;
+                btn_save_AastraCSV.Enabled = false;
                 
                 button_clear.Enabled = false; 
             }
@@ -351,6 +353,7 @@ namespace Contact_Conversion_Wizard
                 btn_save_SnomCSV7.Enabled = true;
                 btn_save_SnomCSV8.Enabled = true;
                 btn_save_TalkSurfCSV.Enabled = true;
+                btn_save_AastraCSV.Enabled = true;
                 
                 button_clear.Enabled = true;
 
@@ -446,7 +449,7 @@ namespace Contact_Conversion_Wizard
             return null;
         }
 
-        // Import Functionality
+        // Section Code for Import Functionality
 
         private void btn_read_Outlook_Click(object sender, EventArgs e)
         {
@@ -455,9 +458,13 @@ namespace Contact_Conversion_Wizard
             
             // check whether the user had the shift key pressed while calling this function and store this in a variable for further use
             bool shiftpressed_for_custom_folder = false;
-            if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift) { shiftpressed_for_custom_folder = true; }
+            bool ctrlpressed_for_category_filter = false;
 
-            ReadDataReturn myReadDataReturn = read_data_Outlook(shiftpressed_for_custom_folder);
+            if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift) { shiftpressed_for_custom_folder = true; }
+            if ((Control.ModifierKeys & Keys.Control) == Keys.Control) { ctrlpressed_for_category_filter = true; }
+
+            ReadDataReturn myReadDataReturn = read_data_Outlook(shiftpressed_for_custom_folder, ctrlpressed_for_category_filter);
+            
             if (myReadDataReturn.duplicates != "") MessageBox.Show(myReadDataReturn.duplicates, "The following duplicate entries could not be imported");
             add_to_database(myReadDataReturn.importedHash);
             update_datagrid();
@@ -537,9 +544,6 @@ namespace Contact_Conversion_Wizard
         private void btn_read_genericCSV_Click(object sender, EventArgs e)
         {
             // check whether the user had the shift key pressed while calling this function and store this in a variable for further use
-            bool shiftpressed_for_non_unicode = false;
-            if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift) { shiftpressed_for_non_unicode = true; }
-
             OpenFileDialog Load_Dialog = new OpenFileDialog();
             Load_Dialog.Title = "Select the comma separated CSV file you wish to load";
             Load_Dialog.Filter = "CSV (Comma separated)|*.csv";
@@ -552,7 +556,7 @@ namespace Contact_Conversion_Wizard
             // processing starts, so now we will disable the buttons first to make sure the user knows this by not having buttons to click on
             diable_buttons(true);
 
-            ReadDataReturn myReadDataReturn = read_data_genericCSV(Load_Dialog.FileName, shiftpressed_for_non_unicode);
+            ReadDataReturn myReadDataReturn = read_data_genericCSV(Load_Dialog.FileName);
             if (myReadDataReturn.duplicates != "") MessageBox.Show(myReadDataReturn.duplicates, "The following duplicate entries could not be imported");
             add_to_database(myReadDataReturn.importedHash);
             update_datagrid();
@@ -561,8 +565,7 @@ namespace Contact_Conversion_Wizard
         }   // just click handler                       
 
 
-
-        private ReadDataReturn read_data_Outlook(bool customfolder)
+        private ReadDataReturn read_data_Outlook(bool customfolder, bool categoryfilter)
         {
             // read all information from Outlook and save all contacts that have at least one phone or fax number
             System.Collections.Hashtable loadDataHash = new System.Collections.Hashtable();
@@ -600,6 +603,15 @@ namespace Contact_Conversion_Wizard
                 while (outlookFolder == null) { outlookFolder = outlookNS.PickFolder(); }
             }
 
+            string my_category_filter = "";
+            if (categoryfilter == true)
+            {
+                SimpleInputDialog MySimpleInputDialog = new SimpleInputDialog("Please enter the string that must be present in the category field:", "Category Filter", false);
+                MySimpleInputDialog.ShowDialog();
+                my_category_filter = MySimpleInputDialog.resultstring;
+                MySimpleInputDialog.Dispose();
+            }
+
             // limit items processed to those items which actually are contacts
             string ItemFilter = "[MessageClass] = \"IPM.Contact\"";
             Microsoft.Office.Interop.Outlook.Items oContactItems = outlookFolder.Items.Restrict(ItemFilter);
@@ -623,6 +635,15 @@ namespace Contact_Conversion_Wizard
                 myContact.zip = (myContactItem.MailingAddressPostalCode == null) ? string.Empty : myContactItem.MailingAddressPostalCode;
                 myContact.city = (myContactItem.MailingAddressCity == null) ? string.Empty : myContactItem.MailingAddressCity;
                 myContact.email = (myContactItem.Email1Address == null) ? string.Empty : myContactItem.Email1Address;
+                string categories = (myContactItem.Categories == null) ? string.Empty : myContactItem.Categories;
+
+                if (my_category_filter != "")
+                {
+                    if (categories.Contains(my_category_filter) == false)
+                    {
+                        continue;   // abort this foreach loop and switch to the next contact
+                    }
+                }
 
                 // store picture in myContact.jpeg, if present:
                 if (myContactItem.HasPicture == true)
@@ -1216,60 +1237,31 @@ namespace Contact_Conversion_Wizard
             return (new ReadDataReturn(duplicates, loadDataHash));
         }                   // should work fine
 
-        private ReadDataReturn read_data_genericCSV(string filename, bool file_is_not_unicode)
+        private ReadDataReturn read_data_genericCSV(string filename)
         {
-            // uses CSVreader Library from http://www.codeproject.com/KB/database/CsvReader.aspx under MIT License
+            // repare array that will contain the returned data
             System.Collections.Hashtable loadDataHash = new System.Collections.Hashtable();
             string duplicates = "";
-
+            
+            // individual contacts to be stored in the loadDataHash
             GroupDataContact myContact = new GroupDataContact();
 
+            // prepare return arrays for the form
             List<string[]> LineList = new List<string[]>();
-            int fieldCount;
-            string[] headers;
+            int[] assign_helper = new int[99];
 
-            System.IO.StreamReader myReader;
-            if (file_is_not_unicode == false)
-            { myReader = new System.IO.StreamReader(filename, Encoding.Unicode); }
-            else
-            { myReader = new System.IO.StreamReader(filename, Encoding.GetEncoding("ISO-8859-1")); }
-
-            // open the file "data.csv" which is a CSV file with headers
-            using (CsvReader csv = new CsvReader(myReader, true, ','))
-            
-            {
-                fieldCount = csv.FieldCount;
-                headers = csv.GetFieldHeaders();
-
-                while (csv.ReadNextRecord())
-                {
-                    string[] temparray = new string[fieldCount];
-                    csv.CopyCurrentRecordTo(temparray);
-                    LineList.Add(temparray);
-                }
-            }
-
-            // read first line and place it in header
-            
-            int[] assign_helper = new int[fieldCount];
-            // 13 fields can be used for:
-            // (3) lastname / firstname / company 
-            // (3) home / work / mobile
-            // (2) homefax / workfax
-            // (5) street / zip / city / email / comments
-
-            CSV_Row_Assigner my_assigner = new CSV_Row_Assigner(headers, LineList, ref assign_helper);
+            // actually run the form that fills the return arrays
+            CSV_Row_Assigner my_assigner = new CSV_Row_Assigner(filename, ref LineList, ref assign_helper);
             my_assigner.ShowDialog();
             my_assigner.Dispose();
 
-            // actually do some stuff
-
+            // actually do some stuff with the returned arrays (if any)
             for (int i = 0; i < LineList.Count; i++)
             {
                 myContact = new GroupDataContact();                 // then we first clean out myContact Storage
                 myContact.isVIP = "No"; // by default, it's not a VIP unless afterwards changed
 
-                for (int j = 0; j < fieldCount; j++)
+                for (int j = 0; j < LineList[0].GetLength(0); j++)
                 {
                     if (assign_helper[j] != -1)
                     {
@@ -1338,7 +1330,7 @@ namespace Contact_Conversion_Wizard
             return (new ReadDataReturn(duplicates, loadDataHash));
         }
 
-        // Export Functionality
+        // Section Code for Export Functionality
 
         private void btn_save_Outlook_Click(object sender, EventArgs e)
         {
@@ -1490,6 +1482,28 @@ namespace Contact_Conversion_Wizard
             diable_buttons(false);
         }   // just click handler
 
+        private void btn_save_AastraCSV_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog SaveCSV_Dialog = new SaveFileDialog();
+            SaveCSV_Dialog.Title = "Select the Aastra CSV file you wish to create";
+            SaveCSV_Dialog.DefaultExt = "csv";
+            SaveCSV_Dialog.Filter = "CSV files (*.csv)|*.csv";
+            SaveCSV_Dialog.InitialDirectory = Environment.SpecialFolder.Desktop.ToString();
+            SaveCSV_Dialog.FileName = "aastra_csv";
+
+            if (SaveCSV_Dialog.ShowDialog() == DialogResult.Cancel)
+            {
+                return;
+            }
+
+            diable_buttons(true);
+
+            save_data_AastraCSV(SaveCSV_Dialog.FileName, myGroupDataHash);
+
+            // and reenable user interface
+            diable_buttons(false);
+        }
+
 
         private void save_data_Outlook(System.Collections.Hashtable workDataHash)
         {
@@ -1578,7 +1592,7 @@ namespace Contact_Conversion_Wizard
             string pic_export_path = "";
             if (combo_picexport.SelectedIndex == 1)
             {
-                pic_export_path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(filename), System.IO.Path.GetFileNameWithoutExtension(filename) + " - fonpix");
+                pic_export_path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(filename), System.IO.Path.GetFileNameWithoutExtension(filename) + " - fonpix-custom");
                 if (!System.IO.Directory.Exists(pic_export_path)) { System.IO.Directory.CreateDirectory(pic_export_path); }
             }
 
@@ -2395,6 +2409,90 @@ namespace Contact_Conversion_Wizard
             // tell the user this has been done
             MessageBox.Show("Contacts written to " + filename + " !" + Environment.NewLine);
         }
+
+        private void save_data_AastraCSV(string filename, System.Collections.Hashtable workDataHash)
+        {
+            // get the country ID from the combobox or from user input
+            string country_id = RetrieveCountryID(combo_prefix.SelectedItem.ToString());
+
+            // process with exporting
+            string resultstring;
+
+            // write the header (none needed for snom)
+            resultstring = "";
+
+            System.Collections.Hashtable MySaveDataHash = new System.Collections.Hashtable();
+
+            foreach (System.Collections.DictionaryEntry contactHash in workDataHash)
+            {
+                // extract GroupDataList from hashtable contents
+                GroupDataContact contactData = (GroupDataContact)contactHash.Value;
+
+                //  check if all relevant phone numbers for this export here are empty
+                if (contactData.home == string.Empty && contactData.work == string.Empty && contactData.mobile == string.Empty)
+                { continue; /* if yes, abort this foreach loop and contine to the next one */ }
+
+                // clean up phone number
+                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id);
+                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id);
+                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id);
+                
+                // limit to 31 chars
+                string name_home = LimitNameLength(contactData.combinedname, 31).Replace(",", " ");
+                string name_work = LimitNameLength(contactData.combinedname, 31).Replace(",", " ");
+                string name_mobile = LimitNameLength(contactData.combinedname, 31).Replace(",", " ");
+
+                // write contact lines
+                if (CleanUpNumberHome != "")
+                {
+                    try
+                    { 
+                        MySaveDataHash.Add(name_home + "#Home", name_home + "," + CleanUpNumberHome + ",1,Home,public\r\n");
+                    }
+                    catch (ArgumentException) // unable to add
+                    {
+                        MessageBox.Show("Unable to export the shortened entry \"" + name_home + "#Home" + "\",\r\nanother entry with this name already exists!\r\n\r\nIgnoring duplicate for contact source: " + contactData.combinedname);
+                    }
+                }
+
+                if (CleanUpNumberWork != "")
+                {
+                    try
+                    {
+                        MySaveDataHash.Add(name_work + "#Work", name_work + "," + CleanUpNumberWork + ",1,Work,public\r\n");
+                    }
+                    catch (ArgumentException) // unable to add 
+                    {
+                        MessageBox.Show("Unable to export the shortened entry \"" + name_work + "#Work" + "\",\r\nanother entry with this name already exists!\r\n\r\nIgnoring duplicate for contact source: " + contactData.combinedname);
+                    }
+                }
+
+                if (CleanUpNumberMobile != "")
+                {
+                    try
+                    {
+                        MySaveDataHash.Add(name_mobile + "#Mobile", name_mobile + "," + CleanUpNumberMobile + ",1,Mobile,public\r\n");
+                    }
+                    catch (ArgumentException) // unable to add
+                    {
+                        MessageBox.Show("Unable to export the shortened entry \"" + name_mobile + "#Mobile" + "\",\r\nanother entry with this name already exists!\r\n\r\nIgnoring duplicate for contact source: " + contactData.combinedname);
+                    }
+                }
+            } // end of foreach loop for the contacts
+
+            // retrieve stuff from hastable and put in resultstring:
+            foreach (System.Collections.DictionaryEntry saveDataHash in MySaveDataHash)
+            {
+                resultstring += (string)saveDataHash.Value;
+            }
+
+            // actually write the file to disk
+            System.IO.File.WriteAllText(filename, resultstring, Encoding.UTF8);
+
+            // tell the user this has been done
+            MessageBox.Show("Contacts written to " + filename + " !" + Environment.NewLine);
+        }                             
+
 
     }
 

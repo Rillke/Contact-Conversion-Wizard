@@ -76,6 +76,7 @@
             this.combo_outlookimport = new System.Windows.Forms.ComboBox();
             this.btn_save_TalkSurfCSV = new System.Windows.Forms.Button();
             this.btn_read_genericCSV = new System.Windows.Forms.Button();
+            this.btn_save_AastraCSV = new System.Windows.Forms.Button();
             this.panel_left = new System.Windows.Forms.Panel();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -95,7 +96,8 @@
             this.btn_read_Outlook.Size = new System.Drawing.Size(167, 35);
             this.btn_read_Outlook.TabIndex = 0;
             this.btn_read_Outlook.Text = "Outlook";
-            this.toolTip1.SetToolTip(this.btn_read_Outlook, "Import Contacts from Outlook. Hold SHIFT to select custom folder!");
+            this.toolTip1.SetToolTip(this.btn_read_Outlook, "Import Contacts from Outlook.\r\n\r\nHold SHIFT to select custom folder!\r\nHold CTRL t" +
+                    "o import only Contacts matching a category!\r\n");
             this.btn_read_Outlook.UseVisualStyleBackColor = true;
             this.btn_read_Outlook.Click += new System.EventHandler(this.btn_read_Outlook_Click);
             // 
@@ -600,9 +602,22 @@
             this.btn_read_genericCSV.Size = new System.Drawing.Size(167, 35);
             this.btn_read_genericCSV.TabIndex = 25;
             this.btn_read_genericCSV.Text = "Generic CSV";
-            this.toolTip1.SetToolTip(this.btn_read_genericCSV, resources.GetString("btn_read_genericCSV.ToolTip"));
+            this.toolTip1.SetToolTip(this.btn_read_genericCSV, "Imports contacts from a generic CSV file with comma separated values.\r\n");
             this.btn_read_genericCSV.UseVisualStyleBackColor = true;
             this.btn_read_genericCSV.Click += new System.EventHandler(this.btn_read_genericCSV_Click);
+            // 
+            // btn_save_AastraCSV
+            // 
+            this.btn_save_AastraCSV.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_save_AastraCSV.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_save_AastraCSV.Location = new System.Drawing.Point(836, 358);
+            this.btn_save_AastraCSV.Name = "btn_save_AastraCSV";
+            this.btn_save_AastraCSV.Size = new System.Drawing.Size(167, 35);
+            this.btn_save_AastraCSV.TabIndex = 26;
+            this.btn_save_AastraCSV.Text = "Aastra CSV";
+            this.toolTip1.SetToolTip(this.btn_save_AastraCSV, "CSV Export (Unicode) for Aastra Phones");
+            this.btn_save_AastraCSV.UseVisualStyleBackColor = true;
+            this.btn_save_AastraCSV.Click += new System.EventHandler(this.btn_save_AastraCSV_Click);
             // 
             // panel_left
             // 
@@ -674,6 +689,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1004, 639);
+            this.Controls.Add(this.btn_save_AastraCSV);
             this.Controls.Add(this.btn_read_genericCSV);
             this.Controls.Add(this.btn_save_TalkSurfCSV);
             this.Controls.Add(this.label8);
@@ -694,6 +710,7 @@
             this.Controls.Add(this.btn_save_FritzXML);
             this.Controls.Add(this.btn_read_vCard);
             this.Controls.Add(this.btn_read_Outlook);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(1020, 596);
             this.Name = "Form1";
             this.Text = "Contact Conversion Wizard";
@@ -761,6 +778,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Photo;
         private System.Windows.Forms.Button btn_save_TalkSurfCSV;
         private System.Windows.Forms.Button btn_read_genericCSV;
+        private System.Windows.Forms.Button btn_save_AastraCSV;
     }
 }
 
