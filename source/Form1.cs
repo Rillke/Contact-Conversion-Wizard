@@ -1597,10 +1597,10 @@ namespace Contact_Conversion_Wizard
             }
 
             // process with exporting
-            string resultstring;
+            StringBuilder resultSB = new StringBuilder();
 
             // write the header
-            resultstring = "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n<phonebooks>\n<phonebook>";
+            resultSB.Append("<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n<phonebooks>\n<phonebook>");
 
             // initialize quickdial_remaining veriable
             int qd_remaining = 97;
@@ -1610,7 +1610,7 @@ namespace Contact_Conversion_Wizard
 
             foreach (System.Collections.DictionaryEntry contactHash in workDataHash)
             {
-                string contactstring = "";
+                StringBuilder contactSB = new StringBuilder();
 
                 // extract GroupDataList from hashtable contents
                 GroupDataContact contactData = (GroupDataContact)contactHash.Value;
@@ -1623,8 +1623,12 @@ namespace Contact_Conversion_Wizard
 
                 // limit to 32 chars
                 SaveAsName = LimitNameLength(SaveAsName, 32);
-                // replace "&"
+
+                // replace "&","<",">"
                 SaveAsName = SaveAsName.Replace("&", "&amp;");
+                SaveAsName = SaveAsName.Replace("<", "&lt;");
+                SaveAsName = SaveAsName.Replace(">", "&gt;");
+
                 // clean up phone number
                 string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id);
                 string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id);
@@ -1645,7 +1649,7 @@ namespace Contact_Conversion_Wizard
                     imageURLstring = "<imageURL>" + textBox_PicPath.Text + picfile + "</imageURL>\n";
                 }
 
-                contactstring += "<contact>\n<category>" + VIPid + "</category>\n<person>\n<realName>" + SaveAsName + "</realName>\n" + imageURLstring + "</person>\n<telephony>\n";
+                contactSB.Append("<contact>\n<category>" + VIPid + "</category>\n<person>\n<realName>" + SaveAsName + "</realName>\n" + imageURLstring + "</person>\n<telephony>\n");
 
                 // prepare preferred number setting:
                 string pref_QD_string = "prio=\"1\"";
@@ -1693,39 +1697,53 @@ namespace Contact_Conversion_Wizard
                 if (CleanUpNumberHome != "")
                 {
                     if (contactData.preferred == "home")
-                    { contactstring += "<number type=\"home\" " + pref_QD_string + ">" + CleanUpNumberHome + "</number>\n"; }
+                    { contactSB.Append("<number type=\"home\" " + pref_QD_string + ">" + CleanUpNumberHome + "</number>\n"); }
                     else
-                    { contactstring += "<number type=\"home\">" + CleanUpNumberHome + "</number>\n"; }
+                    { contactSB.Append("<number type=\"home\">" + CleanUpNumberHome + "</number>\n"); }
 
                 }
-                else { contactstring += "<number type=\"home\" />\n"; }
+                else { contactSB.Append("<number type=\"home\" />\n"); }
 
                 // add work phone number
                 if (CleanUpNumberWork != "")
                 {
                     if (contactData.preferred == "work")
-                    { contactstring += "<number type=\"work\" " + pref_QD_string + ">" + CleanUpNumberWork + "</number>\n"; }
+                    { contactSB.Append("<number type=\"work\" " + pref_QD_string + ">" + CleanUpNumberWork + "</number>\n"); }
                     else
-                    { contactstring += "<number type=\"work\">" + CleanUpNumberWork + "</number>\n"; }
+                    { contactSB.Append("<number type=\"work\">" + CleanUpNumberWork + "</number>\n"); }
                 }
-                else { contactstring += "<number type=\"work\" />\n"; }
+                else { contactSB.Append("<number type=\"work\" />\n"); }
 
                 // add mobile phone number
                 if (CleanUpNumberMobile != "")
                 {
                     if (contactData.preferred == "mobile")
-                    { contactstring += "<number type=\"mobile\" " + pref_QD_string + ">" + CleanUpNumberMobile + "</number>\n"; }
+                    { contactSB.Append("<number type=\"mobile\" " + pref_QD_string + ">" + CleanUpNumberMobile + "</number>\n"); }
                     else
-                    { contactstring += "<number type=\"mobile\">" + CleanUpNumberMobile + "</number>\n"; }
+                    { contactSB.Append("<number type=\"mobile\">" + CleanUpNumberMobile + "</number>\n"); }
                 }
-                else { contactstring += "<number type=\"mobile\" />\n"; }
+                else { contactSB.Append("<number type=\"mobile\" />\n"); }
 
-                // write contact footer
-                contactstring += "</telephony>\n<services>\n<email />\n</services>\n<setup>\n<ringTone />\n<ringVolume />\n</setup>\n</contact>";
+                // add telephony end and services start
+                contactSB.Append("</telephony>\n<services>\n");
+
+                // depending on whether an eMail exists, add email or not
+                if (contactData.email != "")
+                {
+                    contactSB.Append("<email classifier=\"private\">" + contactData.email + "</email>");
+                    contactSB.Append("<email />\n");
+                }
+                else
+                {
+                    contactSB.Append("<email />\n");
+                }
+                
+                // add serviced end and rest of contact footer
+                contactSB.Append("</services>\n<setup>\n<ringTone />\n<ringVolume />\n</setup>\n</contact>");
 
                 try
                 {
-                    MySaveDataHash.Add(SaveAsName, contactstring);
+                    MySaveDataHash.Add(SaveAsName, contactSB.ToString());
                 }
                 catch (ArgumentException) // unable to add to MySaveDataHash, must mean that something with saveasname is already in there!
                 {
@@ -1735,14 +1753,14 @@ namespace Contact_Conversion_Wizard
             } // end of foreach loop for the contacts
 
             foreach (System.Collections.DictionaryEntry saveDataHash in MySaveDataHash)
-            { resultstring += (string)saveDataHash.Value; }
+            { resultSB.Append((string)saveDataHash.Value); }
 
             // write file footer with AVM HD Music test stuff, currently not added. Not sure if thats a good idea to add this always.
             // resultstring += "<contact><category /><person><realName>~AVM-HD-Musik</realName></person><telephony><number\nprio=\"1\" type=\"home\" quickdial=\"98\">200@hd-telefonie.avm.de</number></telephony><services /><setup /></contact><contact><category /><person><realName>~AVM-HD-Sprache</realName></person><telephony><number\nprio=\"1\" type=\"home\" quickdial=\"99\">100@hd-telefonie.avm.de</number></telephony><services /><setup /></contact>";
-            resultstring += "</phonebook>\n</phonebooks>";
+            resultSB.Append("</phonebook>\n</phonebooks>");
 
             // actually write the file to disk
-            System.IO.File.WriteAllText(filename, resultstring, Encoding.GetEncoding("ISO-8859-1"));
+            System.IO.File.WriteAllText(filename, resultSB.ToString(), Encoding.GetEncoding("ISO-8859-1"));
 
             // tell the user this has been done
             string errorwarning = "";
@@ -1984,10 +2002,10 @@ namespace Contact_Conversion_Wizard
             string country_id = RetrieveCountryID(combo_prefix.SelectedItem.ToString());
 
             // process with exporting
-            string resultstring;
+            StringBuilder resultSB = new StringBuilder();
 
             // write the header (none needed for snom)
-            resultstring = "\"Name\",\"Number\"\r\n";
+            resultSB.Append("\"Name\",\"Number\"\r\n");
 
             System.Collections.Hashtable MySaveDataHash = new System.Collections.Hashtable();
 
@@ -2076,11 +2094,12 @@ namespace Contact_Conversion_Wizard
             // retrieve stuff from hastable and put in resultstring:
             foreach (System.Collections.DictionaryEntry saveDataHash in MySaveDataHash)
             {
-                resultstring += (string)saveDataHash.Value;
+                resultSB.Append((string)saveDataHash.Value);
             }
 
             // actually write the file to disk
-            System.IO.File.WriteAllText(filename, resultstring, Encoding.UTF8);
+            System.Text.Encoding utf8WithoutBom = new System.Text.UTF8Encoding(false);
+            System.IO.File.WriteAllText(filename, resultSB.ToString(), utf8WithoutBom);
 
             // tell the user this has been done
             MessageBox.Show("Contacts written to " + filename + " !" + Environment.NewLine);
@@ -2092,10 +2111,7 @@ namespace Contact_Conversion_Wizard
             string country_id = RetrieveCountryID(combo_prefix.SelectedItem.ToString());
 
             // process with exporting
-            string resultstring;
-
-            // write no header (none needed for snom v8)
-            resultstring = "";
+            StringBuilder resultSB = new StringBuilder();
 
             System.Collections.Hashtable MySaveDataHash = new System.Collections.Hashtable();
 
@@ -2292,11 +2308,12 @@ namespace Contact_Conversion_Wizard
             // retrieve stuff from hastable and put in resultstring:
             foreach (System.Collections.DictionaryEntry saveDataHash in MySaveDataHash)
             {
-                resultstring += (string)saveDataHash.Value;
+                resultSB.Append((string)saveDataHash.Value);
             }
 
             // actually write the file to disk
-            System.IO.File.WriteAllText(filename, resultstring, Encoding.UTF8);
+            System.Text.Encoding utf8WithoutBom = new System.Text.UTF8Encoding(false);
+            System.IO.File.WriteAllText(filename, resultSB.ToString(), utf8WithoutBom);
 
             // tell the user this has been done
             MessageBox.Show("Contacts written to " + filename + " !" + Environment.NewLine);
@@ -2416,10 +2433,7 @@ namespace Contact_Conversion_Wizard
             string country_id = RetrieveCountryID(combo_prefix.SelectedItem.ToString());
 
             // process with exporting
-            string resultstring;
-
-            // write the header (none needed for snom)
-            resultstring = "";
+            StringBuilder resultSB = new StringBuilder();
 
             System.Collections.Hashtable MySaveDataHash = new System.Collections.Hashtable();
 
@@ -2447,7 +2461,7 @@ namespace Contact_Conversion_Wizard
                 {
                     try
                     { 
-                        MySaveDataHash.Add(name_home + "#Home", name_home + "," + CleanUpNumberHome + ",1,Home,public\r\n");
+                        MySaveDataHash.Add(name_home + "#Home", name_home + "," + CleanUpNumberHome + ",1,Home,public\n");
                     }
                     catch (ArgumentException) // unable to add
                     {
@@ -2459,7 +2473,7 @@ namespace Contact_Conversion_Wizard
                 {
                     try
                     {
-                        MySaveDataHash.Add(name_work + "#Work", name_work + "," + CleanUpNumberWork + ",1,Work,public\r\n");
+                        MySaveDataHash.Add(name_work + "#Work", name_work + "," + CleanUpNumberWork + ",1,Work,public\n");
                     }
                     catch (ArgumentException) // unable to add 
                     {
@@ -2471,7 +2485,7 @@ namespace Contact_Conversion_Wizard
                 {
                     try
                     {
-                        MySaveDataHash.Add(name_mobile + "#Mobile", name_mobile + "," + CleanUpNumberMobile + ",1,Mobile,public\r\n");
+                        MySaveDataHash.Add(name_mobile + "#Mobile", name_mobile + "," + CleanUpNumberMobile + ",1,Mobile,public\n");
                     }
                     catch (ArgumentException) // unable to add
                     {
@@ -2483,11 +2497,12 @@ namespace Contact_Conversion_Wizard
             // retrieve stuff from hastable and put in resultstring:
             foreach (System.Collections.DictionaryEntry saveDataHash in MySaveDataHash)
             {
-                resultstring += (string)saveDataHash.Value;
+                resultSB.Append((string)saveDataHash.Value);
             }
 
             // actually write the file to disk
-            System.IO.File.WriteAllText(filename, resultstring, Encoding.UTF8);
+            System.Text.Encoding utf8WithoutBom = new System.Text.UTF8Encoding(false);
+            System.IO.File.WriteAllText(filename, resultSB.ToString(), utf8WithoutBom);
 
             // tell the user this has been done
             MessageBox.Show("Contacts written to " + filename + " !" + Environment.NewLine);

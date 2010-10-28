@@ -274,7 +274,7 @@
             this.btn_save_SnomCSV7.TabIndex = 8;
             this.btn_save_SnomCSV7.Text = "Snom CSV v7";
             this.toolTip1.SetToolTip(this.btn_save_SnomCSV7, "Simple CSV Export for Snom v7 Firmware, containing just 2 columns (Name / Number)" +
-                    "");
+                    "\r\n\r\nFile Format is UTF8 without BOM.\r\n");
             this.btn_save_SnomCSV7.UseVisualStyleBackColor = true;
             this.btn_save_SnomCSV7.Click += new System.EventHandler(this.btn_save_SnomXMLv7_Click);
             // 
@@ -521,9 +521,7 @@
             this.btn_save_SnomCSV8.Size = new System.Drawing.Size(167, 35);
             this.btn_save_SnomCSV8.TabIndex = 21;
             this.btn_save_SnomCSV8.Text = "Snom CSV v8";
-            this.toolTip1.SetToolTip(this.btn_save_SnomCSV8, "Complex CSV Export for Snom Phones with v8.x Firmware:\r\nExports: Combined Name / " +
-                    "First Name / Last Name / Number / eMail,\r\nwith full support for subcontacts and " +
-                    "VIP flag!\r\n");
+            this.toolTip1.SetToolTip(this.btn_save_SnomCSV8, resources.GetString("btn_save_SnomCSV8.ToolTip"));
             this.btn_save_SnomCSV8.UseVisualStyleBackColor = true;
             this.btn_save_SnomCSV8.Click += new System.EventHandler(this.btn_save_SnomXMLv8_Click);
             // 
@@ -615,7 +613,8 @@
             this.btn_save_AastraCSV.Size = new System.Drawing.Size(167, 35);
             this.btn_save_AastraCSV.TabIndex = 26;
             this.btn_save_AastraCSV.Text = "Aastra CSV";
-            this.toolTip1.SetToolTip(this.btn_save_AastraCSV, "CSV Export (Unicode) for Aastra Phones");
+            this.toolTip1.SetToolTip(this.btn_save_AastraCSV, "CSV Export for Aastra Phones\r\n\r\nFile Format is UTF8 without BOM and with Unix Lin" +
+                    "efeeds.\r\n");
             this.btn_save_AastraCSV.UseVisualStyleBackColor = true;
             this.btn_save_AastraCSV.Click += new System.EventHandler(this.btn_save_AastraCSV_Click);
             // 
