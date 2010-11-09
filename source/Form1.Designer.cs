@@ -37,6 +37,8 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.button_clear = new System.Windows.Forms.Button();
             this.panel_right = new System.Windows.Forms.Panel();
+            this.button_7270 = new System.Windows.Forms.Button();
+            this.button_7390 = new System.Windows.Forms.Button();
             this.label10 = new System.Windows.Forms.Label();
             this.textBox_PicPath = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
@@ -83,6 +85,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
+            this.button_config = new System.Windows.Forms.Button();
             this.panel_right.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MyDataGridView)).BeginInit();
             this.panel_left.SuspendLayout();
@@ -150,9 +153,9 @@
             this.button_clear.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.button_clear.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button_clear.Location = new System.Drawing.Point(378, 558);
+            this.button_clear.Location = new System.Drawing.Point(378, 533);
             this.button_clear.Name = "button_clear";
-            this.button_clear.Size = new System.Drawing.Size(250, 69);
+            this.button_clear.Size = new System.Drawing.Size(250, 49);
             this.button_clear.TabIndex = 6;
             this.button_clear.Text = "Clear List (0)";
             this.button_clear.UseVisualStyleBackColor = true;
@@ -161,6 +164,8 @@
             // panel_right
             // 
             this.panel_right.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.panel_right.Controls.Add(this.button_7270);
+            this.panel_right.Controls.Add(this.button_7390);
             this.panel_right.Controls.Add(this.label10);
             this.panel_right.Controls.Add(this.textBox_PicPath);
             this.panel_right.Controls.Add(this.label9);
@@ -171,6 +176,26 @@
             this.panel_right.Name = "panel_right";
             this.panel_right.Size = new System.Drawing.Size(367, 104);
             this.panel_right.TabIndex = 7;
+            // 
+            // button_7270
+            // 
+            this.button_7270.Location = new System.Drawing.Point(267, 54);
+            this.button_7270.Name = "button_7270";
+            this.button_7270.Size = new System.Drawing.Size(46, 19);
+            this.button_7270.TabIndex = 8;
+            this.button_7270.Text = "7270";
+            this.button_7270.UseVisualStyleBackColor = true;
+            this.button_7270.Click += new System.EventHandler(this.button_7270_Click);
+            // 
+            // button_7390
+            // 
+            this.button_7390.Location = new System.Drawing.Point(314, 54);
+            this.button_7390.Name = "button_7390";
+            this.button_7390.Size = new System.Drawing.Size(46, 19);
+            this.button_7390.TabIndex = 7;
+            this.button_7390.Text = "7390";
+            this.button_7390.UseVisualStyleBackColor = true;
+            this.button_7390.Click += new System.EventHandler(this.button_7390_Click);
             // 
             // label10
             // 
@@ -233,7 +258,8 @@
             "0031 (NL - Netherlands)",
             "0032 (BE - Belgium)",
             "001 (US - United States)",
-            "Custom Prefix Code"});
+            "Custom prefix code",
+            "Keep \'+XX\' prefixes intact"});
             this.combo_prefix.Location = new System.Drawing.Point(138, 2);
             this.combo_prefix.Name = "combo_prefix";
             this.combo_prefix.Size = new System.Drawing.Size(221, 21);
@@ -683,11 +709,25 @@
             this.label8.TabIndex = 23;
             this.label8.Text = "Options affecting Export";
             // 
+            // button_config
+            // 
+            this.button_config.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_config.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button_config.Location = new System.Drawing.Point(378, 586);
+            this.button_config.Name = "button_config";
+            this.button_config.Size = new System.Drawing.Size(250, 49);
+            this.button_config.TabIndex = 27;
+            this.button_config.Text = "Configuration";
+            this.button_config.UseVisualStyleBackColor = true;
+            this.button_config.Click += new System.EventHandler(this.button_config_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1004, 639);
+            this.Controls.Add(this.button_config);
             this.Controls.Add(this.btn_save_AastraCSV);
             this.Controls.Add(this.btn_read_genericCSV);
             this.Controls.Add(this.btn_save_TalkSurfCSV);
@@ -713,6 +753,7 @@
             this.MinimumSize = new System.Drawing.Size(1020, 596);
             this.Name = "Form1";
             this.Text = "Contact Conversion Wizard";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.panel_right.ResumeLayout(false);
             this.panel_right.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MyDataGridView)).EndInit();
@@ -759,6 +800,10 @@
         private System.Windows.Forms.ComboBox combo_picexport;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.TextBox textBox_PicPath;
+        private System.Windows.Forms.Button btn_save_TalkSurfCSV;
+        private System.Windows.Forms.Button btn_read_genericCSV;
+        private System.Windows.Forms.Button btn_save_AastraCSV;
+        private System.Windows.Forms.Button button_config;
         private System.Windows.Forms.DataGridViewTextBoxColumn Fullname;
         private System.Windows.Forms.DataGridViewTextBoxColumn MyColLastname;
         private System.Windows.Forms.DataGridViewTextBoxColumn MyColFirstname;
@@ -775,9 +820,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn VIP;
         private System.Windows.Forms.DataGridViewTextBoxColumn Speeddial;
         private System.Windows.Forms.DataGridViewTextBoxColumn Photo;
-        private System.Windows.Forms.Button btn_save_TalkSurfCSV;
-        private System.Windows.Forms.Button btn_read_genericCSV;
-        private System.Windows.Forms.Button btn_save_AastraCSV;
+        private System.Windows.Forms.Button button_7270;
+        private System.Windows.Forms.Button button_7390;
     }
 }
 

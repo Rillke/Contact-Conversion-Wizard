@@ -12,6 +12,13 @@ namespace Contact_Conversion_Wizard
 {
     public partial class Form1 : Form
     {
+        public static bool cfg_hideemptycols = false;
+        public static bool cfg_adjustablecols = false;
+        public static bool clean_brackets = true;
+        public static bool clean_hashkey = true;
+        public static bool clean_hyphen = true;
+        public static bool clean_xchar = true;
+
         System.Collections.Hashtable myGroupDataHash;
         string MySaveFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + System.IO.Path.DirectorySeparatorChar + "ContactConversionWizard";
 
@@ -61,6 +68,11 @@ namespace Contact_Conversion_Wizard
             combo_outlookimport.SelectedIndex = 0;
             combo_VIP.SelectedIndex = 0;
             combo_picexport.SelectedIndex = 0;
+
+            // override default load configuration (from above) with settings from file (if any)
+            myConfig_Load();
+
+
         }
 
         private string CleanUpNumber(string number, string country_prefix)
@@ -69,17 +81,25 @@ namespace Contact_Conversion_Wizard
 
             // clean up white spaces and brackets and some other stuff
             return_str = return_str.Replace(" ", "");
-            return_str = return_str.Replace("(", "");
-            return_str = return_str.Replace(")", "");
+
+            if (clean_brackets == true)
+            {
+                return_str = return_str.Replace("(", "");
+                return_str = return_str.Replace(")", "");
+            }
+            
             // return_str = return_str.Replace("*", ""); ( we are no longer replacing this, since this is actually used by the Fritz!Box for internal numbers)
-            return_str = return_str.Replace("#", "");
-            return_str = return_str.Replace("-", "");
-            return_str = return_str.Replace("x", "");
+
+            if (clean_hashkey == true) { return_str = return_str.Replace("#", ""); }
+            if (clean_hyphen == true) { return_str = return_str.Replace("-", ""); }
+            if (clean_xchar == true) { return_str = return_str.Replace("x", ""); }
 
             // clean up country code
-            if (return_str.StartsWith("+")) { return_str = "00" + return_str.Substring(1); }
-            if (return_str.StartsWith(country_prefix)) { return_str = "0" + return_str.Substring(country_prefix.Length); }
-
+            if (country_prefix != "keep")
+            {
+                if (return_str.StartsWith("+")) { return_str = "00" + return_str.Substring(1); }
+                if (return_str.StartsWith(country_prefix)) { return_str = "0" + return_str.Substring(country_prefix.Length); }
+            }
             return return_str;
         }
 
@@ -93,13 +113,18 @@ namespace Contact_Conversion_Wizard
             }
             else
             {
+                if (my_country_id.StartsWith("Keep"))
+                {
+                    my_country_id = "keep";
+                }
+                else
+                {
                 // Ask the user for the correct country code
-                
-
                 SimpleInputDialog MySimpleInputDialog = new SimpleInputDialog("Please enter your local Country Prefix here (in the format 00x or 00xx)", "CustomCountryID", true);
                 MySimpleInputDialog.ShowDialog();
                 my_country_id = MySimpleInputDialog.resultstring;
                 MySimpleInputDialog.Dispose();
+                }
             }
 
             return my_country_id;
@@ -335,7 +360,8 @@ namespace Contact_Conversion_Wizard
                 btn_save_TalkSurfCSV.Enabled = false;
                 btn_save_AastraCSV.Enabled = false;
                 
-                button_clear.Enabled = false; 
+                button_clear.Enabled = false;
+                button_config.Enabled = false;
             }
             else
             {
@@ -356,6 +382,7 @@ namespace Contact_Conversion_Wizard
                 btn_save_AastraCSV.Enabled = true;
                 
                 button_clear.Enabled = true;
+                button_config.Enabled = true;
 
                 Cursor.Current = Cursors.Default;
             }
@@ -383,23 +410,139 @@ namespace Contact_Conversion_Wizard
             MyDataGridView.SuspendLayout();
 
             MyDataGridView.Rows.Clear();
+            
+            // if (cfg_adjustablecols == false)
+            {
+                MyDataGridView.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+                MyDataGridView.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+                MyDataGridView.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+                MyDataGridView.Columns[3].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+                MyDataGridView.Columns[4].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+                MyDataGridView.Columns[5].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+                MyDataGridView.Columns[6].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+                MyDataGridView.Columns[7].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+                MyDataGridView.Columns[8].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+                MyDataGridView.Columns[9].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+                MyDataGridView.Columns[10].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+                MyDataGridView.Columns[11].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+                MyDataGridView.Columns[12].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+                MyDataGridView.Columns[13].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+                MyDataGridView.Columns[14].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+                MyDataGridView.Columns[15].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            }
+
+            // preparations in case cols should be hidden later
+            bool hide_combinedname = true;
+            bool hide_lastname = true;
+            bool hide_firstname = true;
+            bool hide_company = true;
+            bool hide_home = true;
+            bool hide_work = true;
+            bool hide_mobile = true;
+            bool hide_homefax = true;
+            bool hide_workfax = true;
+            bool hide_street = true;
+            bool hide_zip = true;
+            bool hide_city = true;
+            bool hide_email = true;
+            bool hide_isVIP = true;
+            bool hide_speeddial = true;
+            bool hide_PhotoPresent = true;
+
 
             foreach (System.Collections.DictionaryEntry contactHash in myGroupDataHash)
             {
                 // extract GroupDataList from hashtable contents
                 GroupDataContact contactData = (GroupDataContact)contactHash.Value;
                 string PhotoPresent = "No";
-                if (contactData.jpeg != null)
-                {
-                    PhotoPresent = "Yes";
+                if (contactData.jpeg != null) PhotoPresent = "Yes";
+
+                // make sure everything is visible to start with
+                MyDataGridView.Columns[0].Visible = true;
+                MyDataGridView.Columns[1].Visible = true;
+                MyDataGridView.Columns[2].Visible = true;
+                MyDataGridView.Columns[3].Visible = true;
+                MyDataGridView.Columns[4].Visible = true;
+                MyDataGridView.Columns[5].Visible = true;
+                MyDataGridView.Columns[6].Visible = true;
+                MyDataGridView.Columns[7].Visible = true;
+                MyDataGridView.Columns[8].Visible = true;
+                MyDataGridView.Columns[9].Visible = true;
+                MyDataGridView.Columns[10].Visible = true;
+                MyDataGridView.Columns[11].Visible = true;
+                MyDataGridView.Columns[12].Visible = true;
+                MyDataGridView.Columns[13].Visible = true;
+                MyDataGridView.Columns[14].Visible = true;
+                MyDataGridView.Columns[15].Visible = true;
+
+                if (cfg_hideemptycols == true)
+                {   // for each row, of col still hidden set it to false if relevant data in set for the col
+                    if (hide_combinedname == true && contactData.combinedname != "") hide_combinedname = false;
+                    if (hide_lastname == true && contactData.lastname != "") hide_lastname = false;
+                    if (hide_firstname == true && contactData.firstname != "") hide_firstname = false;
+                    if (hide_company == true && contactData.company != "") hide_company = false;
+                    if (hide_home == true && contactData.home != "") hide_home = false;
+                    if (hide_work == true && contactData.work != "") hide_work = false;
+                    if (hide_mobile == true && contactData.mobile != "") hide_mobile = false;
+                    if (hide_homefax == true && contactData.homefax != "") hide_homefax = false;
+                    if (hide_workfax == true && contactData.workfax != "") hide_workfax = false;
+                    if (hide_street == true && contactData.street != "") hide_street = false;
+                    if (hide_zip == true && contactData.zip != "") hide_zip = false;
+                    if (hide_city == true && contactData.city != "") hide_city = false;
+                    if (hide_email == true && contactData.email != "") hide_email = false;
+                    if (hide_isVIP == true && contactData.isVIP != "No") hide_isVIP = false;
+                    if (hide_speeddial == true && contactData.speeddial != "") hide_speeddial = false;
+                    if (hide_PhotoPresent == true && PhotoPresent != "No") hide_PhotoPresent = false;
                 }
+
                 MyDataGridView.Rows.Add(new string[] { contactData.combinedname, contactData.lastname, contactData.firstname, contactData.company, contactData.home, contactData.work, contactData.mobile, contactData.homefax, contactData.workfax, contactData.street, contactData.zip, contactData.city, contactData.email, contactData.isVIP, contactData.speeddial, PhotoPresent });
             }
+
+            if (cfg_adjustablecols == true)
+            {
+                MyDataGridView.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                MyDataGridView.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                MyDataGridView.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                MyDataGridView.Columns[3].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                MyDataGridView.Columns[4].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                MyDataGridView.Columns[5].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                MyDataGridView.Columns[6].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                MyDataGridView.Columns[7].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                MyDataGridView.Columns[8].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                MyDataGridView.Columns[9].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                MyDataGridView.Columns[10].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                MyDataGridView.Columns[11].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                MyDataGridView.Columns[12].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                MyDataGridView.Columns[13].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                MyDataGridView.Columns[14].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                MyDataGridView.Columns[15].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            }
+
+            if (cfg_hideemptycols == true)
+            {   // actually hid the cols depending on results from above
+                if (hide_combinedname == true) MyDataGridView.Columns[0].Visible = false;
+                if (hide_lastname == true) MyDataGridView.Columns[1].Visible = false;
+                if (hide_firstname == true) MyDataGridView.Columns[2].Visible = false;
+                if (hide_company == true) MyDataGridView.Columns[3].Visible = false;
+                if (hide_home == true) MyDataGridView.Columns[4].Visible = false;
+                if (hide_work == true) MyDataGridView.Columns[5].Visible = false;
+                if (hide_mobile == true) MyDataGridView.Columns[6].Visible = false;
+                if (hide_homefax == true) MyDataGridView.Columns[7].Visible = false;
+                if (hide_workfax == true) MyDataGridView.Columns[8].Visible = false;
+                if (hide_street == true) MyDataGridView.Columns[9].Visible = false;
+                if (hide_zip == true) MyDataGridView.Columns[10].Visible = false;
+                if (hide_city == true) MyDataGridView.Columns[11].Visible = false;
+                if (hide_email == true) MyDataGridView.Columns[12].Visible = false;
+                if (hide_isVIP == true) MyDataGridView.Columns[13].Visible = false;
+                if (hide_speeddial == true) MyDataGridView.Columns[14].Visible = false;
+                if (hide_PhotoPresent == true) MyDataGridView.Columns[15].Visible = false;
+            }
+
 
             MyDataGridView.Sort(MyDataGridView.Columns[0], 0);
             MyDataGridView.ResumeLayout();
             MyDataGridView.Refresh();
-            
+
             button_clear.Text = "Clear List (" + myGroupDataHash.Count.ToString() + ")";
             MyDataGridView.Focus();
         }
@@ -612,15 +755,41 @@ namespace Contact_Conversion_Wizard
                 MySimpleInputDialog.Dispose();
             }
 
-            // limit items processed to those items which actually are contacts
-            string ItemFilter = "[MessageClass] = \"IPM.Contact\"";
-            Microsoft.Office.Interop.Outlook.Items oContactItems = outlookFolder.Items.Restrict(ItemFilter);
+            Microsoft.Office.Interop.Outlook.Items oContactItems = outlookFolder.Items;
 
             // loop through all contacts and extract the data from them, then generate the [Fullname] and store all stuff in the hashtable
-            foreach (Microsoft.Office.Interop.Outlook.ContactItem myContactItem in oContactItems)
+            for (int i = 1; i <= outlookFolder.Items.Count; i++)
             {
-                GroupDataContact myContact = new GroupDataContact();
+                // initialize variable for later use
+                Microsoft.Office.Interop.Outlook.ContactItem myContactItem = null;
 
+                // limit items processed to those items which actually are contacts
+                try
+                {
+                    // we try to cast it to a contactitem, if its not a contactitem this will fail and an exception will be raised, leading to a messagebox and skipping of the contact
+                    myContactItem = (Microsoft.Office.Interop.Outlook.ContactItem)outlookFolder.Items[i];
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show("Error while parsing Item #" + i.ToString() + " in Folder. Probably not a Contactitem!" + Environment.NewLine + Environment.NewLine + "The exception that was raised is: "  + e.ToString());
+                    continue;
+                }
+
+                // all contacts that were successfully casted now should proably be of type IPM.Contact*, but we check this just to be sure and abort if not
+                if (myContactItem.MessageClass.StartsWith("IPM.Contact") == false)
+                {
+                    MessageBox.Show("Not a valid contact class " + myContactItem.MessageClass);
+                    continue;
+                }
+
+                // if a category filter has been selected, we now check this first in order to save time (we can skip the contact data transfer if not in the right category)
+                string categories = (myContactItem.Categories == null) ? string.Empty : myContactItem.Categories;
+                if (my_category_filter != "" && categories.Contains(my_category_filter) == false)
+                {
+                    continue;   // abort this foreach loop and switch to the next contact
+                }
+
+                GroupDataContact myContact = new GroupDataContact();
                 myContact.lastname = (myContactItem.LastName == null) ? string.Empty : myContactItem.LastName;
                 myContact.firstname = (myContactItem.FirstName == null) ? string.Empty : myContactItem.FirstName;
                 myContact.company = (myContactItem.CompanyName == null) ? string.Empty : myContactItem.CompanyName;
@@ -635,15 +804,6 @@ namespace Contact_Conversion_Wizard
                 myContact.zip = (myContactItem.MailingAddressPostalCode == null) ? string.Empty : myContactItem.MailingAddressPostalCode;
                 myContact.city = (myContactItem.MailingAddressCity == null) ? string.Empty : myContactItem.MailingAddressCity;
                 myContact.email = (myContactItem.Email1Address == null) ? string.Empty : myContactItem.Email1Address;
-                string categories = (myContactItem.Categories == null) ? string.Empty : myContactItem.Categories;
-
-                if (my_category_filter != "")
-                {
-                    if (categories.Contains(my_category_filter) == false)
-                    {
-                        continue;   // abort this foreach loop and switch to the next contact
-                    }
-                }
 
                 // store picture in myContact.jpeg, if present:
                 if (myContactItem.HasPicture == true)
@@ -1579,8 +1739,6 @@ namespace Contact_Conversion_Wizard
 
             // tell the user what has been done
             MessageBox.Show(count + " contacts have been written to the selected Outlook folder!" + Environment.NewLine);
-
-
         }
 
         private void save_data_FritzXML(string filename, System.Collections.Hashtable workDataHash)
@@ -1894,9 +2052,6 @@ namespace Contact_Conversion_Wizard
 
             // actually write the file to disk
             System.IO.File.WriteAllText(filename, resultstring.ToString(), Encoding.Unicode);
-
-            // tell the user this has been done
-            MessageBox.Show("Contacts written to " + filename + " !" + Environment.NewLine);
         }
 
         private void save_data_FritzAdress(string filename, System.Collections.Hashtable workDataHash, bool only_export_fax)
@@ -1991,9 +2146,6 @@ namespace Contact_Conversion_Wizard
 
             // actually write the file to disk
             System.IO.File.WriteAllText(filename, resultstring, Encoding.GetEncoding("ISO-8859-1"));
-
-            // tell the user this has been done
-            MessageBox.Show("Contacts written to " + filename + " !" + Environment.NewLine);
         }    
 
         private void save_data_SnomCSV7(string filename, System.Collections.Hashtable workDataHash)
@@ -2100,9 +2252,6 @@ namespace Contact_Conversion_Wizard
             // actually write the file to disk
             System.Text.Encoding utf8WithoutBom = new System.Text.UTF8Encoding(false);
             System.IO.File.WriteAllText(filename, resultSB.ToString(), utf8WithoutBom);
-
-            // tell the user this has been done
-            MessageBox.Show("Contacts written to " + filename + " !" + Environment.NewLine);
         }                             
 
         private void save_data_SnomCSV8(string filename, System.Collections.Hashtable workDataHash)
@@ -2315,8 +2464,6 @@ namespace Contact_Conversion_Wizard
             System.Text.Encoding utf8WithoutBom = new System.Text.UTF8Encoding(false);
             System.IO.File.WriteAllText(filename, resultSB.ToString(), utf8WithoutBom);
 
-            // tell the user this has been done
-            MessageBox.Show("Contacts written to " + filename + " !" + Environment.NewLine);
         }
 
         private void save_data_TalkSurfCSV(string filename, System.Collections.Hashtable workDataHash)
@@ -2422,9 +2569,6 @@ namespace Contact_Conversion_Wizard
 
             // actually write the file to disk
             System.IO.File.WriteAllText(filename, resultstring, Encoding.GetEncoding("ISO-8859-1"));
-
-            // tell the user this has been done
-            MessageBox.Show("Contacts written to " + filename + " !" + Environment.NewLine);
         }
 
         private void save_data_AastraCSV(string filename, System.Collections.Hashtable workDataHash)
@@ -2504,9 +2648,93 @@ namespace Contact_Conversion_Wizard
             System.Text.Encoding utf8WithoutBom = new System.Text.UTF8Encoding(false);
             System.IO.File.WriteAllText(filename, resultSB.ToString(), utf8WithoutBom);
 
-            // tell the user this has been done
-            MessageBox.Show("Contacts written to " + filename + " !" + Environment.NewLine);
-        }                             
+        }
+
+        private void button_config_Click(object sender, EventArgs e)
+        {
+            EditConfiguration myEditConf = new EditConfiguration();
+            myEditConf.ShowDialog();
+        }
+
+        private void myConfig_Load()
+        {
+            string FullCFGfilePath = MySaveFolder + System.IO.Path.DirectorySeparatorChar + "CCW.config";
+
+            if (System.IO.File.Exists(FullCFGfilePath))
+            {
+                        System.IO.StreamReader file_cleartext_read;
+                        file_cleartext_read = new System.IO.StreamReader(FullCFGfilePath, Encoding.UTF8);
+                        string curline;
+                        StringBuilder builder = new StringBuilder();
+                        while ((curline = file_cleartext_read.ReadLine()) != null)
+                        {
+                            builder.Append(curline + "\r\n");
+                        }
+                        file_cleartext_read.Close();
+
+                        // then strip away "\r\n " stuff to unfold everything, and then regEx Split by "\r\n" into array of lines
+                        string[] allParseLines = System.Text.RegularExpressions.Regex.Split(builder.ToString(), Environment.NewLine);
+
+                        foreach (string ParseLine in allParseLines)
+                        {
+                            if (ParseLine == string.Empty) { continue; } // skip empty lines
+                            if (ParseLine.IndexOf("\t") == -1) { continue; } // skip lines without TAB
+                            if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_hideemptycols")     { cfg_hideemptycols = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t")+1)); continue; }
+                            if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_adjustablecols") { cfg_adjustablecols = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
+                            if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "clean_brackets") { clean_brackets = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
+                            if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "clean_hashkey") { clean_hashkey = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
+                            if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "clean_hyphen") { clean_hyphen = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
+                            if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "clean_xchar") { clean_xchar = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
+
+                            if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "combo_namestyle") { combo_namestyle.SelectedItem = ParseLine.Substring(ParseLine.IndexOf("\t") + 1); continue; }
+                            if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "combo_typeprefer") { combo_typeprefer.SelectedItem = ParseLine.Substring(ParseLine.IndexOf("\t") + 1); continue; }
+                            if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "combo_outlookimport") { combo_outlookimport.SelectedItem = ParseLine.Substring(ParseLine.IndexOf("\t") + 1); continue; }
+                            if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "combo_VIP") { combo_VIP.SelectedItem = ParseLine.Substring(ParseLine.IndexOf("\t") + 1); continue; }
+                            if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "combo_prefix") { combo_prefix.SelectedItem = ParseLine.Substring(ParseLine.IndexOf("\t") + 1); continue; }
+                            if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "combo_picexport") { combo_picexport.SelectedItem = ParseLine.Substring(ParseLine.IndexOf("\t") + 1); continue; }
+                            if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "fritzPicPath") { textBox_PicPath.Text = ParseLine.Substring(ParseLine.IndexOf("\t") + 1); continue; }
+                        }
+            }
+        }
+
+        private void myConfig_Save()
+        {
+            string FullCFGfilePath = MySaveFolder + System.IO.Path.DirectorySeparatorChar + "CCW.config";
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendLine("cfg_hideemptycols" + "\t" + cfg_hideemptycols.ToString());
+            sb.AppendLine("cfg_adjustablecols" + "\t" + cfg_adjustablecols.ToString());
+            sb.AppendLine("clean_brackets" + "\t" + clean_brackets.ToString());
+            sb.AppendLine("clean_hashkey" + "\t" + clean_hashkey.ToString());
+            sb.AppendLine("clean_hyphen" + "\t" + clean_hyphen.ToString());
+            sb.AppendLine("clean_xchar" + "\t" + clean_xchar.ToString());
+
+            sb.AppendLine("combo_namestyle" + "\t" + combo_namestyle.SelectedItem.ToString());
+            sb.AppendLine("combo_typeprefer" + "\t" + combo_typeprefer.SelectedItem.ToString());
+            sb.AppendLine("combo_outlookimport" + "\t" + combo_outlookimport.SelectedItem.ToString());
+            sb.AppendLine("combo_VIP" + "\t" + combo_VIP.SelectedItem.ToString());
+            sb.AppendLine("combo_prefix" + "\t" + combo_prefix.SelectedItem.ToString());
+            sb.AppendLine("combo_picexport" + "\t" + combo_picexport.SelectedItem.ToString());
+
+            sb.AppendLine("fritzPicPath" + "\t" + textBox_PicPath.Text);
+            
+            System.IO.File.WriteAllText(FullCFGfilePath, sb.ToString(), Encoding.UTF8);
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            myConfig_Save();
+        }
+
+        private void button_7390_Click(object sender, EventArgs e)
+        {
+            textBox_PicPath.Text = "file:///var/InternerSpeicher/FRITZ/fonpix-custom/";
+        }
+
+        private void button_7270_Click(object sender, EventArgs e)
+        {
+            textBox_PicPath.Text = "file:///var/media/ftp/<USB-Stick-Name>/FRITZ/fonpix/";
+        }
 
 
     }
