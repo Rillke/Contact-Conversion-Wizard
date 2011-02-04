@@ -14,6 +14,7 @@ namespace Contact_Conversion_Wizard
     {
         public static bool cfg_hideemptycols = false;
         public static bool cfg_adjustablecols = false;
+        public static bool cfg_prefixNONFB = false;
         public static bool clean_brackets = true;
         public static bool clean_hashkey = true;
         public static bool clean_hyphen = true;
@@ -75,7 +76,7 @@ namespace Contact_Conversion_Wizard
 
         }
 
-        private string CleanUpNumber(string number, string country_prefix)
+        private string CleanUpNumber(string number, string country_prefix, string dial_prefix)
         {
             string return_str = number;
 
@@ -91,15 +92,23 @@ namespace Contact_Conversion_Wizard
             // return_str = return_str.Replace("*", ""); ( we are no longer replacing this, since this is actually used by the Fritz!Box for internal numbers)
 
             if (clean_hashkey == true) { return_str = return_str.Replace("#", ""); }
-            if (clean_hyphen == true) { return_str = return_str.Replace("-", ""); }
-            if (clean_xchar == true) { return_str = return_str.Replace("x", ""); }
-
-            // clean up country code
-            if (country_prefix != "keep")
+            
+            // if number is not an eMail address (which cannot contain () or space checked above), we do some further cleanup
+            if (return_str.Contains("@") == false)
             {
-                if (return_str.StartsWith("+")) { return_str = "00" + return_str.Substring(1); }
-                if (return_str.StartsWith(country_prefix)) { return_str = "0" + return_str.Substring(country_prefix.Length); }
+                if (clean_hyphen == true) { return_str = return_str.Replace("-", ""); }
+                if (clean_xchar == true) { return_str = return_str.Replace("x", ""); }
+
+                // clean up country code
+                if (country_prefix != "keep")
+                {
+                    if (return_str.StartsWith("+")) { return_str = "00" + return_str.Substring(1); }
+                    if (return_str.StartsWith(country_prefix)) { return_str = "0" + return_str.Substring(country_prefix.Length); }
+                }
             }
+
+            if (return_str != "")   { return_str = dial_prefix + return_str; }
+
             return return_str;
         }
 
@@ -152,6 +161,21 @@ namespace Contact_Conversion_Wizard
             }
 
             return result_temp;
+        }
+
+        private string CheckPREFIXflag(string myStringToCheck)
+        {
+            if (myStringToCheck.Contains("PREFIX(") == true) // if something found in comments
+            {
+                string prefixstring = myStringToCheck.Substring(myStringToCheck.IndexOf("PREFIX(") + 7); // cut away everything before the keyword
+                if (prefixstring.Contains(")") == true)
+                {
+                    prefixstring = prefixstring.Substring(0, prefixstring.IndexOf(")"));                       // cut away everything after the keyword contents
+                    return prefixstring;
+                }
+            }
+            // if any of the if's has not been executed we land here and return an empty string
+            return "";
         }
 
         private string CheckSPEEDDIALflag(string myStringToCheck)
@@ -586,7 +610,7 @@ namespace Contact_Conversion_Wizard
                     if (isContactPhoto) { return attachment; } // You can then use the Attachment.SaveAsFile method to save the file as a JPEG image.
                     }
                 catch 
-                    { // do nothing, somehow attachment processing lead to a crash }
+                    { // do nothing, if somehow attachment processing leads to a crash }
                 }
             }
             return null;
@@ -769,9 +793,10 @@ namespace Contact_Conversion_Wizard
                     // we try to cast it to a contactitem, if its not a contactitem this will fail and an exception will be raised, leading to a messagebox and skipping of the contact
                     myContactItem = (Microsoft.Office.Interop.Outlook.ContactItem)outlookFolder.Items[i];
                 }
-                catch (Exception e)
+                catch
                 {
-                    MessageBox.Show("Error while parsing Item #" + i.ToString() + " in Folder. Probably not a Contactitem!" + Environment.NewLine + Environment.NewLine + "The exception that was raised is: "  + e.ToString());
+                    // MessageBox.Show("Error while parsing Item #" + i.ToString() + " in Folder. Probably not a Contactitem!" + Environment.NewLine + Environment.NewLine + "The exception that was raised is: "  + e.ToString());
+                    // no longer shown, since we probably just want to ignore such things. If we need this again, add (Exception e) above
                     continue;
                 }
 
@@ -837,7 +862,7 @@ namespace Contact_Conversion_Wizard
 
                 myContact.isVIP = CheckVIPflag(nickname, NotesBody, false);
                 myContact.speeddial = CheckSPEEDDIALflag(NotesBody);
-
+                myContact.FRITZprefix = CheckPREFIXflag(NotesBody);
 
                 if (myContact.combinedname != "" && (myContact.home != string.Empty || myContact.work != string.Empty || myContact.mobile != string.Empty || myContact.homefax != string.Empty || myContact.workfax != string.Empty) && (NotesBody.Contains("CCW-IGNORE") == false))
                 {
@@ -1251,12 +1276,13 @@ namespace Contact_Conversion_Wizard
 
                     if (vParseLine.StartsWith("PHOTO", StringComparison.OrdinalIgnoreCase) == true)
                     {
-                        if (vParseLine.StartsWith("PHOTO;BASE64:"))
+                        if (vParseLine.Contains("BASE64:") == true)
                         {
-                            string encodedData = vParseLine.Substring("PHOTO;BASE64:".Length).Replace(" ", "");
+                            string encodedData = vParseLine.Substring(vParseLine.IndexOf(":")+1).Replace(" ", "");
                             byte[] encodedDataAsBytes = System.Convert.FromBase64String(encodedData);
                             myContact.jpeg = encodedDataAsBytes;
                         }
+
                         continue;
                     }
                     
@@ -1265,6 +1291,7 @@ namespace Contact_Conversion_Wizard
                         // übergibt notes und nickname der methode die VIP und Speeddial extrahiert
                         myContact.isVIP = CheckVIPflag(vcard_nickname, vcard_notes, false);
                         myContact.speeddial = CheckSPEEDDIALflag(vcard_notes);
+                        myContact.FRITZprefix = CheckPREFIXflag(vcard_notes);
 
                         // if vcard_fullname is identical to companyname (but not empty), use only company name and do not use N: line (which contains duplicate information)
                         if ((myContact.company == vcard_fullname) && (vcard_fullname != "")) { myContact.firstname = ""; myContact.lastname = ""; }
@@ -1352,6 +1379,7 @@ namespace Contact_Conversion_Wizard
                     // check if contact is supposed to be VIP or has Speeddial Settings
                     myContact.isVIP = CheckVIPflag("", cDataArray[8], false);
                     myContact.speeddial = CheckSPEEDDIALflag(cDataArray[8]);
+                    myContact.FRITZprefix = CheckPREFIXflag(cDataArray[8]);
 
                     // depending on setting, import phone and fax number into home or work fields)
                     int wheretostore = combo_typeprefer.SelectedIndex;
@@ -1467,6 +1495,7 @@ namespace Contact_Conversion_Wizard
                                 // check if contact is supposed to be VIP or has Speeddial Settings
                                 myContact.isVIP = CheckVIPflag("", LineList[i][j], false);
                                 myContact.speeddial = CheckSPEEDDIALflag(LineList[i][j]);
+                                myContact.FRITZprefix = CheckPREFIXflag(LineList[i][j]);
                                 break;
                             default:
                                 MessageBox.Show("Default case in switch (assign_helper[j]) - this should not have happened, please report this bug!");
@@ -1693,12 +1722,14 @@ namespace Contact_Conversion_Wizard
                 // extract GroupDataList from hashtable contents
                 GroupDataContact contactData = (GroupDataContact)contactHash.Value;
 
+                string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
+
                 // clean up phone number
-                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id);
-                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id);
-                string CleanUpNumberHomefax = CleanUpNumber(contactData.homefax, country_id);
-                string CleanUpNumberWorkfax = CleanUpNumber(contactData.workfax, country_id);
-                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id);
+                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, prefix_string);
+                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id, prefix_string);
+                string CleanUpNumberHomefax = CleanUpNumber(contactData.homefax, country_id, prefix_string);
+                string CleanUpNumberWorkfax = CleanUpNumber(contactData.workfax, country_id, prefix_string);
+                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, prefix_string);
 
                 // create new contact
                 Microsoft.Office.Interop.Outlook.ContactItem newContact = (Microsoft.Office.Interop.Outlook.ContactItem)outlookFolder.Items.Add(Microsoft.Office.Interop.Outlook.OlItemType.olContactItem);
@@ -1788,9 +1819,9 @@ namespace Contact_Conversion_Wizard
                 SaveAsName = SaveAsName.Replace(">", "&gt;");
 
                 // clean up phone number
-                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id);
-                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id);
-                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id);
+                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, contactData.FRITZprefix);
+                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id, contactData.FRITZprefix);
+                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, contactData.FRITZprefix);
 
                 // write contact header
 
@@ -1941,12 +1972,16 @@ namespace Contact_Conversion_Wizard
                 // extract GroupDataList from hashtable contents
                 GroupDataContact contactData = (GroupDataContact)contactHash.Value;
 
+                string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
+
                 // clean up phone numbers
-                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id);
-                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id);
-                string CleanUpNumberHomefax = CleanUpNumber(contactData.homefax, country_id);
-                string CleanUpNumberWorkfax = CleanUpNumber(contactData.workfax, country_id);
-                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id);
+                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, prefix_string);
+                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id, prefix_string);
+                string CleanUpNumberHomefax = CleanUpNumber(contactData.homefax, country_id, prefix_string);
+                string CleanUpNumberWorkfax = CleanUpNumber(contactData.workfax, country_id, prefix_string);
+                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, prefix_string);
+
+                // clean up the rest of the data
                 string CleanUpStreet = contactData.street.Replace("\\", "\\\\").Replace(";", "\\;").Replace(",", "\\,");
                 string CleanUpCity = contactData.city.Replace("\\", "\\\\").Replace(";", "\\;").Replace(",", "\\,");
                 string CleanUpZIP = contactData.zip.Replace("\\", "\\\\").Replace(";", "\\;").Replace(",", "\\,");
@@ -2080,12 +2115,14 @@ namespace Contact_Conversion_Wizard
                     continue;
                 }
 
+                string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
+
                 // clean up phone numbers
-                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id);
-                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id);
-                string CleanUpNumberHomefax = CleanUpNumber(contactData.homefax, country_id);
-                string CleanUpNumberWorkfax = CleanUpNumber(contactData.workfax, country_id);
-                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id);
+                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, prefix_string);
+                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id, prefix_string);
+                string CleanUpNumberHomefax = CleanUpNumber(contactData.homefax, country_id, prefix_string);
+                string CleanUpNumberWorkfax = CleanUpNumber(contactData.workfax, country_id, prefix_string);
+                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, prefix_string);
 
                 string[,] save_iterate_array;
 
@@ -2170,10 +2207,12 @@ namespace Contact_Conversion_Wizard
                 if (contactData.home == string.Empty && contactData.work == string.Empty && contactData.mobile == string.Empty)
                 { continue; /* if yes, abort this foreach loop and contine to the next one */ }
 
+                string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
+
                 // clean up phone number
-                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id);
-                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id);
-                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id);
+                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, prefix_string);
+                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id, prefix_string);
+                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, prefix_string);
 
                 // add privat/gesch. to name if necessary (if two entries for one name necessary)
                 string name_home = contactData.combinedname;
@@ -2273,10 +2312,12 @@ namespace Contact_Conversion_Wizard
                 if (contactData.home == string.Empty && contactData.work == string.Empty && contactData.mobile == string.Empty)
                 { continue; /* if yes, abort this foreach loop and contine to the next one */ }
 
+                string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
+
                 // clean up phone number
-                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id);
-                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id);
-                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id);
+                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, prefix_string);
+                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id, prefix_string);
+                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, prefix_string);
 
                 // limit full name to 31 chars
                 string name_contact = LimitNameLength(contactData.combinedname, 31);
@@ -2488,10 +2529,12 @@ namespace Contact_Conversion_Wizard
                 if (contactData.home == string.Empty && contactData.work == string.Empty && contactData.mobile == string.Empty)
                 { continue; /* if yes, abort this foreach loop and contine to the next one */ }
 
+                string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
+
                 // clean up phone number
-                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id);
-                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id);
-                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id);
+                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, prefix_string);
+                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id, prefix_string);
+                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, prefix_string);
 
                 // add privat/gesch. to name if necessary (if seperate entries for one name necessary) - and remove "," because talk&surf can't handle it properly
                 string name_home = contactData.combinedname.Replace(",", "");
@@ -2590,10 +2633,12 @@ namespace Contact_Conversion_Wizard
                 if (contactData.home == string.Empty && contactData.work == string.Empty && contactData.mobile == string.Empty)
                 { continue; /* if yes, abort this foreach loop and contine to the next one */ }
 
+                string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
+
                 // clean up phone number
-                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id);
-                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id);
-                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id);
+                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, prefix_string);
+                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id, prefix_string);
+                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, prefix_string);
                 
                 // limit to 31 chars
                 string name_home = LimitNameLength(contactData.combinedname, 31).Replace(",", " ");
@@ -2681,6 +2726,7 @@ namespace Contact_Conversion_Wizard
                             if (ParseLine.IndexOf("\t") == -1) { continue; } // skip lines without TAB
                             if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_hideemptycols")     { cfg_hideemptycols = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t")+1)); continue; }
                             if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_adjustablecols") { cfg_adjustablecols = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
+                            if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_prefixNONFB") { cfg_prefixNONFB = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
                             if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "clean_brackets") { clean_brackets = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
                             if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "clean_hashkey") { clean_hashkey = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
                             if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "clean_hyphen") { clean_hyphen = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
@@ -2704,6 +2750,7 @@ namespace Contact_Conversion_Wizard
 
             sb.AppendLine("cfg_hideemptycols" + "\t" + cfg_hideemptycols.ToString());
             sb.AppendLine("cfg_adjustablecols" + "\t" + cfg_adjustablecols.ToString());
+            sb.AppendLine("cfg_prefixNONFB" + "\t" + cfg_prefixNONFB.ToString());
             sb.AppendLine("clean_brackets" + "\t" + clean_brackets.ToString());
             sb.AppendLine("clean_hashkey" + "\t" + clean_hashkey.ToString());
             sb.AppendLine("clean_hyphen" + "\t" + clean_hyphen.ToString());
@@ -2753,6 +2800,7 @@ namespace Contact_Conversion_Wizard
         public string mobile;
         public string combinedname;
         public string isVIP;
+        public string FRITZprefix;
         public string speeddial;
         public byte[] jpeg;
         public string preferred

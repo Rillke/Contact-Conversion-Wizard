@@ -15,6 +15,7 @@ namespace Contact_Conversion_Wizard
             InitializeComponent();
             OPT_hidecol.Checked = Form1.cfg_hideemptycols;
             OPT_adjustcol.Checked = Form1.cfg_adjustablecols;
+            OPT_prefixNONFB.Checked = Form1.cfg_prefixNONFB;
 
             checkBox_cleanBrackets.Checked = Form1.clean_brackets;
             checkBox_cleanHashKey.Checked = Form1.clean_hashkey;
@@ -26,6 +27,7 @@ namespace Contact_Conversion_Wizard
         {
             Form1.cfg_hideemptycols = OPT_hidecol.Checked;
             Form1.cfg_adjustablecols = OPT_adjustcol.Checked;
+            Form1.cfg_prefixNONFB = OPT_prefixNONFB.Checked;
 
             Form1.clean_brackets = checkBox_cleanBrackets.Checked;
             Form1.clean_hashkey = checkBox_cleanHashKey.Checked;

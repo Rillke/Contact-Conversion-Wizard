@@ -36,6 +36,7 @@
             this.checkBox_cleanHashKey = new System.Windows.Forms.CheckBox();
             this.checkBox_cleanBrackets = new System.Windows.Forms.CheckBox();
             this.label_cleanheader = new System.Windows.Forms.Label();
+            this.OPT_prefixNONFB = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // lbl_configtitle
@@ -93,9 +94,9 @@
             this.checkBox_cleanHashKey.AutoSize = true;
             this.checkBox_cleanHashKey.Location = new System.Drawing.Point(16, 184);
             this.checkBox_cleanHashKey.Name = "checkBox_cleanHashKey";
-            this.checkBox_cleanHashKey.Size = new System.Drawing.Size(83, 17);
+            this.checkBox_cleanHashKey.Size = new System.Drawing.Size(86, 17);
             this.checkBox_cleanHashKey.TabIndex = 10;
-            this.checkBox_cleanHashKey.Text = "Remote \"#\"";
+            this.checkBox_cleanHashKey.Text = "Remove \"#\"";
             this.checkBox_cleanHashKey.UseVisualStyleBackColor = true;
             // 
             // checkBox_cleanBrackets
@@ -118,11 +119,22 @@
             this.label_cleanheader.TabIndex = 11;
             this.label_cleanheader.Text = "Cleanup phone numbers on export:";
             // 
+            // OPT_prefixNONFB
+            // 
+            this.OPT_prefixNONFB.AutoSize = true;
+            this.OPT_prefixNONFB.Location = new System.Drawing.Point(16, 91);
+            this.OPT_prefixNONFB.Name = "OPT_prefixNONFB";
+            this.OPT_prefixNONFB.Size = new System.Drawing.Size(175, 17);
+            this.OPT_prefixNONFB.TabIndex = 12;
+            this.OPT_prefixNONFB.Text = "Export Prefixes for non-Fritz!Box";
+            this.OPT_prefixNONFB.UseVisualStyleBackColor = true;
+            // 
             // EditConfiguration
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(362, 262);
+            this.Controls.Add(this.OPT_prefixNONFB);
             this.Controls.Add(this.label_cleanheader);
             this.Controls.Add(this.checkBox_cleanHashKey);
             this.Controls.Add(this.checkBox_cleanBrackets);
@@ -149,5 +161,6 @@
         private System.Windows.Forms.CheckBox checkBox_cleanHashKey;
         private System.Windows.Forms.CheckBox checkBox_cleanBrackets;
         private System.Windows.Forms.Label label_cleanheader;
+        private System.Windows.Forms.CheckBox OPT_prefixNONFB;
     }
 }
