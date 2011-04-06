@@ -79,6 +79,8 @@
             this.btn_save_TalkSurfCSV = new System.Windows.Forms.Button();
             this.btn_read_genericCSV = new System.Windows.Forms.Button();
             this.btn_save_AastraCSV = new System.Windows.Forms.Button();
+            this.btn_save_GrandstreamXml = new System.Windows.Forms.Button();
+            this.btn_read_googleContacts = new System.Windows.Forms.Button();
             this.panel_left = new System.Windows.Forms.Panel();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -100,7 +102,7 @@
             this.btn_read_Outlook.TabIndex = 0;
             this.btn_read_Outlook.Text = "Outlook";
             this.toolTip1.SetToolTip(this.btn_read_Outlook, "Import Contacts from Outlook.\r\n\r\nHold SHIFT to select custom folder!\r\nHold CTRL t" +
-                    "o import only Contacts matching a category!\r\n");
+        "o import only Contacts matching a category!\r\n");
             this.btn_read_Outlook.UseVisualStyleBackColor = true;
             this.btn_read_Outlook.Click += new System.EventHandler(this.btn_read_Outlook_Click);
             // 
@@ -126,7 +128,7 @@
             this.btn_save_FritzXML.TabIndex = 2;
             this.btn_save_FritzXML.Text = "Fritz!Box XML";
             this.toolTip1.SetToolTip(this.btn_save_FritzXML, "Exports contacts to the XML file the Fritz!Box needs when restoring the phonebook" +
-                    ".");
+        ".");
             this.btn_save_FritzXML.UseVisualStyleBackColor = true;
             this.btn_save_FritzXML.Click += new System.EventHandler(this.btn_save_FritzXML_Click);
             // 
@@ -140,7 +142,7 @@
             this.btn_save_FritzAdress.TabIndex = 3;
             this.btn_save_FritzAdress.Text = "Fritz!adr";
             this.toolTip1.SetToolTip(this.btn_save_FritzAdress, "Export contacts for use in AVM\'s Fritz!Fax & Co programs.\r\nKeep SHIFT pressed to " +
-                    "export only contacts that have a fax number.");
+        "export only contacts that have a fax number.");
             this.btn_save_FritzAdress.UseVisualStyleBackColor = true;
             this.btn_save_FritzAdress.Click += new System.EventHandler(this.btn_save_FritzAdr_Click);
             // 
@@ -150,8 +152,8 @@
             // 
             // button_clear
             // 
-            this.button_clear.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_clear.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.button_clear.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button_clear.Location = new System.Drawing.Point(378, 533);
             this.button_clear.Name = "button_clear";
@@ -288,7 +290,7 @@
             this.combo_VIP.Size = new System.Drawing.Size(221, 21);
             this.combo_VIP.TabIndex = 3;
             this.toolTip1.SetToolTip(this.combo_VIP, "Allows you to select how the missing VIP functionality in the address \r\nbooks can" +
-                    " be mapped to the VIP setting in AVM/Snom Phones\r\n");
+        " be mapped to the VIP setting in AVM/Snom Phones\r\n");
             // 
             // btn_save_SnomCSV7
             // 
@@ -300,7 +302,7 @@
             this.btn_save_SnomCSV7.TabIndex = 8;
             this.btn_save_SnomCSV7.Text = "Snom CSV v7";
             this.toolTip1.SetToolTip(this.btn_save_SnomCSV7, "Simple CSV Export for Snom v7 Firmware, containing just 2 columns (Name / Number)" +
-                    "\r\n\r\nFile Format is UTF8 without BOM.\r\n");
+        "\r\n\r\nFile Format is UTF8 without BOM.\r\n");
             this.btn_save_SnomCSV7.UseVisualStyleBackColor = true;
             this.btn_save_SnomCSV7.Click += new System.EventHandler(this.btn_save_SnomXMLv7_Click);
             // 
@@ -325,7 +327,7 @@
             this.btn_read_FritzXML.TabIndex = 11;
             this.btn_read_FritzXML.Text = "Fritz!Box XML";
             this.toolTip1.SetToolTip(this.btn_read_FritzXML, "Import contacts from the XML file the Fritz!Box creates when backing up the phone" +
-                    "book.");
+        "book.");
             this.btn_read_FritzXML.UseVisualStyleBackColor = true;
             this.btn_read_FritzXML.Click += new System.EventHandler(this.btn_read_FritzXML_Click);
             // 
@@ -360,9 +362,9 @@
             this.MyDataGridView.AllowUserToAddRows = false;
             this.MyDataGridView.AllowUserToDeleteRows = false;
             this.MyDataGridView.AllowUserToResizeRows = false;
-            this.MyDataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.MyDataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.MyDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.MyDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.Fullname,
@@ -614,7 +616,7 @@
             this.btn_save_TalkSurfCSV.TabIndex = 24;
             this.btn_save_TalkSurfCSV.Text = "Talk+Surf CSV";
             this.toolTip1.SetToolTip(this.btn_save_TalkSurfCSV, "CSV Export (Non-Unicode) for Gigasets old Talk & Surf 6.0 Software.\r\nExports a sh" +
-                    "ortened name and the phone numbers.\r\n");
+        "ortened name and the phone numbers.\r\n");
             this.btn_save_TalkSurfCSV.UseVisualStyleBackColor = true;
             this.btn_save_TalkSurfCSV.Click += new System.EventHandler(this.btn_save_TalkSurfCSV_Click);
             // 
@@ -640,9 +642,36 @@
             this.btn_save_AastraCSV.TabIndex = 26;
             this.btn_save_AastraCSV.Text = "Aastra CSV";
             this.toolTip1.SetToolTip(this.btn_save_AastraCSV, "CSV Export for Aastra Phones\r\n\r\nFile Format is UTF8 without BOM and with Unix Lin" +
-                    "efeeds.\r\n");
+        "efeeds.\r\n");
             this.btn_save_AastraCSV.UseVisualStyleBackColor = true;
             this.btn_save_AastraCSV.Click += new System.EventHandler(this.btn_save_AastraCSV_Click);
+            // 
+            // btn_save_GrandstreamXml
+            // 
+            this.btn_save_GrandstreamXml.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_save_GrandstreamXml.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_save_GrandstreamXml.Location = new System.Drawing.Point(836, 399);
+            this.btn_save_GrandstreamXml.Name = "btn_save_GrandstreamXml";
+            this.btn_save_GrandstreamXml.Size = new System.Drawing.Size(167, 35);
+            this.btn_save_GrandstreamXml.TabIndex = 28;
+            this.btn_save_GrandstreamXml.Text = "Grandstream XML";
+            this.toolTip1.SetToolTip(this.btn_save_GrandstreamXml, "XML Export for Grandstream Phones\r\n\r\nFile Format is UTF8 without BOM and with Uni" +
+        "x Linefeeds.\r\n");
+            this.btn_save_GrandstreamXml.UseVisualStyleBackColor = true;
+            this.btn_save_GrandstreamXml.Click += new System.EventHandler(this.btn_save_GrandstreamXml_Click);
+            // 
+            // btn_read_googleContacts
+            // 
+            this.btn_read_googleContacts.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_read_googleContacts.Location = new System.Drawing.Point(4, 276);
+            this.btn_read_googleContacts.Name = "btn_read_googleContacts";
+            this.btn_read_googleContacts.Size = new System.Drawing.Size(167, 35);
+            this.btn_read_googleContacts.TabIndex = 29;
+            this.btn_read_googleContacts.Text = "Google Contacts";
+            this.toolTip1.SetToolTip(this.btn_read_googleContacts, "Directly imports contacts from a Google Mail Account\r\n(without the need to create" +
+        " a vCard as intermediate step)\r\n");
+            this.btn_read_googleContacts.UseVisualStyleBackColor = true;
+            this.btn_read_googleContacts.Click += new System.EventHandler(this.btn_read_googleContacts_Click);
             // 
             // panel_left
             // 
@@ -711,8 +740,8 @@
             // 
             // button_config
             // 
-            this.button_config.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_config.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.button_config.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button_config.Location = new System.Drawing.Point(378, 586);
             this.button_config.Name = "button_config";
@@ -727,6 +756,8 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1004, 639);
+            this.Controls.Add(this.btn_read_googleContacts);
+            this.Controls.Add(this.btn_save_GrandstreamXml);
             this.Controls.Add(this.button_config);
             this.Controls.Add(this.btn_save_AastraCSV);
             this.Controls.Add(this.btn_read_genericCSV);
@@ -822,6 +853,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Photo;
         private System.Windows.Forms.Button button_7270;
         private System.Windows.Forms.Button button_7390;
+        private System.Windows.Forms.Button btn_save_GrandstreamXml;
+        private System.Windows.Forms.Button btn_read_googleContacts;
     }
 }
 
