@@ -18,7 +18,7 @@ namespace Contact_Conversion_Wizard
             OPT_prefixNONFB.Checked = Form1.cfg_prefixNONFB;
             OPT_fritzXML_order.Checked = Form1.cfg_fritzWorkFirst;
             OPT_importOther.Checked = Form1.cfg_importOther;
-            OPT_OLpics.Checked = Form1.cfg_OLpics;
+            OPT_DUPren.Checked = Form1.cfg_DUPren;
 
 
             checkBox_cleanBrackets.Checked = Form1.clean_brackets;
@@ -29,6 +29,7 @@ namespace Contact_Conversion_Wizard
             textBox_gLogin.Text = Form1.g_login;
             textBox_gPass.Text = Form1.g_pass;
 
+
         }
 
         private void EditConfiguration_FormClosing(object sender, FormClosingEventArgs e)
@@ -38,7 +39,7 @@ namespace Contact_Conversion_Wizard
             Form1.cfg_prefixNONFB = OPT_prefixNONFB.Checked;
             Form1.cfg_fritzWorkFirst = OPT_fritzXML_order.Checked;
             Form1.cfg_importOther = OPT_importOther.Checked;
-            Form1.cfg_OLpics = OPT_OLpics.Checked;
+            Form1.cfg_DUPren = OPT_DUPren.Checked;
 
             Form1.clean_brackets = checkBox_cleanBrackets.Checked;
             Form1.clean_hashkey = checkBox_cleanHashKey.Checked;

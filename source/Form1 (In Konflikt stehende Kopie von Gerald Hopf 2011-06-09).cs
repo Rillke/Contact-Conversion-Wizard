@@ -22,6 +22,7 @@ namespace Contact_Conversion_Wizard
         public static bool cfg_prefixNONFB = false;
         public static bool cfg_fritzWorkFirst = false;
         public static bool cfg_importOther = true;
+        public static bool cfg_OLpics = true;
         public static bool clean_brackets = true;
         public static bool clean_slash = true;
         public static bool clean_hashkey = true;
@@ -640,11 +641,9 @@ namespace Contact_Conversion_Wizard
                 {
                     bool isContactPhoto = (bool)attachment.PropertyAccessor.GetProperty("http://schemas.microsoft.com/mapi/proptag/0x7FFF000B");
                     if (isContactPhoto) { return attachment; } // You can then use the Attachment.SaveAsFile method to save the file as a JPEG image.
-
                 }
-                catch // (Exception e)
-                { // do nothing, if somehow attachment processing leads to a crash (mostly in outlook 2003 with contact pictures, but maybe sometimes else)
-                    // MessageBox.Show("crash: " + e.ToString());
+                catch
+                { // do nothing, if somehow attachment processing leads to a crash }
                 }
             }
             return null;
@@ -780,44 +779,6 @@ namespace Contact_Conversion_Wizard
             disable_buttons(false);
         }    // just click handler
 
-        private bool CheckOutlookVersion(string OL_version)
-        {
-            string OL_v;
-
-            if (OL_version.Contains(".") == true && OL_version.Substring(0, 1) != ".")
-            {
-                OL_v = OL_version.Substring(0, OL_version.IndexOf("."));
-            }
-            else
-            {
-                MessageBox.Show("#1: Unable to parse Outlook Version number, please report this bug." + Environment.NewLine + "Outlook version was self-reported to be: '" + OL_version + "'");
-                OL_v = "0";
-            }
-
-            int OL_v_int = 0;
-
-            try
-            {
-                OL_v_int = Convert.ToInt32(OL_v);
-            }
-            catch
-            {
-                OL_v_int = 0;
-                MessageBox.Show("#2: Unable to parse Outlook Version number, please report this bug." + Environment.NewLine + "Outlook version was self-reported to be: '" + OL_version + "'");
-            }
-
-            if (OL_v_int >= 12)
-            {
-                return(true);
-            }
-            else
-            {
-                return(false);
-            }
-
-
-
-        }
 
         private ReadDataReturn read_data_Outlook(bool customfolder, bool categoryfilter)
         {
@@ -841,11 +802,9 @@ namespace Contact_Conversion_Wizard
                 return (new ReadDataReturn(duplicates));
             }
 
-            bool get_OLpics = CheckOutlookVersion(outlookObj.Version);
-
             // sucessfully connected to outlook, do some further setup work
             Microsoft.Office.Interop.Outlook.NameSpace outlookNS = outlookObj.GetNamespace("MAPI");
-            
+
             // if the user had shift pressed, allow him to select a custom folder. If not, select the default folder.
             if (customfolder == false)
             {
@@ -934,7 +893,7 @@ namespace Contact_Conversion_Wizard
                 }
 
                 // store picture in myContact.jpeg, if present:
-                if (get_OLpics == true && myContactItem.HasPicture == true)
+                if (cfg_OLpics == true && myContactItem.HasPicture == true)
                 {
                     Microsoft.Office.Interop.Outlook.Attachment myAttachmentPhoto = GetContactPhoto(myContactItem);
                     if (myAttachmentPhoto != null)
@@ -1080,6 +1039,7 @@ namespace Contact_Conversion_Wizard
                 string vcard_fullname = "";
                 string vcard_notes = "";
                 string vcard_nickname = "";
+                char[] char_split_array = { ';', ',' };
 
                 int address_value_stored = 0;
                 int email_value_stored = 0;
@@ -1115,19 +1075,18 @@ namespace Contact_Conversion_Wizard
                     if (vParseLine.StartsWith("item", StringComparison.OrdinalIgnoreCase) == true)
                     { vParseLine = vParseLine.Substring(vParseLine.IndexOf(".") + 1); }
 
-                    if (vParseLine == "") { continue; } // skip empty lines
 
-                    // separate vParseLine into Item, Options and Value
                     string vParseItem = vParseLine.Substring(0,vParseLine.IndexOf(":"));
                     string vParseOptions = "";
                     
-                    if (vParseItem.IndexOfAny(new char[] { ':', ';' }) != -1) // if item string has options attached to it, separate those from each other
+                    if (vParseItem.IndexOfAny(new char[] { ':', ';' }) != -1)
                     {
                         vParseOptions = vParseItem;
                         vParseItem = vParseItem.Substring(0, vParseItem.IndexOfAny(new char[] { ':', ';' }));
                         vParseOptions = vParseOptions.Substring(vParseItem.Length + 1);
                     }
                     
+                    // string vParseOptions = 
                     string vParseValue = vParseLine.Substring(vParseLine.IndexOf(":")+1);
 
                     // MessageBox.Show(vParseLine + "\r\n==> ITEM: " + vParseItem + "\r\n==> OPT:" + vParseOptions + "\r\n==> VALUE: " + vParseValue);
@@ -1146,6 +1105,7 @@ namespace Contact_Conversion_Wizard
 
                     if (vParseItem.ToUpper() == "NOTE")
                     {
+                        // holt den rest der Zeile und speichert es in der vcard_nickname zwischen um am ende verarbeitet zu werden
                         vcard_notes = vParseValue;
                         continue;
                     }
@@ -1166,27 +1126,33 @@ namespace Contact_Conversion_Wizard
                         continue;
                     }
 
-                    if (vParseItem.ToUpper() == "NICKNAME")
+                    if (vParseLine.StartsWith("NICKNAME:", StringComparison.OrdinalIgnoreCase) == true)
                     {   // holt den ganzen nickname aus der zeile und speichert in für verarbeitung am ende
-                        vcard_nickname = vParseValue.Trim();
+                        vcard_nickname = vParseLine.Substring(9).Trim();
+
+                        MessageBox.Show("Nickname detected: " + vcard_fullname);
                         continue;
                     }
 
-                    if (vParseItem.ToUpper() == "ORG")
+                    if (vParseLine.StartsWith("ORG:", StringComparison.OrdinalIgnoreCase) == true)
                     {
-                        myContact.company = vParseValue.TrimEnd(';'); // if ends with ; (like on macos) remove trailing ;
+                        myContact.company = vParseLine.Substring(4).TrimEnd(';'); // if ends with ; (like on macos) remove trailing ;
                         myContact.company = myContact.company.Replace(';', ' ').Trim(); // if consists of multiple business subunits, combine in one field by removing separators
                         continue;
                     }
 
                     #region Process-TEL-Lines-in-vCard
-                    if (vParseItem == "TEL")
+                    if (vParseLine.StartsWith("TEL;", StringComparison.OrdinalIgnoreCase) == true)
                     {
                         // we are about to process a phone or fax number
-                        string telnumber = vParseValue;
 
-                        string types = vParseOptions.ToLower().Replace("type=", "");
-                        string[] typearray = types.Split(new char[] { ';', ',' });
+                        // trim stuff away that we've already recognized
+                        vParseLine = vParseLine.Substring("TEL;".Length);
+                        string telnumber = vParseLine.Substring(vParseLine.IndexOf(":") + 1);
+
+                        string types = vParseLine.Substring(0, vParseLine.IndexOf(":"));
+                        types = types.ToLower().Replace("type=", "");
+                        string[] typearray = types.Split(char_split_array);
 
                         bool bit_preferred = false;
                         bool bit_fax = false;
@@ -1264,13 +1230,17 @@ namespace Contact_Conversion_Wizard
                     #endregion
 
                     #region Process-ADR-Lines-in-vCard
-                    if (vParseItem == "ADR")
+                    if (vParseLine.StartsWith("ADR;", StringComparison.OrdinalIgnoreCase) == true)
                     {
                         // we are about to process a home or work address
-                        string address = vParseValue;
 
-                        string types = vParseOptions.ToLower().Replace("type=", "");
-                        string[] typearray = types.Split(new char[] { ';', ',' });
+                        // trim stuff away that we've already recognized
+                        vParseLine = vParseLine.Substring("ADR;".Length);
+                        string address = vParseLine.Substring(vParseLine.IndexOf(":") + 1);
+
+                        string types = vParseLine.Substring(0, vParseLine.IndexOf(":"));
+                        types = types.ToLower().Replace("type=", "");
+                        string[] typearray = types.Split(char_split_array);
 
                         bool bit_preferred = false;
                         string bit_type = "";
@@ -1319,10 +1289,13 @@ namespace Contact_Conversion_Wizard
                     #endregion
 
                     #region Process-EMAIL-Lines-in-vCard
-                    if (vParseItem == "EMAIL")
+                    if (vParseLine.StartsWith("EMAIL;", StringComparison.OrdinalIgnoreCase) == true)
                     {
                         // we are about to process a home or work email address
-                        string emailaddress = vParseValue;
+
+                        // trim stuff away that we've already recognized
+                        vParseLine = vParseLine.Substring("EMAIL;".Length);
+                        string emailaddress = vParseLine.Substring(vParseLine.IndexOf(":") + 1);
 
                         string types = vParseLine.Substring(0, vParseLine.IndexOf(":"));
                         types = types.ToLower().Replace("type=", "");
@@ -1367,24 +1340,23 @@ namespace Contact_Conversion_Wizard
                     }
                     #endregion
 
-                    if (vParseItem == "CATEGORIES") { continue; }
+                    if (vParseLine.StartsWith("CATEGORIES", StringComparison.OrdinalIgnoreCase) == true) { continue; }
+                    if (vParseLine.StartsWith("X-ABUID", StringComparison.OrdinalIgnoreCase) == true) { continue; }
 
-                    if (vParseItem == "X-ABUID") { continue; }
-
-                    if (vParseItem == "PHOTO")
+                    if (vParseLine.StartsWith("PHOTO", StringComparison.OrdinalIgnoreCase) == true)
                     {
-                        if (vParseOptions.ToUpper().Contains("BASE64") == true)
+                        if (vParseLine.Contains("BASE64") == true)
                         {
-                            string encodedData = vParseValue.Replace(" ", "");
+                            string encodedData = vParseLine.Substring(vParseLine.IndexOf(":") + 1).Replace(" ", "");
                             byte[] encodedDataAsBytes = System.Convert.FromBase64String(encodedData);
                             myContact.jpeg = encodedDataAsBytes;
                         }
+
                         continue;
                     }
 
-                    if (vParseItem.ToUpper() == ("END") && (vParseValue.ToUpper() == "VCARD"))
+                    if (vParseLine.StartsWith("END:VCARD", StringComparison.OrdinalIgnoreCase) == true)
                     {
-
                         // übergibt notes und nickname der methode die VIP und Speeddial extrahiert
                         myContact.isVIP = CheckVIPflag(vcard_nickname, vcard_notes, false);
                         myContact.speeddial = CheckSPEEDDIALflag(vcard_notes);
@@ -1414,7 +1386,7 @@ namespace Contact_Conversion_Wizard
             }
             catch (Exception vcard_exception)
             {
-              MessageBox.Show("Unable to parse given vCard file!" + Environment.NewLine + "Contact Conversion Wizard has been tested with vCard files generated by MacOS X 10.6 \"Address book\" and Google Mail vCard exports" + Environment.NewLine + "If you think this file should have been imported properly, please report a bug!" + Environment.NewLine + Environment.NewLine + "Error returned was: " + vcard_exception.ToString() + Environment.NewLine);
+                MessageBox.Show("Unable to parse given vCard file!" + Environment.NewLine + "Contact Conversion Wizard has been tested with vCard files generated by MacOS X 10.6 \"Address book\" and Google Mail vCard exports" + Environment.NewLine + "If you think this file should have been imported properly, please report a bug!" + Environment.NewLine + Environment.NewLine + "Error returned was: " + vcard_exception.ToString() + Environment.NewLine);
             }
 
             return (new ReadDataReturn(duplicates));
@@ -1916,8 +1888,6 @@ namespace Contact_Conversion_Wizard
             try { outlookObj = new Microsoft.Office.Interop.Outlook.Application(); }
             catch (Exception outlook_exception) { MessageBox.Show("Unable to access Outlook!" + Environment.NewLine + Environment.NewLine + "This program needs Outlook to continue, are you sure it's installed and working?" + Environment.NewLine + Environment.NewLine + "Error returned was: " + outlook_exception.ToString() + Environment.NewLine); }
 
-            bool get_OLpics = CheckOutlookVersion(outlookObj.Version);
-
             // sucessfully connected to outlook, do some further setup work
             Microsoft.Office.Interop.Outlook.NameSpace outlookNS = outlookObj.GetNamespace("MAPI");
 
@@ -1966,7 +1936,7 @@ namespace Contact_Conversion_Wizard
                 if (contactData.speeddial != "") { newContact.Body += "SPEEDDIAL(" + contactData.speeddial + ")"; }
 
                 // Contact Picture Functionality, more info on this here: http://www.c-sharpcorner.com/UploadFile/Nimusoft/OutlookwithNET06262007081811AM/OutlookwithNET.aspx
-                if (get_OLpics == true && combo_picexport.SelectedIndex == 1 && contactData.jpeg != null)
+                if (cfg_OLpics == true && combo_picexport.SelectedIndex == 1 && contactData.jpeg != null)
                 {
                     string tempname = System.IO.Path.GetTempFileName();
                     System.IO.File.WriteAllBytes(tempname, contactData.jpeg);
@@ -3097,6 +3067,7 @@ namespace Contact_Conversion_Wizard
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_prefixNONFB") { cfg_prefixNONFB = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_fritzWorkFirst") { cfg_fritzWorkFirst = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_importOther") { cfg_importOther = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
+                    if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_OLpics") { cfg_OLpics = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_DUPren") { cfg_DUPren = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "clean_brackets") { clean_brackets = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "clean_hashkey") { clean_hashkey = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
@@ -3128,6 +3099,7 @@ namespace Contact_Conversion_Wizard
             sb.AppendLine("cfg_prefixNONFB" + "\t" + cfg_prefixNONFB.ToString());
             sb.AppendLine("cfg_fritzWorkFirst" + "\t" + cfg_fritzWorkFirst.ToString());
             sb.AppendLine("cfg_importOther" + "\t" + cfg_importOther.ToString());
+            sb.AppendLine("cfg_OLpics" + "\t" + cfg_OLpics.ToString());
             sb.AppendLine("cfg_DUPren" + "\t" + cfg_DUPren.ToString());
             sb.AppendLine("clean_brackets" + "\t" + clean_brackets.ToString());
             sb.AppendLine("clean_hashkey" + "\t" + clean_hashkey.ToString());

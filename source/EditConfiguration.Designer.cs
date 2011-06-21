@@ -45,7 +45,7 @@
             this.textBox_gLogin = new System.Windows.Forms.TextBox();
             this.textBox_gPass = new System.Windows.Forms.TextBox();
             this.OPT_fritzXML_order = new System.Windows.Forms.CheckBox();
-            this.OPT_OLpics = new System.Windows.Forms.CheckBox();
+            this.OPT_DUPren = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // lbl_configtitle
@@ -81,7 +81,7 @@
             // checkBox_cleanXchar
             // 
             this.checkBox_cleanXchar.AutoSize = true;
-            this.checkBox_cleanXchar.Location = new System.Drawing.Point(16, 282);
+            this.checkBox_cleanXchar.Location = new System.Drawing.Point(16, 307);
             this.checkBox_cleanXchar.Name = "checkBox_cleanXchar";
             this.checkBox_cleanXchar.Size = new System.Drawing.Size(84, 17);
             this.checkBox_cleanXchar.TabIndex = 8;
@@ -91,7 +91,7 @@
             // checkBox_cleanHyphen
             // 
             this.checkBox_cleanHyphen.AutoSize = true;
-            this.checkBox_cleanHyphen.Location = new System.Drawing.Point(16, 259);
+            this.checkBox_cleanHyphen.Location = new System.Drawing.Point(16, 284);
             this.checkBox_cleanHyphen.Name = "checkBox_cleanHyphen";
             this.checkBox_cleanHyphen.Size = new System.Drawing.Size(82, 17);
             this.checkBox_cleanHyphen.TabIndex = 7;
@@ -101,7 +101,7 @@
             // checkBox_cleanHashKey
             // 
             this.checkBox_cleanHashKey.AutoSize = true;
-            this.checkBox_cleanHashKey.Location = new System.Drawing.Point(16, 236);
+            this.checkBox_cleanHashKey.Location = new System.Drawing.Point(16, 261);
             this.checkBox_cleanHashKey.Name = "checkBox_cleanHashKey";
             this.checkBox_cleanHashKey.Size = new System.Drawing.Size(86, 17);
             this.checkBox_cleanHashKey.TabIndex = 10;
@@ -111,7 +111,7 @@
             // checkBox_cleanBrackets
             // 
             this.checkBox_cleanBrackets.AutoSize = true;
-            this.checkBox_cleanBrackets.Location = new System.Drawing.Point(16, 213);
+            this.checkBox_cleanBrackets.Location = new System.Drawing.Point(16, 238);
             this.checkBox_cleanBrackets.Name = "checkBox_cleanBrackets";
             this.checkBox_cleanBrackets.Size = new System.Drawing.Size(119, 17);
             this.checkBox_cleanBrackets.TabIndex = 9;
@@ -122,7 +122,7 @@
             // 
             this.label_cleanheader.AutoSize = true;
             this.label_cleanheader.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label_cleanheader.Location = new System.Drawing.Point(13, 188);
+            this.label_cleanheader.Location = new System.Drawing.Point(13, 213);
             this.label_cleanheader.Name = "label_cleanheader";
             this.label_cleanheader.Size = new System.Drawing.Size(289, 20);
             this.label_cleanheader.TabIndex = 11;
@@ -141,7 +141,7 @@
             // checkBox_cleanSlash
             // 
             this.checkBox_cleanSlash.AutoSize = true;
-            this.checkBox_cleanSlash.Location = new System.Drawing.Point(16, 305);
+            this.checkBox_cleanSlash.Location = new System.Drawing.Point(16, 330);
             this.checkBox_cleanSlash.Name = "checkBox_cleanSlash";
             this.checkBox_cleanSlash.Size = new System.Drawing.Size(84, 17);
             this.checkBox_cleanSlash.TabIndex = 13;
@@ -162,7 +162,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(12, 335);
+            this.label1.Location = new System.Drawing.Point(12, 360);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(268, 20);
             this.label1.TabIndex = 17;
@@ -171,7 +171,7 @@
             // lbl_gMail_login
             // 
             this.lbl_gMail_login.AutoSize = true;
-            this.lbl_gMail_login.Location = new System.Drawing.Point(17, 366);
+            this.lbl_gMail_login.Location = new System.Drawing.Point(17, 391);
             this.lbl_gMail_login.Name = "lbl_gMail_login";
             this.lbl_gMail_login.Size = new System.Drawing.Size(64, 13);
             this.lbl_gMail_login.TabIndex = 18;
@@ -180,7 +180,7 @@
             // lbl_gMail_pass
             // 
             this.lbl_gMail_pass.AutoSize = true;
-            this.lbl_gMail_pass.Location = new System.Drawing.Point(17, 392);
+            this.lbl_gMail_pass.Location = new System.Drawing.Point(17, 417);
             this.lbl_gMail_pass.Name = "lbl_gMail_pass";
             this.lbl_gMail_pass.Size = new System.Drawing.Size(84, 13);
             this.lbl_gMail_pass.TabIndex = 19;
@@ -188,14 +188,14 @@
             // 
             // textBox_gLogin
             // 
-            this.textBox_gLogin.Location = new System.Drawing.Point(100, 363);
+            this.textBox_gLogin.Location = new System.Drawing.Point(100, 388);
             this.textBox_gLogin.Name = "textBox_gLogin";
             this.textBox_gLogin.Size = new System.Drawing.Size(180, 20);
             this.textBox_gLogin.TabIndex = 20;
             // 
             // textBox_gPass
             // 
-            this.textBox_gPass.Location = new System.Drawing.Point(100, 390);
+            this.textBox_gPass.Location = new System.Drawing.Point(100, 415);
             this.textBox_gPass.Name = "textBox_gPass";
             this.textBox_gPass.Size = new System.Drawing.Size(180, 20);
             this.textBox_gPass.TabIndex = 21;
@@ -211,22 +211,22 @@
             this.OPT_fritzXML_order.Text = "Fritz!XML Export: Work Nr. before Home Nr. ?";
             this.OPT_fritzXML_order.UseVisualStyleBackColor = true;
             // 
-            // OPT_OLpics
+            // OPT_DUPren
             // 
-            this.OPT_OLpics.AutoSize = true;
-            this.OPT_OLpics.Location = new System.Drawing.Point(16, 160);
-            this.OPT_OLpics.Name = "OPT_OLpics";
-            this.OPT_OLpics.Size = new System.Drawing.Size(323, 17);
-            this.OPT_OLpics.TabIndex = 23;
-            this.OPT_OLpics.Text = "Import/Export Outlook contact pictures (disable for Outlook XP)";
-            this.OPT_OLpics.UseVisualStyleBackColor = true;
+            this.OPT_DUPren.AutoSize = true;
+            this.OPT_DUPren.Location = new System.Drawing.Point(16, 161);
+            this.OPT_DUPren.Name = "OPT_DUPren";
+            this.OPT_DUPren.Size = new System.Drawing.Size(296, 17);
+            this.OPT_DUPren.TabIndex = 24;
+            this.OPT_DUPren.Text = "Allow import of duplicate names by numbering them 00-99";
+            this.OPT_DUPren.UseVisualStyleBackColor = true;
             // 
             // EditConfiguration
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(362, 434);
-            this.Controls.Add(this.OPT_OLpics);
+            this.ClientSize = new System.Drawing.Size(362, 474);
+            this.Controls.Add(this.OPT_DUPren);
             this.Controls.Add(this.OPT_fritzXML_order);
             this.Controls.Add(this.textBox_gPass);
             this.Controls.Add(this.textBox_gLogin);
@@ -271,6 +271,6 @@
         private System.Windows.Forms.TextBox textBox_gLogin;
         private System.Windows.Forms.TextBox textBox_gPass;
         private System.Windows.Forms.CheckBox OPT_fritzXML_order;
-        private System.Windows.Forms.CheckBox OPT_OLpics;
+        private System.Windows.Forms.CheckBox OPT_DUPren;
     }
 }
