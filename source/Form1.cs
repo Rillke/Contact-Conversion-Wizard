@@ -28,6 +28,9 @@ namespace Contact_Conversion_Wizard
         public static bool clean_hyphen = true;
         public static bool clean_xchar = true;
         public static bool cfg_DUPren = false;
+        public static bool cfg_checkVersion = false;
+
+
         public static string g_login = "";
         public static string g_pass = "";
 
@@ -86,36 +89,54 @@ namespace Contact_Conversion_Wizard
             // override default load configuration (from above) with settings from file (if any)
             myConfig_Load();
 
+            if (cfg_checkVersion == true)
+            {
+                backgroundWorker_updateCheck.RunWorkerAsync();
+            }
 
         }
 
         private string CleanUpNumber(string number, string country_prefix, string dial_prefix)
         {
 
-            string return_str = number;
+            string return_str;
 
-            // clean up white spaces and brackets and some other stuff
-            return_str = return_str.Replace(" ", "");
+            if (number.Contains("@") == false)
+            { // treat as phone number, not as email
 
-            if (clean_brackets == true)
-            {
-                return_str = return_str.Replace("(", "");
-                return_str = return_str.Replace(")", "");
-            }
-            if (clean_slash == true)
-            {
-                return_str = return_str.Replace("/", "");
-            }
+                char[] buffer = new char[number.Length];
+                int idx = 0;
 
-            // return_str = return_str.Replace("*", ""); ( we are no longer replacing this, since this is actually used by the Fritz!Box for internal numbers)
+                foreach (char c in number)
+                {
+                    // keep numbers, the international + sign and * for fritz!box prefixes
+                    if ((c >= '0' && c <= '9') || (c == '+') || (c == '*'))
+                    {
+                        buffer[idx] = c; idx++;
+                    }
+                    else if (clean_brackets == false && ((c == '(') || (c == ')')))
+                    { // keep brackets if option to clean them set to false
+                        buffer[idx] = c; idx++;
+                    }
+                    else if (clean_slash == false && (c == '/'))
+                    { // keep slash if option to clean it set to false
+                        buffer[idx] = c; idx++;
+                    }
+                    else if (clean_hashkey == false && (c == '#'))
+                    { // keep slash if option to clean it set to false
+                        buffer[idx] = c; idx++;
+                    }
+                    else if (clean_hyphen == false && (c == '-'))
+                    { // keep slash if option to clean it set to false
+                        buffer[idx] = c; idx++;
+                    }
+                    else if (clean_xchar == false && (c == 'x'))
+                    { // keep slash if option to clean it set to false
+                        buffer[idx] = c; idx++;
+                    }
 
-            if (clean_hashkey == true) { return_str = return_str.Replace("#", ""); }
-
-            // if number is not an eMail address (which cannot contain () or space checked above), we do some further cleanup
-            if (return_str.Contains("@") == false)
-            {
-                if (clean_hyphen == true) { return_str = return_str.Replace("-", ""); }
-                if (clean_xchar == true) { return_str = return_str.Replace("x", ""); }
+                }
+                return_str = new string(buffer, 0, idx);
 
                 // clean up country code
                 if (country_prefix != "keep")
@@ -123,9 +144,20 @@ namespace Contact_Conversion_Wizard
                     if (return_str.StartsWith("+")) { return_str = "00" + return_str.Substring(1); }
                     if (return_str.StartsWith(country_prefix)) { return_str = "0" + return_str.Substring(country_prefix.Length); }
                 }
-            }
 
-            if (return_str != "") { return_str = dial_prefix + return_str; }
+                if (return_str != "") { return_str = dial_prefix + return_str; }
+
+            }
+            else
+            { // treat as email
+                return_str = number;
+
+                if ((number.Contains("<") == true) || (number.Contains(">") == true))
+                {
+                    MessageBox.Show("Warning: eMail '" + number + "' contains '<' and/or '>' characters. This is probably not a good idea!");
+                }
+
+            }
 
             return return_str;
         }
@@ -1071,45 +1103,50 @@ namespace Contact_Conversion_Wizard
 
             string duplicates = "";
 
-            try
+            // do whats necessary to import a VCF File!
+            // for further use: spec can be found here: http://www.ietf.org/rfc/rfc2426.txt
+
+            GroupDataContact myContact = new GroupDataContact();
+            string vcard_fullname = "";
+            string vcard_notes = "";
+            string vcard_nickname = "";
+
+            int address_value_stored = 0;
+            int email_value_stored = 0;
+
+            System.IO.StreamReader file1;
+            if (non_unicode == false)
             {
-                // do whats necessary to import a VCF File!
-                // for further use: spec can be found here: http://www.ietf.org/rfc/rfc2426.txt
+                file1 = new System.IO.StreamReader(filename, Encoding.UTF8);
+            }
+            else
+            {
+                file1 = new System.IO.StreamReader(filename, Encoding.GetEncoding("ISO-8859-1"));
+            }
 
-                GroupDataContact myContact = new GroupDataContact();
-                string vcard_fullname = "";
-                string vcard_notes = "";
-                string vcard_nickname = "";
+            // first read everything into builder "string"
+            string curline;
+            StringBuilder builder = new StringBuilder();
+            while ((curline = file1.ReadLine()) != null)
+            {
+                builder.Append(curline + "\r\n");
+            }
+            file1.Close();
 
-                int address_value_stored = 0;
-                int email_value_stored = 0;
+            // then strip away "\r\n " stuff to unfold everything, and then regEx Split by "\r\n" into array of lines
+            string[] vParseLines = System.Text.RegularExpressions.Regex.Split(builder.ToString().Replace("\r\n ", ""), "\r\n");
 
-                System.IO.StreamReader file1;
-                if (non_unicode == false)
+            bool crashed = false;
+            StringBuilder crashlog = new StringBuilder();
+
+            foreach (string ParseLine in vParseLines)
+            {
+                string currentline_for_crash = "";
+                try
                 {
-                    file1 = new System.IO.StreamReader(filename, Encoding.UTF8);
-                }
-                else
-                {
-                    file1 = new System.IO.StreamReader(filename, Encoding.GetEncoding("ISO-8859-1"));
-                }
-
-                // first read everything into builder "string"
-                string curline;
-                StringBuilder builder = new StringBuilder();
-                while ((curline = file1.ReadLine()) != null)
-                {
-                    builder.Append(curline + "\r\n");
-                }
-                file1.Close();
-
-                // then strip away "\r\n " stuff to unfold everything, and then regEx Split by "\r\n" into array of lines
-                string[] vParseLines = System.Text.RegularExpressions.Regex.Split(builder.ToString().Replace("\r\n ", ""), "\r\n");
-
-                foreach (string ParseLine in vParseLines)
-                {
-                    // replaced escaped ":" characters, they should not be a problem when parsing
+                    // replace escaped ":" characters, they should not be a problem when parsing (TODO: This could be a problem? Or maybe not? Do some additional tests sometime)
                     string vParseLine = ParseLine.Replace("\\:", ":").Replace("\\\\", "\\").Replace("\\;", ",").Replace("\\,", ",");
+                    currentline_for_crash = vParseLine;
 
                     // if line starts with item?, remove this to allow normal processing (apple used this, maybe somedays we need more advanced processing, but for now we just strip it)
                     if (vParseLine.StartsWith("item", StringComparison.OrdinalIgnoreCase) == true)
@@ -1118,17 +1155,24 @@ namespace Contact_Conversion_Wizard
                     if (vParseLine == "") { continue; } // skip empty lines
 
                     // separate vParseLine into Item, Options and Value
-                    string vParseItem = vParseLine.Substring(0,vParseLine.IndexOf(":"));
+                    string vParseItem = vParseLine.Substring(0, vParseLine.IndexOf(":"));
                     string vParseOptions = "";
-                    
+
                     if (vParseItem.IndexOfAny(new char[] { ':', ';' }) != -1) // if item string has options attached to it, separate those from each other
                     {
                         vParseOptions = vParseItem;
                         vParseItem = vParseItem.Substring(0, vParseItem.IndexOfAny(new char[] { ':', ';' }));
                         vParseOptions = vParseOptions.Substring(vParseItem.Length + 1);
                     }
-                    
-                    string vParseValue = vParseLine.Substring(vParseLine.IndexOf(":")+1);
+
+                    string vParseValue = vParseLine.Substring(vParseLine.IndexOf(":") + 1);
+
+                    // TODO: If value is quoted printable we need to decode it first, I was unable to find proper working code so far :-(
+                    // if (vParseOptions.ToUpper().Contains("CHARSET=UTF-8") && vParseOptions.ToUpper().Contains("ENCODING=QUOTED-PRINTABLE"))
+                    // {
+                        // MessageBox.Show("Now decoding:\r\n" + vParseValue + "\r\n" + UTF8Decode(vParseValue));
+                        // TODO, this doesn't really work yet
+                    // }
 
                     // MessageBox.Show(vParseLine + "\r\n==> ITEM: " + vParseItem + "\r\n==> OPT:" + vParseOptions + "\r\n==> VALUE: " + vParseValue);
 
@@ -1410,15 +1454,30 @@ namespace Contact_Conversion_Wizard
 
                     }
                 }
-
-            }
             catch (Exception vcard_exception)
             {
-              MessageBox.Show("Unable to parse given vCard file!" + Environment.NewLine + "Contact Conversion Wizard has been tested with vCard files generated by MacOS X 10.6 \"Address book\" and Google Mail vCard exports" + Environment.NewLine + "If you think this file should have been imported properly, please report a bug!" + Environment.NewLine + Environment.NewLine + "Error returned was: " + vcard_exception.ToString() + Environment.NewLine);
+                crashed = true;
+                string crash_cause = vcard_exception.ToString().Replace(Environment.NewLine, " ");
+                if (crash_cause.IndexOf("(") != -1) // make error cause more concise 
+                {
+                    crash_cause = crash_cause.Substring(0, crash_cause.IndexOf("("));
+                }
+                crashlog.AppendLine(currentline_for_crash + Environment.NewLine + "==> " + crash_cause + Environment.NewLine);
+            }
+
+            } // end of long foreach loop
+
+            if (crashed == true)
+            {
+                // TODO: Hier wäre es schön ein Custom Form für die Fehlermeldung zu haben, in dem man auch Markieren&Kopieren in die Zwischenablage kann und das viel Text besser anzeigt (Textbox?)
+                MessageBox.Show("One or more lines in the vCard file could not be parsed and were ignored. If you think those lines were standard-compliant please report a bug in the IP-Phone-Forum with the vCard entry that caused the problem" + Environment.NewLine
+                                + Environment.NewLine
+                                + crashlog.ToString());
             }
 
             return (new ReadDataReturn(duplicates));
         }     // should work fine
+
 
         private ReadDataReturn read_data_FritzAdr(string filename) {
             string duplicates = "";
@@ -2024,10 +2083,11 @@ namespace Contact_Conversion_Wizard
                 // limit to 32 chars
                 SaveAsName = LimitNameLength(SaveAsName, 32);
 
-                // replace "&","<",">"
+                // replace "&","<",">", """
                 SaveAsName = SaveAsName.Replace("&", "&amp;");
                 SaveAsName = SaveAsName.Replace("<", "&lt;");
                 SaveAsName = SaveAsName.Replace(">", "&gt;");
+                SaveAsName = SaveAsName.Replace("\"", "&quot;"); 
 
                 // clean up phone number
                 string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, contactData.FRITZprefix);
@@ -2225,7 +2285,7 @@ namespace Contact_Conversion_Wizard
                 // if we only wish to export phone numbers => check if all relevant phone fields for this export are empty
                 if (export_only_phone == true && (CleanUpNumberHome == string.Empty && CleanUpNumberWork == string.Empty && CleanUpNumberMobile == string.Empty))
                 {
-                    MessageBox.Show("Contact |" + CleanUpCombined + "| ignored, due to missing numbers");
+                    // MessageBox.Show("Contact |" + CleanUpCombined + "| ignored, due to missing numbers");
                     // if yes, abort this foreach loop and contine to the next one
                     continue;
                 }
@@ -2967,10 +3027,11 @@ namespace Contact_Conversion_Wizard
                 // limit to 32 chars
                 SaveAsName = LimitNameLength(SaveAsName, 32);
 
-                // replace "&","<",">"
+                // replace "&","<",">", """
                 SaveAsName = SaveAsName.Replace("&", "&amp;");
                 SaveAsName = SaveAsName.Replace("<", "&lt;");
                 SaveAsName = SaveAsName.Replace(">", "&gt;");
+                SaveAsName = SaveAsName.Replace("\"", "&quot;"); 
 
                 // clean up phone number
                 string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, contactData.FRITZprefix);
@@ -3098,6 +3159,7 @@ namespace Contact_Conversion_Wizard
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_fritzWorkFirst") { cfg_fritzWorkFirst = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_importOther") { cfg_importOther = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_DUPren") { cfg_DUPren = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
+                    if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_checkVersion") { cfg_checkVersion = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "clean_brackets") { clean_brackets = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "clean_hashkey") { clean_hashkey = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "clean_slash") { clean_slash = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
@@ -3129,6 +3191,7 @@ namespace Contact_Conversion_Wizard
             sb.AppendLine("cfg_fritzWorkFirst" + "\t" + cfg_fritzWorkFirst.ToString());
             sb.AppendLine("cfg_importOther" + "\t" + cfg_importOther.ToString());
             sb.AppendLine("cfg_DUPren" + "\t" + cfg_DUPren.ToString());
+            sb.AppendLine("cfg_checkVersion" + "\t" + cfg_checkVersion.ToString());
             sb.AppendLine("clean_brackets" + "\t" + clean_brackets.ToString());
             sb.AppendLine("clean_hashkey" + "\t" + clean_hashkey.ToString());
             sb.AppendLine("clean_slash" + "\t" + clean_slash.ToString());
@@ -3224,6 +3287,118 @@ namespace Contact_Conversion_Wizard
     Array.Copy(buffer, ret, read);
     return ret;
     }
+
+        private void button_website_Click(object sender, EventArgs e)
+        {
+            if (((Control.ModifierKeys & Keys.Shift) == Keys.Shift) || (this.button_website.ForeColor == System.Drawing.Color.Green))
+            { // shift is pressed
+                System.Diagnostics.Process.Start("http://software.nv-systems.net/ccw/download");
+            }
+            else
+            { // no shift pressed
+                System.Diagnostics.Process.Start("http://software.nv-systems.net/ccw");
+            }
+
+        }
+
+        private void button_forum_Click(object sender, EventArgs e)
+        {
+            if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift)
+            { // shift is pressed
+                System.Diagnostics.Process.Start("www.ip-phone-forum.de/showthread.php?t=209976&goto=newpost");
+            }
+            else
+            { // no shift pressed
+                System.Diagnostics.Process.Start("www.ip-phone-forum.de/showthread.php?t=209976");
+            }
+        }
+
+        private void backgroundWorker_updateCheck_DoWork(object sender, DoWorkEventArgs e)
+        {
+            string website = "";
+
+            try
+            {
+                website = DoWebRequest("http://software.nv-systems.net/ccw/download");
+                website = website.Substring(website.IndexOf("Aktuelle Version"));
+                website = website.Substring(website.IndexOf("/downloads/Contact%20Conversion%20Wizard%20v") + "/downloads/Contact%20Conversion%20Wizard%20v".Length);
+                string websiteversion = website.Substring(0, website.IndexOf(".zip"));
+                string productversion = this.ProductVersion;
+
+                if (websiteversion.CompareTo(productversion) == 1)
+                {
+                    e.Result = "NEW:"  + websiteversion;
+                }
+                else
+                {
+                    if (websiteversion.CompareTo(productversion) == 0) { e.Result = "SAME:" + websiteversion; }
+                    else if (websiteversion.CompareTo(productversion) == -1) { e.Result = "OLDER:" + websiteversion; }
+                    else { e.Result = "THIS SHOULD NOT HAVE HAPPENED"; }
+
+                }
+
+            }
+            catch (Exception ce)
+            {
+                e.Result = "FAIL:" + ce.Message;
+            }
+            
+            
+        }
+
+        private void backgroundWorker_updateCheck_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Result.ToString().StartsWith("FAIL:"))
+            {   // Web Version check has failed.
+                // MessageBox.Show("Web Version check has failed for unknown reasons." + Environment.NewLine + e.Result.ToString());
+                return;
+            }
+
+            if (e.Result.ToString().StartsWith("SAME:"))
+            {   // Web Version check has returned the same version currently installed.
+                // MessageBox.Show("Web Version check has returned the same version currently installed." + Environment.NewLine + e.Result.ToString());
+                return;
+            }
+
+            if (e.Result.ToString().StartsWith("OLDER:"))
+            {   // Web Version check has returned an older version than you currently have.
+                // MessageBox.Show("Web Version check has returned an older version than you currently have." + Environment.NewLine + e.Result.ToString());
+                this.button_website.ForeColor = this.button_website.ForeColor = System.Drawing.Color.Red;
+                return;
+            }
+
+            if (e.Result.ToString().StartsWith("NEW:"))
+            {   // Web Version check has returned a newer version than you currently have.
+                // MessageBox.Show("Web Version check has returned a newer version than you currently have." + Environment.NewLine + e.Result.ToString());
+                this.button_website.ForeColor = this.button_website.ForeColor = System.Drawing.Color.Green;
+                this.button_website.Text = "Update to: v" + e.Result.ToString().Substring(4);
+                return;
+            }
+
+            
+        }
+
+        private string DoWebRequest(string url)
+        {
+
+            string responseData;
+            System.IO.StreamReader responseReader;
+            System.Net.HttpWebResponse myResponse;
+            System.Net.HttpWebRequest MyRq;
+
+            MyRq = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(url);
+            MyRq.Accept = "text/html";
+            MyRq.UserAgent = "User-Agent: Contact Conversion Wizard/" + this.ProductVersion;
+            MyRq.Proxy = null;
+
+            myResponse = (System.Net.HttpWebResponse)MyRq.GetResponse();
+            responseReader = new System.IO.StreamReader(myResponse.GetResponseStream());
+            responseData = responseReader.ReadToEnd();
+            responseReader.Close();
+            myResponse.Close();
+
+            return responseData;
+        }
 
     }
 

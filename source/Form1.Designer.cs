@@ -53,6 +53,23 @@
             this.btn_save_vCard = new System.Windows.Forms.Button();
             this.btn_save_Outlook = new System.Windows.Forms.Button();
             this.MyDataGridView = new System.Windows.Forms.DataGridView();
+            this.Fullname = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.MyColLastname = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.MyColFirstname = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.MyColCompany = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.MyColHome = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.MyColWork = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.MyColMobile = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.MyColPreferred = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.MyColHomeFax = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.MyColWorkFax = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Street = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ZIP = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.City = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.eMail = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.VIP = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Speeddial = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Photo = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.label6 = new System.Windows.Forms.Label();
             this.label_save = new System.Windows.Forms.Label();
             this.btn_save_SnomCSV8 = new System.Windows.Forms.Button();
@@ -72,23 +89,9 @@
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.button_config = new System.Windows.Forms.Button();
-            this.Fullname = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.MyColLastname = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.MyColFirstname = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.MyColCompany = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.MyColHome = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.MyColWork = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.MyColMobile = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.MyColPreferred = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.MyColHomeFax = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.MyColWorkFax = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Street = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ZIP = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.City = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.eMail = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.VIP = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Speeddial = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Photo = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.button_website = new System.Windows.Forms.Button();
+            this.button_forum = new System.Windows.Forms.Button();
+            this.backgroundWorker_updateCheck = new System.ComponentModel.BackgroundWorker();
             this.panel_right.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MyDataGridView)).BeginInit();
             this.panel_left.SuspendLayout();
@@ -158,7 +161,7 @@
             this.button_clear.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button_clear.Location = new System.Drawing.Point(378, 533);
             this.button_clear.Name = "button_clear";
-            this.button_clear.Size = new System.Drawing.Size(250, 49);
+            this.button_clear.Size = new System.Drawing.Size(249, 49);
             this.button_clear.TabIndex = 6;
             this.button_clear.Text = "Clear List (0)";
             this.button_clear.UseVisualStyleBackColor = true;
@@ -393,6 +396,142 @@
             this.MyDataGridView.Size = new System.Drawing.Size(653, 495);
             this.MyDataGridView.TabIndex = 17;
             // 
+            // Fullname
+            // 
+            this.Fullname.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.Fullname.HeaderText = "Combined Name";
+            this.Fullname.Name = "Fullname";
+            this.Fullname.ReadOnly = true;
+            this.Fullname.Width = 101;
+            // 
+            // MyColLastname
+            // 
+            this.MyColLastname.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.MyColLastname.HeaderText = "Lastname";
+            this.MyColLastname.Name = "MyColLastname";
+            this.MyColLastname.ReadOnly = true;
+            this.MyColLastname.Width = 78;
+            // 
+            // MyColFirstname
+            // 
+            this.MyColFirstname.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.MyColFirstname.HeaderText = "Firstname";
+            this.MyColFirstname.Name = "MyColFirstname";
+            this.MyColFirstname.ReadOnly = true;
+            this.MyColFirstname.Width = 77;
+            // 
+            // MyColCompany
+            // 
+            this.MyColCompany.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.MyColCompany.HeaderText = "Company";
+            this.MyColCompany.Name = "MyColCompany";
+            this.MyColCompany.ReadOnly = true;
+            this.MyColCompany.Width = 76;
+            // 
+            // MyColHome
+            // 
+            this.MyColHome.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.MyColHome.HeaderText = "Home";
+            this.MyColHome.Name = "MyColHome";
+            this.MyColHome.ReadOnly = true;
+            this.MyColHome.Width = 60;
+            // 
+            // MyColWork
+            // 
+            this.MyColWork.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.MyColWork.HeaderText = "Work";
+            this.MyColWork.Name = "MyColWork";
+            this.MyColWork.ReadOnly = true;
+            this.MyColWork.Width = 58;
+            // 
+            // MyColMobile
+            // 
+            this.MyColMobile.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.MyColMobile.HeaderText = "Mobile";
+            this.MyColMobile.Name = "MyColMobile";
+            this.MyColMobile.ReadOnly = true;
+            this.MyColMobile.Width = 63;
+            // 
+            // MyColPreferred
+            // 
+            this.MyColPreferred.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.MyColPreferred.HeaderText = "Preferred";
+            this.MyColPreferred.Name = "MyColPreferred";
+            this.MyColPreferred.ReadOnly = true;
+            this.MyColPreferred.Width = 75;
+            // 
+            // MyColHomeFax
+            // 
+            this.MyColHomeFax.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.MyColHomeFax.HeaderText = "HomeFax";
+            this.MyColHomeFax.Name = "MyColHomeFax";
+            this.MyColHomeFax.ReadOnly = true;
+            this.MyColHomeFax.Width = 77;
+            // 
+            // MyColWorkFax
+            // 
+            this.MyColWorkFax.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.MyColWorkFax.HeaderText = "WorkFax";
+            this.MyColWorkFax.Name = "MyColWorkFax";
+            this.MyColWorkFax.ReadOnly = true;
+            this.MyColWorkFax.Width = 75;
+            // 
+            // Street
+            // 
+            this.Street.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.Street.HeaderText = "Street";
+            this.Street.Name = "Street";
+            this.Street.ReadOnly = true;
+            this.Street.Width = 60;
+            // 
+            // ZIP
+            // 
+            this.ZIP.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.ZIP.HeaderText = "ZIP Code";
+            this.ZIP.Name = "ZIP";
+            this.ZIP.ReadOnly = true;
+            this.ZIP.Width = 71;
+            // 
+            // City
+            // 
+            this.City.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.City.HeaderText = "City";
+            this.City.Name = "City";
+            this.City.ReadOnly = true;
+            this.City.Width = 49;
+            // 
+            // eMail
+            // 
+            this.eMail.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.eMail.HeaderText = "eMail";
+            this.eMail.Name = "eMail";
+            this.eMail.ReadOnly = true;
+            this.eMail.Width = 57;
+            // 
+            // VIP
+            // 
+            this.VIP.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.VIP.HeaderText = "VIP";
+            this.VIP.Name = "VIP";
+            this.VIP.ReadOnly = true;
+            this.VIP.Width = 49;
+            // 
+            // Speeddial
+            // 
+            this.Speeddial.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.Speeddial.HeaderText = "Speeddial";
+            this.Speeddial.Name = "Speeddial";
+            this.Speeddial.ReadOnly = true;
+            this.Speeddial.Width = 79;
+            // 
+            // Photo
+            // 
+            this.Photo.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.Photo.HeaderText = "Photo";
+            this.Photo.Name = "Photo";
+            this.Photo.ReadOnly = true;
+            this.Photo.Width = 60;
+            // 
             // label6
             // 
             this.label6.AutoSize = true;
@@ -619,153 +758,46 @@
             this.button_config.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button_config.Location = new System.Drawing.Point(378, 586);
             this.button_config.Name = "button_config";
-            this.button_config.Size = new System.Drawing.Size(250, 49);
+            this.button_config.Size = new System.Drawing.Size(135, 49);
             this.button_config.TabIndex = 27;
             this.button_config.Text = "Configuration";
             this.button_config.UseVisualStyleBackColor = true;
             this.button_config.Click += new System.EventHandler(this.button_config_Click);
             // 
-            // Fullname
+            // button_website
             // 
-            this.Fullname.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.Fullname.HeaderText = "Combined Name";
-            this.Fullname.Name = "Fullname";
-            this.Fullname.ReadOnly = true;
-            this.Fullname.Width = 101;
+            this.button_website.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_website.Location = new System.Drawing.Point(519, 587);
+            this.button_website.Name = "button_website";
+            this.button_website.Size = new System.Drawing.Size(108, 23);
+            this.button_website.TabIndex = 30;
+            this.button_website.Text = "CCW Homepage";
+            this.button_website.UseVisualStyleBackColor = true;
+            this.button_website.Click += new System.EventHandler(this.button_website_Click);
             // 
-            // MyColLastname
+            // button_forum
             // 
-            this.MyColLastname.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.MyColLastname.HeaderText = "Lastname";
-            this.MyColLastname.Name = "MyColLastname";
-            this.MyColLastname.ReadOnly = true;
-            this.MyColLastname.Width = 78;
+            this.button_forum.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_forum.Location = new System.Drawing.Point(519, 612);
+            this.button_forum.Name = "button_forum";
+            this.button_forum.Size = new System.Drawing.Size(108, 23);
+            this.button_forum.TabIndex = 31;
+            this.button_forum.Text = "Support Forum";
+            this.button_forum.UseVisualStyleBackColor = true;
+            this.button_forum.Click += new System.EventHandler(this.button_forum_Click);
             // 
-            // MyColFirstname
+            // backgroundWorker_updateCheck
             // 
-            this.MyColFirstname.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.MyColFirstname.HeaderText = "Firstname";
-            this.MyColFirstname.Name = "MyColFirstname";
-            this.MyColFirstname.ReadOnly = true;
-            this.MyColFirstname.Width = 77;
-            // 
-            // MyColCompany
-            // 
-            this.MyColCompany.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.MyColCompany.HeaderText = "Company";
-            this.MyColCompany.Name = "MyColCompany";
-            this.MyColCompany.ReadOnly = true;
-            this.MyColCompany.Width = 76;
-            // 
-            // MyColHome
-            // 
-            this.MyColHome.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.MyColHome.HeaderText = "Home";
-            this.MyColHome.Name = "MyColHome";
-            this.MyColHome.ReadOnly = true;
-            this.MyColHome.Width = 60;
-            // 
-            // MyColWork
-            // 
-            this.MyColWork.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.MyColWork.HeaderText = "Work";
-            this.MyColWork.Name = "MyColWork";
-            this.MyColWork.ReadOnly = true;
-            this.MyColWork.Width = 58;
-            // 
-            // MyColMobile
-            // 
-            this.MyColMobile.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.MyColMobile.HeaderText = "Mobile";
-            this.MyColMobile.Name = "MyColMobile";
-            this.MyColMobile.ReadOnly = true;
-            this.MyColMobile.Width = 63;
-            // 
-            // MyColPreferred
-            // 
-            this.MyColPreferred.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.MyColPreferred.HeaderText = "Preferred";
-            this.MyColPreferred.Name = "MyColPreferred";
-            this.MyColPreferred.ReadOnly = true;
-            this.MyColPreferred.Width = 75;
-            // 
-            // MyColHomeFax
-            // 
-            this.MyColHomeFax.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.MyColHomeFax.HeaderText = "HomeFax";
-            this.MyColHomeFax.Name = "MyColHomeFax";
-            this.MyColHomeFax.ReadOnly = true;
-            this.MyColHomeFax.Width = 77;
-            // 
-            // MyColWorkFax
-            // 
-            this.MyColWorkFax.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.MyColWorkFax.HeaderText = "WorkFax";
-            this.MyColWorkFax.Name = "MyColWorkFax";
-            this.MyColWorkFax.ReadOnly = true;
-            this.MyColWorkFax.Width = 75;
-            // 
-            // Street
-            // 
-            this.Street.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.Street.HeaderText = "Street";
-            this.Street.Name = "Street";
-            this.Street.ReadOnly = true;
-            this.Street.Width = 60;
-            // 
-            // ZIP
-            // 
-            this.ZIP.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.ZIP.HeaderText = "ZIP Code";
-            this.ZIP.Name = "ZIP";
-            this.ZIP.ReadOnly = true;
-            this.ZIP.Width = 71;
-            // 
-            // City
-            // 
-            this.City.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.City.HeaderText = "City";
-            this.City.Name = "City";
-            this.City.ReadOnly = true;
-            this.City.Width = 49;
-            // 
-            // eMail
-            // 
-            this.eMail.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.eMail.HeaderText = "eMail";
-            this.eMail.Name = "eMail";
-            this.eMail.ReadOnly = true;
-            this.eMail.Width = 57;
-            // 
-            // VIP
-            // 
-            this.VIP.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.VIP.HeaderText = "VIP";
-            this.VIP.Name = "VIP";
-            this.VIP.ReadOnly = true;
-            this.VIP.Width = 49;
-            // 
-            // Speeddial
-            // 
-            this.Speeddial.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.Speeddial.HeaderText = "Speeddial";
-            this.Speeddial.Name = "Speeddial";
-            this.Speeddial.ReadOnly = true;
-            this.Speeddial.Width = 79;
-            // 
-            // Photo
-            // 
-            this.Photo.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
-            this.Photo.HeaderText = "Photo";
-            this.Photo.Name = "Photo";
-            this.Photo.ReadOnly = true;
-            this.Photo.Width = 60;
+            this.backgroundWorker_updateCheck.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker_updateCheck_DoWork);
+            this.backgroundWorker_updateCheck.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker_updateCheck_RunWorkerCompleted);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1004, 639);
+            this.Controls.Add(this.button_forum);
+            this.Controls.Add(this.button_website);
             this.Controls.Add(this.btn_read_googleContacts);
             this.Controls.Add(this.btn_save_GrandstreamXml);
             this.Controls.Add(this.button_config);
@@ -866,6 +898,9 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn VIP;
         private System.Windows.Forms.DataGridViewTextBoxColumn Speeddial;
         private System.Windows.Forms.DataGridViewTextBoxColumn Photo;
+        private System.Windows.Forms.Button button_website;
+        private System.Windows.Forms.Button button_forum;
+        private System.ComponentModel.BackgroundWorker backgroundWorker_updateCheck;
     }
 }
 

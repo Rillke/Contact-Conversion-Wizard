@@ -360,12 +360,7 @@
             Moves to the specified record index.
             </summary>
             <param name="record">The record index.</param>
-            <exception cref="T:ArgumentOutOfRangeException">
-            	Record index must be > 0.
-            </exception>
-            <exception cref="T:InvalidOperationException">
-            	Cannot move to a previous record in forward-only mode.
-            </exception>
+            <returns><c>true</c> if the operation was successful; otherwise, <c>false</c>.</returns>
             <exception cref="T:System.ComponentModel.ObjectDisposedException">
             The instance has been disposed of.
             </exception>
@@ -693,6 +688,13 @@
             Gets or sets a value indicating if the reader will skip empty lines.
             </summary>
             <value>A value indicating if the reader will skip empty lines.</value>
+        </member>
+        <member name="P:LumenWorks.Framework.IO.Csv.CsvReader.DefaultHeaderName">
+            <summary>
+            Gets or sets the default header name when it is an empty string or only whitespaces.
+            The header index will be appended to the specified name.
+            </summary>
+            <value>The default header name when it is an empty string or only whitespaces.</value>
         </member>
         <member name="P:LumenWorks.Framework.IO.Csv.CsvReader.FieldCount">
             <summary>
@@ -1243,9 +1245,7 @@
             Moves to the specified record index.
             </summary>
             <param name="record">The record index.</param>
-            <exception cref="T:ArgumentOutOfRangeException">
-            	Record index must be > 0.
-            </exception>
+            <returns><c>true</c> if the operation was successful; otherwise, <c>false</c>.</returns>
             <exception cref="T:System.ComponentModel.ObjectDisposedException">
             	The instance has been disposed of.
             </exception>

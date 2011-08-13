@@ -46,6 +46,7 @@
             this.textBox_gPass = new System.Windows.Forms.TextBox();
             this.OPT_fritzXML_order = new System.Windows.Forms.CheckBox();
             this.OPT_DUPren = new System.Windows.Forms.CheckBox();
+            this.checkBox_checkVersion = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // lbl_configtitle
@@ -83,9 +84,9 @@
             this.checkBox_cleanXchar.AutoSize = true;
             this.checkBox_cleanXchar.Location = new System.Drawing.Point(16, 307);
             this.checkBox_cleanXchar.Name = "checkBox_cleanXchar";
-            this.checkBox_cleanXchar.Size = new System.Drawing.Size(84, 17);
+            this.checkBox_cleanXchar.Size = new System.Drawing.Size(69, 17);
             this.checkBox_cleanXchar.TabIndex = 8;
-            this.checkBox_cleanXchar.Text = "Remove \"x\"";
+            this.checkBox_cleanXchar.Text = "Keep \"x\"";
             this.checkBox_cleanXchar.UseVisualStyleBackColor = true;
             // 
             // checkBox_cleanHyphen
@@ -93,9 +94,9 @@
             this.checkBox_cleanHyphen.AutoSize = true;
             this.checkBox_cleanHyphen.Location = new System.Drawing.Point(16, 284);
             this.checkBox_cleanHyphen.Name = "checkBox_cleanHyphen";
-            this.checkBox_cleanHyphen.Size = new System.Drawing.Size(82, 17);
+            this.checkBox_cleanHyphen.Size = new System.Drawing.Size(67, 17);
             this.checkBox_cleanHyphen.TabIndex = 7;
-            this.checkBox_cleanHyphen.Text = "Remove \"-\"";
+            this.checkBox_cleanHyphen.Text = "Keep \"-\"";
             this.checkBox_cleanHyphen.UseVisualStyleBackColor = true;
             // 
             // checkBox_cleanHashKey
@@ -103,9 +104,9 @@
             this.checkBox_cleanHashKey.AutoSize = true;
             this.checkBox_cleanHashKey.Location = new System.Drawing.Point(16, 261);
             this.checkBox_cleanHashKey.Name = "checkBox_cleanHashKey";
-            this.checkBox_cleanHashKey.Size = new System.Drawing.Size(86, 17);
+            this.checkBox_cleanHashKey.Size = new System.Drawing.Size(71, 17);
             this.checkBox_cleanHashKey.TabIndex = 10;
-            this.checkBox_cleanHashKey.Text = "Remove \"#\"";
+            this.checkBox_cleanHashKey.Text = "Keep \"#\"";
             this.checkBox_cleanHashKey.UseVisualStyleBackColor = true;
             // 
             // checkBox_cleanBrackets
@@ -113,9 +114,9 @@
             this.checkBox_cleanBrackets.AutoSize = true;
             this.checkBox_cleanBrackets.Location = new System.Drawing.Point(16, 238);
             this.checkBox_cleanBrackets.Name = "checkBox_cleanBrackets";
-            this.checkBox_cleanBrackets.Size = new System.Drawing.Size(119, 17);
+            this.checkBox_cleanBrackets.Size = new System.Drawing.Size(104, 17);
             this.checkBox_cleanBrackets.TabIndex = 9;
-            this.checkBox_cleanBrackets.Text = "Remove \"(\" and \")\"";
+            this.checkBox_cleanBrackets.Text = "Keep \"(\" and \")\"";
             this.checkBox_cleanBrackets.UseVisualStyleBackColor = true;
             // 
             // label_cleanheader
@@ -143,9 +144,9 @@
             this.checkBox_cleanSlash.AutoSize = true;
             this.checkBox_cleanSlash.Location = new System.Drawing.Point(16, 330);
             this.checkBox_cleanSlash.Name = "checkBox_cleanSlash";
-            this.checkBox_cleanSlash.Size = new System.Drawing.Size(84, 17);
+            this.checkBox_cleanSlash.Size = new System.Drawing.Size(69, 17);
             this.checkBox_cleanSlash.TabIndex = 13;
-            this.checkBox_cleanSlash.Text = "Remove \"/\"";
+            this.checkBox_cleanSlash.Text = "Keep \"/\"";
             this.checkBox_cleanSlash.UseVisualStyleBackColor = true;
             // 
             // OPT_importOther
@@ -221,11 +222,22 @@
             this.OPT_DUPren.Text = "Allow import of duplicate names by numbering them 00-99";
             this.OPT_DUPren.UseVisualStyleBackColor = true;
             // 
+            // checkBox_checkVersion
+            // 
+            this.checkBox_checkVersion.AutoSize = true;
+            this.checkBox_checkVersion.Location = new System.Drawing.Point(16, 184);
+            this.checkBox_checkVersion.Name = "checkBox_checkVersion";
+            this.checkBox_checkVersion.Size = new System.Drawing.Size(182, 17);
+            this.checkBox_checkVersion.TabIndex = 25;
+            this.checkBox_checkVersion.Text = "Check for new version on startup";
+            this.checkBox_checkVersion.UseVisualStyleBackColor = true;
+            // 
             // EditConfiguration
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(362, 474);
+            this.Controls.Add(this.checkBox_checkVersion);
             this.Controls.Add(this.OPT_DUPren);
             this.Controls.Add(this.OPT_fritzXML_order);
             this.Controls.Add(this.textBox_gPass);
@@ -272,5 +284,6 @@
         private System.Windows.Forms.TextBox textBox_gPass;
         private System.Windows.Forms.CheckBox OPT_fritzXML_order;
         private System.Windows.Forms.CheckBox OPT_DUPren;
+        private System.Windows.Forms.CheckBox checkBox_checkVersion;
     }
 }

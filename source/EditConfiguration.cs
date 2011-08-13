@@ -21,13 +21,15 @@ namespace Contact_Conversion_Wizard
             OPT_DUPren.Checked = Form1.cfg_DUPren;
 
 
-            checkBox_cleanBrackets.Checked = Form1.clean_brackets;
-            checkBox_cleanHashKey.Checked = Form1.clean_hashkey;
-            checkBox_cleanSlash.Checked = Form1.clean_slash;
-            checkBox_cleanHyphen.Checked = Form1.clean_hyphen;
-            checkBox_cleanXchar.Checked = Form1.clean_xchar;
+            checkBox_cleanBrackets.Checked = !Form1.clean_brackets;
+            checkBox_cleanHashKey.Checked = !Form1.clean_hashkey;
+            checkBox_cleanSlash.Checked = !Form1.clean_slash;
+            checkBox_cleanHyphen.Checked = !Form1.clean_hyphen;
+            checkBox_cleanXchar.Checked = !Form1.clean_xchar;
             textBox_gLogin.Text = Form1.g_login;
             textBox_gPass.Text = Form1.g_pass;
+
+            checkBox_checkVersion.Checked = Form1.cfg_checkVersion;
 
 
         }
@@ -41,14 +43,15 @@ namespace Contact_Conversion_Wizard
             Form1.cfg_importOther = OPT_importOther.Checked;
             Form1.cfg_DUPren = OPT_DUPren.Checked;
 
-            Form1.clean_brackets = checkBox_cleanBrackets.Checked;
-            Form1.clean_hashkey = checkBox_cleanHashKey.Checked;
-            Form1.clean_slash = checkBox_cleanSlash.Checked;
-            Form1.clean_hyphen = checkBox_cleanHyphen.Checked;
-            Form1.clean_xchar = checkBox_cleanXchar.Checked;
+            Form1.clean_brackets = !checkBox_cleanBrackets.Checked;
+            Form1.clean_hashkey = !checkBox_cleanHashKey.Checked;
+            Form1.clean_slash = !checkBox_cleanSlash.Checked;
+            Form1.clean_hyphen = !checkBox_cleanHyphen.Checked;
+            Form1.clean_xchar = !checkBox_cleanXchar.Checked;
             Form1.g_login = textBox_gLogin.Text;
             Form1.g_pass = textBox_gPass.Text;
 
+            Form1.cfg_checkVersion = checkBox_checkVersion.Checked;
 
         }
 
