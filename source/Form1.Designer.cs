@@ -80,8 +80,11 @@
             this.btn_save_TalkSurfCSV = new System.Windows.Forms.Button();
             this.btn_read_genericCSV = new System.Windows.Forms.Button();
             this.btn_save_AastraCSV = new System.Windows.Forms.Button();
-            this.btn_save_GrandstreamXml = new System.Windows.Forms.Button();
+            this.btn_save_GrandstreamGXV = new System.Windows.Forms.Button();
             this.btn_read_googleContacts = new System.Windows.Forms.Button();
+            this.btn_save_GrandstreamGXP = new System.Windows.Forms.Button();
+            this.btn_save_Auerswald = new System.Windows.Forms.Button();
+            this.btn_save_googleContacts = new System.Windows.Forms.Button();
             this.panel_left = new System.Windows.Forms.Panel();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -100,7 +103,7 @@
             // btn_read_Outlook
             // 
             this.btn_read_Outlook.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_read_Outlook.Location = new System.Drawing.Point(4, 71);
+            this.btn_read_Outlook.Location = new System.Drawing.Point(4, 32);
             this.btn_read_Outlook.Name = "btn_read_Outlook";
             this.btn_read_Outlook.Size = new System.Drawing.Size(167, 35);
             this.btn_read_Outlook.TabIndex = 0;
@@ -113,7 +116,7 @@
             // btn_read_vCard
             // 
             this.btn_read_vCard.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_read_vCard.Location = new System.Drawing.Point(4, 153);
+            this.btn_read_vCard.Location = new System.Drawing.Point(4, 108);
             this.btn_read_vCard.Name = "btn_read_vCard";
             this.btn_read_vCard.Size = new System.Drawing.Size(167, 35);
             this.btn_read_vCard.TabIndex = 1;
@@ -126,7 +129,7 @@
             // 
             this.btn_save_FritzXML.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_save_FritzXML.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_save_FritzXML.Location = new System.Drawing.Point(836, 112);
+            this.btn_save_FritzXML.Location = new System.Drawing.Point(836, 70);
             this.btn_save_FritzXML.Name = "btn_save_FritzXML";
             this.btn_save_FritzXML.Size = new System.Drawing.Size(167, 35);
             this.btn_save_FritzXML.TabIndex = 2;
@@ -140,7 +143,7 @@
             // 
             this.btn_save_FritzAdress.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_save_FritzAdress.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_save_FritzAdress.Location = new System.Drawing.Point(836, 194);
+            this.btn_save_FritzAdress.Location = new System.Drawing.Point(836, 146);
             this.btn_save_FritzAdress.Name = "btn_save_FritzAdress";
             this.btn_save_FritzAdress.Size = new System.Drawing.Size(167, 35);
             this.btn_save_FritzAdress.TabIndex = 3;
@@ -159,7 +162,7 @@
             this.button_clear.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.button_clear.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button_clear.Location = new System.Drawing.Point(378, 533);
+            this.button_clear.Location = new System.Drawing.Point(378, 476);
             this.button_clear.Name = "button_clear";
             this.button_clear.Size = new System.Drawing.Size(249, 49);
             this.button_clear.TabIndex = 6;
@@ -178,7 +181,7 @@
             this.panel_right.Controls.Add(this.combo_picexport);
             this.panel_right.Controls.Add(this.label2);
             this.panel_right.Controls.Add(this.combo_prefix);
-            this.panel_right.Location = new System.Drawing.Point(633, 533);
+            this.panel_right.Location = new System.Drawing.Point(633, 476);
             this.panel_right.Name = "panel_right";
             this.panel_right.Size = new System.Drawing.Size(367, 104);
             this.panel_right.TabIndex = 7;
@@ -299,12 +302,12 @@
             // btn_save_SnomCSV7
             // 
             this.btn_save_SnomCSV7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn_save_SnomCSV7.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_save_SnomCSV7.Location = new System.Drawing.Point(836, 235);
+            this.btn_save_SnomCSV7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+            this.btn_save_SnomCSV7.Location = new System.Drawing.Point(836, 184);
             this.btn_save_SnomCSV7.Name = "btn_save_SnomCSV7";
-            this.btn_save_SnomCSV7.Size = new System.Drawing.Size(167, 35);
+            this.btn_save_SnomCSV7.Size = new System.Drawing.Size(83, 35);
             this.btn_save_SnomCSV7.TabIndex = 8;
-            this.btn_save_SnomCSV7.Text = "Snom CSV v7";
+            this.btn_save_SnomCSV7.Text = "Snom\r\nCSV v7";
             this.toolTip1.SetToolTip(this.btn_save_SnomCSV7, "Simple CSV Export for Snom v7 Firmware, containing just 2 columns (Name / Number)" +
         "\r\n\r\nFile Format is UTF8 without BOM.\r\n");
             this.btn_save_SnomCSV7.UseVisualStyleBackColor = true;
@@ -313,7 +316,7 @@
             // btn_read_FritzAdress
             // 
             this.btn_read_FritzAdress.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_read_FritzAdress.Location = new System.Drawing.Point(4, 194);
+            this.btn_read_FritzAdress.Location = new System.Drawing.Point(4, 146);
             this.btn_read_FritzAdress.Name = "btn_read_FritzAdress";
             this.btn_read_FritzAdress.Size = new System.Drawing.Size(167, 35);
             this.btn_read_FritzAdress.TabIndex = 9;
@@ -325,7 +328,7 @@
             // btn_read_FritzXML
             // 
             this.btn_read_FritzXML.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_read_FritzXML.Location = new System.Drawing.Point(4, 112);
+            this.btn_read_FritzXML.Location = new System.Drawing.Point(4, 70);
             this.btn_read_FritzXML.Name = "btn_read_FritzXML";
             this.btn_read_FritzXML.Size = new System.Drawing.Size(167, 35);
             this.btn_read_FritzXML.TabIndex = 11;
@@ -339,7 +342,7 @@
             // 
             this.btn_save_vCard.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_save_vCard.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_save_vCard.Location = new System.Drawing.Point(836, 153);
+            this.btn_save_vCard.Location = new System.Drawing.Point(836, 108);
             this.btn_save_vCard.Name = "btn_save_vCard";
             this.btn_save_vCard.Size = new System.Drawing.Size(167, 35);
             this.btn_save_vCard.TabIndex = 14;
@@ -352,7 +355,7 @@
             // 
             this.btn_save_Outlook.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_save_Outlook.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_save_Outlook.Location = new System.Drawing.Point(836, 71);
+            this.btn_save_Outlook.Location = new System.Drawing.Point(836, 32);
             this.btn_save_Outlook.Name = "btn_save_Outlook";
             this.btn_save_Outlook.Size = new System.Drawing.Size(167, 35);
             this.btn_save_Outlook.TabIndex = 15;
@@ -393,7 +396,7 @@
             this.MyDataGridView.Name = "MyDataGridView";
             this.MyDataGridView.RowHeadersVisible = false;
             this.MyDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.MyDataGridView.Size = new System.Drawing.Size(653, 495);
+            this.MyDataGridView.Size = new System.Drawing.Size(653, 438);
             this.MyDataGridView.TabIndex = 17;
             // 
             // Fullname
@@ -536,7 +539,7 @@
             // 
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(21, 32);
+            this.label6.Location = new System.Drawing.Point(21, 10);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(136, 20);
             this.label6.TabIndex = 18;
@@ -547,7 +550,7 @@
             this.label_save.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label_save.AutoSize = true;
             this.label_save.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label_save.Location = new System.Drawing.Point(856, 32);
+            this.label_save.Location = new System.Drawing.Point(856, 10);
             this.label_save.Name = "label_save";
             this.label_save.Size = new System.Drawing.Size(116, 20);
             this.label_save.TabIndex = 19;
@@ -556,12 +559,12 @@
             // btn_save_SnomCSV8
             // 
             this.btn_save_SnomCSV8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn_save_SnomCSV8.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_save_SnomCSV8.Location = new System.Drawing.Point(836, 276);
+            this.btn_save_SnomCSV8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+            this.btn_save_SnomCSV8.Location = new System.Drawing.Point(920, 184);
             this.btn_save_SnomCSV8.Name = "btn_save_SnomCSV8";
-            this.btn_save_SnomCSV8.Size = new System.Drawing.Size(167, 35);
+            this.btn_save_SnomCSV8.Size = new System.Drawing.Size(83, 35);
             this.btn_save_SnomCSV8.TabIndex = 21;
-            this.btn_save_SnomCSV8.Text = "Snom CSV v8";
+            this.btn_save_SnomCSV8.Text = "Snom\r\nCSV v8";
             this.toolTip1.SetToolTip(this.btn_save_SnomCSV8, resources.GetString("btn_save_SnomCSV8.ToolTip"));
             this.btn_save_SnomCSV8.UseVisualStyleBackColor = true;
             this.btn_save_SnomCSV8.Click += new System.EventHandler(this.btn_save_SnomXMLv8_Click);
@@ -623,7 +626,7 @@
             // 
             this.btn_save_TalkSurfCSV.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_save_TalkSurfCSV.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_save_TalkSurfCSV.Location = new System.Drawing.Point(836, 317);
+            this.btn_save_TalkSurfCSV.Location = new System.Drawing.Point(836, 222);
             this.btn_save_TalkSurfCSV.Name = "btn_save_TalkSurfCSV";
             this.btn_save_TalkSurfCSV.Size = new System.Drawing.Size(167, 35);
             this.btn_save_TalkSurfCSV.TabIndex = 24;
@@ -636,7 +639,7 @@
             // btn_read_genericCSV
             // 
             this.btn_read_genericCSV.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_read_genericCSV.Location = new System.Drawing.Point(4, 235);
+            this.btn_read_genericCSV.Location = new System.Drawing.Point(4, 184);
             this.btn_read_genericCSV.Name = "btn_read_genericCSV";
             this.btn_read_genericCSV.Size = new System.Drawing.Size(167, 35);
             this.btn_read_genericCSV.TabIndex = 25;
@@ -649,7 +652,7 @@
             // 
             this.btn_save_AastraCSV.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_save_AastraCSV.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_save_AastraCSV.Location = new System.Drawing.Point(836, 358);
+            this.btn_save_AastraCSV.Location = new System.Drawing.Point(836, 260);
             this.btn_save_AastraCSV.Name = "btn_save_AastraCSV";
             this.btn_save_AastraCSV.Size = new System.Drawing.Size(167, 35);
             this.btn_save_AastraCSV.TabIndex = 26;
@@ -659,24 +662,24 @@
             this.btn_save_AastraCSV.UseVisualStyleBackColor = true;
             this.btn_save_AastraCSV.Click += new System.EventHandler(this.btn_save_AastraCSV_Click);
             // 
-            // btn_save_GrandstreamXml
+            // btn_save_GrandstreamGXV
             // 
-            this.btn_save_GrandstreamXml.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn_save_GrandstreamXml.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_save_GrandstreamXml.Location = new System.Drawing.Point(836, 399);
-            this.btn_save_GrandstreamXml.Name = "btn_save_GrandstreamXml";
-            this.btn_save_GrandstreamXml.Size = new System.Drawing.Size(167, 35);
-            this.btn_save_GrandstreamXml.TabIndex = 28;
-            this.btn_save_GrandstreamXml.Text = "Grandstream XML";
-            this.toolTip1.SetToolTip(this.btn_save_GrandstreamXml, "XML Export for Grandstream Phones\r\n\r\nFile Format is UTF8 without BOM and with Uni" +
+            this.btn_save_GrandstreamGXV.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_save_GrandstreamGXV.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_save_GrandstreamGXV.Location = new System.Drawing.Point(920, 298);
+            this.btn_save_GrandstreamGXV.Name = "btn_save_GrandstreamGXV";
+            this.btn_save_GrandstreamGXV.Size = new System.Drawing.Size(83, 35);
+            this.btn_save_GrandstreamGXV.TabIndex = 28;
+            this.btn_save_GrandstreamGXV.Text = "Grandstream\r\nGXV Series";
+            this.toolTip1.SetToolTip(this.btn_save_GrandstreamGXV, "XML Export for Grandstream Phones\r\n\r\nFile Format is UTF8 without BOM and with Uni" +
         "x Linefeeds.\r\n");
-            this.btn_save_GrandstreamXml.UseVisualStyleBackColor = true;
-            this.btn_save_GrandstreamXml.Click += new System.EventHandler(this.btn_save_GrandstreamXml_Click);
+            this.btn_save_GrandstreamGXV.UseVisualStyleBackColor = true;
+            this.btn_save_GrandstreamGXV.Click += new System.EventHandler(this.btn_save_GrandstreamGXV_Click);
             // 
             // btn_read_googleContacts
             // 
             this.btn_read_googleContacts.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_read_googleContacts.Location = new System.Drawing.Point(4, 276);
+            this.btn_read_googleContacts.Location = new System.Drawing.Point(4, 222);
             this.btn_read_googleContacts.Name = "btn_read_googleContacts";
             this.btn_read_googleContacts.Size = new System.Drawing.Size(167, 35);
             this.btn_read_googleContacts.TabIndex = 29;
@@ -685,6 +688,46 @@
         " a vCard as intermediate step)\r\n");
             this.btn_read_googleContacts.UseVisualStyleBackColor = true;
             this.btn_read_googleContacts.Click += new System.EventHandler(this.btn_read_googleContacts_Click);
+            // 
+            // btn_save_GrandstreamGXP
+            // 
+            this.btn_save_GrandstreamGXP.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_save_GrandstreamGXP.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_save_GrandstreamGXP.Location = new System.Drawing.Point(836, 298);
+            this.btn_save_GrandstreamGXP.Name = "btn_save_GrandstreamGXP";
+            this.btn_save_GrandstreamGXP.Size = new System.Drawing.Size(83, 35);
+            this.btn_save_GrandstreamGXP.TabIndex = 32;
+            this.btn_save_GrandstreamGXP.Text = "Grandstream\r\nGXP Series";
+            this.toolTip1.SetToolTip(this.btn_save_GrandstreamGXP, "XML Export for Grandstream Phones\r\n\r\nFile Format is ISO-8859-1 and with Unix Line" +
+        "feeds.\r\n");
+            this.btn_save_GrandstreamGXP.UseVisualStyleBackColor = true;
+            this.btn_save_GrandstreamGXP.Click += new System.EventHandler(this.btn_save_GrandstreamGXP_Click);
+            // 
+            // btn_save_Auerswald
+            // 
+            this.btn_save_Auerswald.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_save_Auerswald.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_save_Auerswald.Location = new System.Drawing.Point(836, 336);
+            this.btn_save_Auerswald.Name = "btn_save_Auerswald";
+            this.btn_save_Auerswald.Size = new System.Drawing.Size(167, 35);
+            this.btn_save_Auerswald.TabIndex = 33;
+            this.btn_save_Auerswald.Text = "Auerswald CSV";
+            this.toolTip1.SetToolTip(this.btn_save_Auerswald, "CSV Export for Auerswald\r\n\r\nFile Format is Non-Unicode with Unix Linefeeds.\r\n");
+            this.btn_save_Auerswald.UseVisualStyleBackColor = true;
+            this.btn_save_Auerswald.Click += new System.EventHandler(this.btn_save_Auerswald_Click);
+            // 
+            // btn_save_googleContacts
+            // 
+            this.btn_save_googleContacts.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_save_googleContacts.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_save_googleContacts.Location = new System.Drawing.Point(836, 374);
+            this.btn_save_googleContacts.Name = "btn_save_googleContacts";
+            this.btn_save_googleContacts.Size = new System.Drawing.Size(167, 35);
+            this.btn_save_googleContacts.TabIndex = 34;
+            this.btn_save_googleContacts.Text = "Google Contacts";
+            this.toolTip1.SetToolTip(this.btn_save_googleContacts, "Export for Google Contacts");
+            this.btn_save_googleContacts.UseVisualStyleBackColor = true;
+            this.btn_save_googleContacts.Click += new System.EventHandler(this.btn_save_googleContacts_Click);
             // 
             // panel_left
             // 
@@ -697,7 +740,7 @@
             this.panel_left.Controls.Add(this.combo_typeprefer);
             this.panel_left.Controls.Add(this.label1);
             this.panel_left.Controls.Add(this.combo_namestyle);
-            this.panel_left.Location = new System.Drawing.Point(5, 533);
+            this.panel_left.Location = new System.Drawing.Point(5, 476);
             this.panel_left.Name = "panel_left";
             this.panel_left.Size = new System.Drawing.Size(367, 104);
             this.panel_left.TabIndex = 8;
@@ -734,18 +777,18 @@
             this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.Location = new System.Drawing.Point(5, 513);
+            this.label7.Location = new System.Drawing.Point(5, 456);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(160, 15);
+            this.label7.Size = new System.Drawing.Size(146, 15);
             this.label7.TabIndex = 22;
-            this.label7.Text = "Options affecting Import";
+            this.label7.Text = "Options Import/Export";
             // 
             // label8
             // 
             this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.Location = new System.Drawing.Point(837, 513);
+            this.label8.Location = new System.Drawing.Point(837, 456);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(160, 15);
             this.label8.TabIndex = 23;
@@ -756,7 +799,7 @@
             this.button_config.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.button_config.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button_config.Location = new System.Drawing.Point(378, 586);
+            this.button_config.Location = new System.Drawing.Point(378, 529);
             this.button_config.Name = "button_config";
             this.button_config.Size = new System.Drawing.Size(135, 49);
             this.button_config.TabIndex = 27;
@@ -767,7 +810,7 @@
             // button_website
             // 
             this.button_website.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_website.Location = new System.Drawing.Point(519, 587);
+            this.button_website.Location = new System.Drawing.Point(519, 530);
             this.button_website.Name = "button_website";
             this.button_website.Size = new System.Drawing.Size(108, 23);
             this.button_website.TabIndex = 30;
@@ -778,7 +821,7 @@
             // button_forum
             // 
             this.button_forum.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_forum.Location = new System.Drawing.Point(519, 612);
+            this.button_forum.Location = new System.Drawing.Point(519, 555);
             this.button_forum.Name = "button_forum";
             this.button_forum.Size = new System.Drawing.Size(108, 23);
             this.button_forum.TabIndex = 31;
@@ -795,11 +838,14 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1004, 639);
+            this.ClientSize = new System.Drawing.Size(1004, 582);
+            this.Controls.Add(this.btn_save_googleContacts);
+            this.Controls.Add(this.btn_save_Auerswald);
+            this.Controls.Add(this.btn_save_GrandstreamGXP);
             this.Controls.Add(this.button_forum);
             this.Controls.Add(this.button_website);
             this.Controls.Add(this.btn_read_googleContacts);
-            this.Controls.Add(this.btn_save_GrandstreamXml);
+            this.Controls.Add(this.btn_save_GrandstreamGXV);
             this.Controls.Add(this.button_config);
             this.Controls.Add(this.btn_save_AastraCSV);
             this.Controls.Add(this.btn_read_genericCSV);
@@ -823,7 +869,7 @@
             this.Controls.Add(this.btn_read_vCard);
             this.Controls.Add(this.btn_read_Outlook);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MinimumSize = new System.Drawing.Size(1020, 596);
+            this.MinimumSize = new System.Drawing.Size(1000, 600);
             this.Name = "Form1";
             this.Text = "Contact Conversion Wizard";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
@@ -879,7 +925,7 @@
         private System.Windows.Forms.Button button_config;
         private System.Windows.Forms.Button button_7270;
         private System.Windows.Forms.Button button_7390;
-        private System.Windows.Forms.Button btn_save_GrandstreamXml;
+        private System.Windows.Forms.Button btn_save_GrandstreamGXV;
         private System.Windows.Forms.Button btn_read_googleContacts;
         private System.Windows.Forms.DataGridViewTextBoxColumn Fullname;
         private System.Windows.Forms.DataGridViewTextBoxColumn MyColLastname;
@@ -901,6 +947,9 @@
         private System.Windows.Forms.Button button_website;
         private System.Windows.Forms.Button button_forum;
         private System.ComponentModel.BackgroundWorker backgroundWorker_updateCheck;
+        private System.Windows.Forms.Button btn_save_GrandstreamGXP;
+        private System.Windows.Forms.Button btn_save_Auerswald;
+        private System.Windows.Forms.Button btn_save_googleContacts;
     }
 }
 

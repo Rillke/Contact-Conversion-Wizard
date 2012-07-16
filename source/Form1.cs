@@ -12,6 +12,10 @@ using Google.GData.Client;
 using Google.GData.Extensions;
 using Google.Contacts;
 
+using System.IO;
+using System.Collections;
+using System.Net;
+
 
 namespace Contact_Conversion_Wizard
 {
@@ -413,8 +417,58 @@ namespace Contact_Conversion_Wizard
             return my_fullname;
         }
 
-        private string LimitNameLength(string my_name, int my_limit)
+        private void add_nr_to_hash(ref System.Collections.Hashtable myHash, string id_to_add, string str_to_add, string error_name)
         {
+                try
+                {
+                    myHash.Add(id_to_add, str_to_add);
+                }
+                catch (ArgumentException) // unable to add to MySaveFaxDataHash, must mean that something with (modified) contactData.combinedname is already in there!
+                {
+                    MessageBox.Show("Unable to export entry \"" + error_name + "=>" + id_to_add + "\",\r\nanother entry with this name already exists - ignoring duplicate!\r\n");
+                }
+
+        }
+
+        private string Do_XML_replace(string to_replace)
+        {
+            string ret_val = to_replace;
+
+            ret_val = ret_val.Replace("&", "&amp;");
+            ret_val = ret_val.Replace("\"", "&quot;");
+            ret_val = ret_val.Replace("'", "&apos;");
+            ret_val = ret_val.Replace("<", "&lt;");
+            ret_val = ret_val.Replace(">", "&gt;");
+
+            return ret_val;
+        }
+
+        private bool CheckIfSeparateEntries(string nr1, string nr2, string nr3)
+        {
+            int nr_in_use = 0;
+            if (nr1 != "") { nr_in_use++; }
+            if (nr2 != "") { nr_in_use++; }
+            if (nr3 != "") { nr_in_use++; }
+
+            if (nr_in_use > 1)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+
+        }
+
+        private string LimitNameLength(string my_name, int my_limit, bool separate_entries, string separate_string)
+        {
+            if (separate_entries == true)
+            {
+                my_limit = my_limit - separate_string.Length;
+            }
+
             if (my_name.Length > my_limit) // only do something if the string is not short enough
             {
                 // if the last character is a ], then trim the string to one less and add ] again
@@ -427,6 +481,11 @@ namespace Contact_Conversion_Wizard
                 {
                     my_name = my_name.Substring(0, my_limit);
                 }
+            }
+
+            if (separate_entries == true)
+            {
+                my_name = my_name + separate_string;
             }
 
             return my_name;
@@ -454,7 +513,10 @@ namespace Contact_Conversion_Wizard
                 btn_save_SnomCSV8.Enabled = false;
                 btn_save_TalkSurfCSV.Enabled = false;
                 btn_save_AastraCSV.Enabled = false;
-                btn_save_GrandstreamXml.Enabled = false;
+                btn_save_GrandstreamGXV.Enabled = false;
+                btn_save_GrandstreamGXP.Enabled = false;
+                btn_save_Auerswald.Enabled = false;
+                btn_save_googleContacts.Enabled = false;
 
                 button_clear.Enabled = false;
                 button_config.Enabled = false;
@@ -477,7 +539,10 @@ namespace Contact_Conversion_Wizard
                 btn_save_SnomCSV8.Enabled = true;
                 btn_save_TalkSurfCSV.Enabled = true;
                 btn_save_AastraCSV.Enabled = true;
-                btn_save_GrandstreamXml.Enabled = true;
+                btn_save_GrandstreamGXV.Enabled = true;
+                btn_save_GrandstreamGXP.Enabled = true;
+                btn_save_Auerswald.Enabled = true;
+                btn_save_googleContacts.Enabled = true;
 
                 button_clear.Enabled = true;
                 button_config.Enabled = true;
@@ -1478,7 +1543,6 @@ namespace Contact_Conversion_Wizard
             return (new ReadDataReturn(duplicates));
         }     // should work fine
 
-
         private ReadDataReturn read_data_FritzAdr(string filename) {
             string duplicates = "";
 
@@ -1680,7 +1744,6 @@ namespace Contact_Conversion_Wizard
             {
                 if (entry.Name != null)
                 {
-
                     GroupDataContact myContact = new GroupDataContact();
 
                     myContact.lastname = (string.IsNullOrEmpty(entry.Name.FamilyName)) ? string.Empty : entry.Name.FamilyName;
@@ -1729,14 +1792,17 @@ namespace Contact_Conversion_Wizard
                         // does not work, because google complains data has already been retrieved, unsure how to proceed
 
                         // replacement code
-                        byte[] myAttachmentPhoto = GooglePhotoGet(entry.ContactEntry, der_token);
-
-                        myContact.jpeg = myAttachmentPhoto;
-
+                        try
+                        {
+                            byte[] myAttachmentPhoto = GooglePhotoGet(entry.ContactEntry, der_token);
+                            myContact.jpeg = myAttachmentPhoto;
+                        }
+                        catch
+                        {
+                            // do nothing
+                        }
 
                     }
-
-
 
                     // all initial processing has finished, do some cleanup work
                     myContact.combinedname = GenerateFullName(myContact.firstname, myContact.lastname, myContact.company, combo_namestyle.SelectedIndex);
@@ -1937,16 +2003,16 @@ namespace Contact_Conversion_Wizard
 
             // and reenable user interface
             disable_buttons(false);
-        }
+        }     // just click handler
 
-        private void btn_save_GrandstreamXml_Click(object sender, EventArgs e)
+        private void btn_save_GrandstreamGXP_Click(object sender, EventArgs e)
         {
             SaveFileDialog SaveXML_Dialog = new SaveFileDialog();
-            SaveXML_Dialog.Title = "Select the XML file you wish to create";
+            SaveXML_Dialog.Title = "Select the GXP XML file you wish to create";
             SaveXML_Dialog.DefaultExt = "xml";
             SaveXML_Dialog.Filter = "XML files (*.xml)|*.xml";
             SaveXML_Dialog.InitialDirectory = Environment.SpecialFolder.Desktop.ToString();
-            SaveXML_Dialog.FileName = "GrandstreamExport";
+            SaveXML_Dialog.FileName = "gs_phonebook";
 
             if (SaveXML_Dialog.ShowDialog() == DialogResult.Cancel)
             {
@@ -1955,10 +2021,172 @@ namespace Contact_Conversion_Wizard
 
             disable_buttons(true);
 
-            save_data_GrandstreamXml(SaveXML_Dialog.FileName, myGroupDataHash);
+            save_data_GrandstreamGXP(SaveXML_Dialog.FileName, myGroupDataHash);
 
             // and reenable user interface
             disable_buttons(false);
+
+        }   // just click handler
+
+        private void btn_save_GrandstreamGXV_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog SaveXML_Dialog = new SaveFileDialog();
+            SaveXML_Dialog.Title = "Select the GXV XML file you wish to create";
+            SaveXML_Dialog.DefaultExt = "xml";
+            SaveXML_Dialog.Filter = "XML files (*.xml)|*.xml";
+            SaveXML_Dialog.InitialDirectory = Environment.SpecialFolder.Desktop.ToString();
+            SaveXML_Dialog.FileName = "gs_phonebook";
+
+            if (SaveXML_Dialog.ShowDialog() == DialogResult.Cancel)
+            {
+                return;
+            }
+
+            disable_buttons(true);
+
+            save_data_GrandstreamGXV(SaveXML_Dialog.FileName, myGroupDataHash);
+
+            // and reenable user interface
+            disable_buttons(false);
+        }   // just click handler
+
+        private void btn_save_Auerswald_Click(object sender, EventArgs e)   // just click handler
+        {
+            SaveFileDialog SaveCSV_Dialog = new SaveFileDialog();
+            SaveCSV_Dialog.Title = "Select the Auerswald CSV file you wish to create";
+            SaveCSV_Dialog.DefaultExt = "csv";
+            SaveCSV_Dialog.Filter = "CSV files (*.csv)|*.csv";
+            SaveCSV_Dialog.InitialDirectory = Environment.SpecialFolder.Desktop.ToString();
+            SaveCSV_Dialog.FileName = "auerswald_csv";
+
+            if (SaveCSV_Dialog.ShowDialog() == DialogResult.Cancel)
+            {
+                return;
+            }
+
+            disable_buttons(true);
+
+            save_data_AuerswaldCSV(SaveCSV_Dialog.FileName, myGroupDataHash);
+
+            // and reenable user interface
+            disable_buttons(false);
+        }
+
+        private void btn_save_googleContacts_Click(object sender, EventArgs e)    // just click handler
+        {
+            disable_buttons(true);
+            save_data_googleContacts(myGroupDataHash);
+            disable_buttons(false);
+        }
+
+        private void save_data_googleContacts(System.Collections.Hashtable workDataHash)
+        {
+            // get the country ID from the combobox or from user input
+            string country_id = RetrieveCountryID(combo_prefix.SelectedItem.ToString());
+
+            RequestSettings rs = new RequestSettings(this.ProductName + " v" + this.ProductVersion, g_login, g_pass);
+            rs.AutoPaging = true; // AutoPaging results in automatic paging in order to retrieve all contacts
+            ContactsRequest cr = new ContactsRequest(rs);
+
+            // List that holds the batch request entries.
+            List<Contact> requestFeed = new List<Contact>();
+
+            // iterate through the contacts in workDatahash and save them to the selected Outlook Folder
+            // int count = 0; TODO WEG DAMIT
+            foreach (System.Collections.DictionaryEntry contactHash in workDataHash)
+            {
+                // if (count > 3) { continue; }  TODO WEG DAMIT
+
+                // extract GroupDataList from hashtable contents
+                GroupDataContact contactData = (GroupDataContact)contactHash.Value;
+
+                string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
+
+                // clean up phone number
+                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, prefix_string);
+                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id, prefix_string);
+                string CleanUpNumberHomefax = CleanUpNumber(contactData.homefax, country_id, prefix_string);
+                string CleanUpNumberWorkfax = CleanUpNumber(contactData.workfax, country_id, prefix_string);
+                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, prefix_string);
+
+                // create new contact
+                Contact newEntry = new Contact();
+
+                newEntry.Content = "";
+                // VIP Functionality (fully implemented now)
+                if (contactData.isVIP == "Yes") { newEntry.Content += "VIP" + Environment.NewLine; }
+
+                // Speeddial Functionality
+                if (contactData.speeddial != "") { newEntry.Content += "SPEEDDIAL(" + contactData.speeddial + ")"; }
+
+
+                newEntry.Name = new Name() { FullName = contactData.combinedname, GivenName = contactData.firstname, FamilyName = contactData.lastname, }; // Set the contact's name.
+                if (contactData.company != "") newEntry.Organizations.Add(new Organization() { Primary = true, Rel = Google.GData.Extensions.ContactsRelationships.IsWork, Name = contactData.company });
+                if (contactData.email != "") newEntry.Emails.Add(new EMail() { Primary = true, Rel = ContactsRelationships.IsHome, Address = contactData.email }); // Set the contact's e-mail addresses. // TODO - home or work, da gibts ein preset?
+                
+                // primary phone number
+                bool prefer_homephone = false;
+                bool prefer_workphone = false;
+                bool prefer_mobilephone = false;
+
+                if (contactData.preferred == "home") { prefer_homephone = true; }
+                if (contactData.preferred == "work") { prefer_workphone = true; }
+                if (contactData.preferred == "mobile") { prefer_mobilephone = true; }
+
+                if (CleanUpNumberWork != "") newEntry.Phonenumbers.Add(new PhoneNumber() { Primary = prefer_homephone, Rel = ContactsRelationships.IsWork, Value = CleanUpNumberWork, });// Set the contact's phone numbers.
+                if (CleanUpNumberHome != "") newEntry.Phonenumbers.Add(new PhoneNumber() { Primary = prefer_workphone, Rel = ContactsRelationships.IsHome, Value = CleanUpNumberHome, });
+                if (CleanUpNumberMobile != "") newEntry.Phonenumbers.Add(new PhoneNumber() { Primary = prefer_mobilephone, Rel = ContactsRelationships.IsMobile, Value = CleanUpNumberMobile, });
+
+                // fax numbers
+                if (CleanUpNumberHomefax != "") newEntry.Phonenumbers.Add(new PhoneNumber() { Rel = ContactsRelationships.IsHomeFax, Value = CleanUpNumberHomefax, });
+                if (CleanUpNumberWorkfax != "") newEntry.Phonenumbers.Add(new PhoneNumber() { Rel = ContactsRelationships.IsWorkFax, Value = CleanUpNumberWorkfax, });
+
+                if (combo_typeprefer.SelectedIndex == 0)
+                { // preferred is home for import/export
+                    newEntry.PostalAddresses.Add(new StructuredPostalAddress() { Rel = ContactsRelationships.IsHome, Primary = true, Street = contactData.street, City = contactData.city, Postcode = contactData.zip, }); // Set the contact's postal address
+                }
+                else
+                { // preferred is work for import/export
+                    newEntry.PostalAddresses.Add(new StructuredPostalAddress() { Rel = ContactsRelationships.IsWork, Primary = true, Street = contactData.street, City = contactData.city, Postcode = contactData.zip, }); // Set the contact's postal address
+                }
+
+                // Insert the new contact.
+                //  Uri feedUri = new Uri(ContactsQuery.CreateContactsUri("default"));
+                //  Contact createdEntry = cr.Insert(feedUri, newEntry);
+
+                requestFeed.Add(newEntry);
+
+                // count++;  TODO WEG DAMIT
+
+            } // end of foreach loop for the contacts
+
+            // Submit the batch request to the server.
+            List<Contact> uploadFeed = new List<Contact>();
+
+            for (int i = 0; i < requestFeed.Count; i++)
+            {
+                uploadFeed.Add(requestFeed[i]);
+
+                if (uploadFeed.Count == 100 || (i+1) == requestFeed.Count)
+                {
+                    // upload and reset upLoadFeed every 100 items, or if at the end of requestFeed
+
+                    Feed<Contact> responseFeed = cr.Batch(uploadFeed, new Uri("https://www.google.com/m8/feeds/contacts/default/full/batch"), GDataBatchOperationType.Default);
+                    StringBuilder responseData = new StringBuilder();
+
+                    // Check the status of each operation.
+                    foreach (Contact entry in responseFeed.Entries)
+                    {
+                        if (entry.BatchData.Status.Code != 201)
+                        { responseData.Append(entry.BatchData.Status.Code + " (" + entry.BatchData.Status.Reason + ")" + " / "); }
+                    }
+
+                    uploadFeed.Clear();
+
+                    // tell the user what has been done
+                    MessageBox.Show((i+1).ToString() + "/" + requestFeed.Count + " contacts have been written to the gMail Folder 'Other Contacts'!" + Environment.NewLine + responseData.ToString());
+                }
+            }
         }
 
 
@@ -2081,13 +2309,10 @@ namespace Contact_Conversion_Wizard
                 string SaveAsName = contactData.combinedname;
 
                 // limit to 32 chars
-                SaveAsName = LimitNameLength(SaveAsName, 32);
+                SaveAsName = LimitNameLength(SaveAsName, 32, false, "");
 
                 // replace "&","<",">", """
-                SaveAsName = SaveAsName.Replace("&", "&amp;");
-                SaveAsName = SaveAsName.Replace("<", "&lt;");
-                SaveAsName = SaveAsName.Replace(">", "&gt;");
-                SaveAsName = SaveAsName.Replace("\"", "&quot;"); 
+                SaveAsName = Do_XML_replace(SaveAsName);
 
                 // clean up phone number
                 string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, contactData.FRITZprefix);
@@ -2221,14 +2446,8 @@ namespace Contact_Conversion_Wizard
                 // add serviced end and rest of contact footer
                 contactSB.Append("</services>\n<setup>\n<ringTone />\n<ringVolume />\n</setup>\n</contact>");
 
-                try
-                {
-                    MySaveDataHash.Add(SaveAsName, contactSB.ToString());
-                }
-                catch (ArgumentException) // unable to add to MySaveDataHash, must mean that something with saveasname is already in there!
-                {
-                    MessageBox.Show("Unable to export the entry \"" + SaveAsName + "\", another entry with this name already exists! Ignoring duplicate.");
-                }
+                // add contact line
+                add_nr_to_hash(ref MySaveDataHash, SaveAsName, contactSB.ToString(), SaveAsName);
 
             } // end of foreach loop for the contacts
 
@@ -2335,10 +2554,16 @@ namespace Contact_Conversion_Wizard
                     sb_resultstring.AppendLine("TEL;type=WORK;type=FAX:" + CleanUpNumberWorkfax);
                 }
 
+                string ADRtype = "WORK";
+                if (combo_typeprefer.SelectedIndex == 0)
+                { // preferred is home for import/export
+                    ADRtype = "HOME";
+                }
+
                 // save street, zip and city information, if one of them is available
                 if (!(CleanUpStreet == string.Empty && CleanUpZIP == string.Empty && CleanUpCity == string.Empty))
                 {
-                    sb_resultstring.AppendLine("ADR;type=HOME;type=pref:;;" + CleanUpStreet + ";" + CleanUpCity + ";;" + CleanUpZIP + ";");
+                    sb_resultstring.AppendLine("ADR;type=" + ADRtype + ";type=pref:;;" + CleanUpStreet + ";" + CleanUpCity + ";;" + CleanUpZIP + ";");
                 }
 
                 // save email
@@ -2358,14 +2583,8 @@ namespace Contact_Conversion_Wizard
 
                 sb_resultstring.AppendLine("END:VCARD");
 
-                try
-                {
-                    MySaveDataHash.Add(contactData.combinedname, sb_resultstring.ToString());
-                }
-                catch (ArgumentException) // unable to add to MySaveFaxDataHash, must mean that something with saveasname is already in there!
-                {
-                    MessageBox.Show("Unable to export the entry \"" + contactData.combinedname + "\", another entry with this name already exists! Ignoring duplicate.");
-                }
+                // add contact line
+                add_nr_to_hash(ref MySaveDataHash, contactData.combinedname, sb_resultstring.ToString(), contactData.combinedname);
 
             } // end of foreach loop for the contacts
 
@@ -2421,17 +2640,17 @@ namespace Contact_Conversion_Wizard
                 if ((CleanUpNumberHomefax != "" && CleanUpNumberWorkfax != "") || (CleanUpNumberHome != "" && CleanUpNumberWork != ""))
                 { // we need to save two separate entries since there are there are either seperate phone numbers or fax numbers for work and home (or both)
                     save_iterate_array = new string[2, 4];
-                    save_iterate_array[0, 0] = LimitNameLength(contactData.combinedname, 22) + " (privat)";
+                    save_iterate_array[0, 0] = LimitNameLength(contactData.combinedname, 31, true, " H");
                     save_iterate_array[0, 1] = CleanUpNumberHomefax;
                     save_iterate_array[0, 2] = CleanUpNumberHome;
-                    save_iterate_array[1, 0] = LimitNameLength(contactData.combinedname, 22) + " (gesch.)";
+                    save_iterate_array[1, 0] = LimitNameLength(contactData.combinedname, 31, true, " W");
                     save_iterate_array[1, 1] = CleanUpNumberWorkfax;
                     save_iterate_array[1, 2] = CleanUpNumberWork;
                 }
                 else
                 { // we need to save only 1 entry
                     save_iterate_array = new string[1, 4];
-                    save_iterate_array[0, 0] = LimitNameLength(contactData.combinedname, 31);
+                    save_iterate_array[0, 0] = LimitNameLength(contactData.combinedname, 31, false, "");
                     if (CleanUpNumberHomefax != "") { save_iterate_array[0, 1] = CleanUpNumberHomefax; }
                     if (CleanUpNumberWorkfax != "") { save_iterate_array[0, 1] = CleanUpNumberWorkfax; }
                     if (CleanUpNumberHome != "") { save_iterate_array[0, 2] = CleanUpNumberHome; }
@@ -2449,21 +2668,13 @@ namespace Contact_Conversion_Wizard
                     save_iterate_array[0, 3] += "SPEEDDIAL(" + contactData.speeddial + ")";
                 }
 
-                // write contact line, maybe twice
+                // write contact line(s)
                 for (int i = 0; i < save_iterate_array.GetLength(0); i++)
                 {
-
-                    try
-                    {
-                        MySaveDataHash.Add(save_iterate_array[i, 0], save_iterate_array[i, 0] + "\t" + contactData.company + "\t" + contactData.lastname + "\t" + contactData.firstname + "\t" + string.Empty + "\t" + contactData.street + "\t" + contactData.zip + "\t" + contactData.city + "\t" + "\t" + save_iterate_array[i, 2] + "\t" + save_iterate_array[i, 1] + "\t" + "\t" + "\t" + "\t" + "\t" + "A" + "\t" + "\t" + save_iterate_array[i, 3] + "\t" + CleanUpNumberMobile + "\t" + contactData.email + "\t" + "\r\n");
-                    }
-                    catch (ArgumentException) // unable to add to MySaveFaxDataHash, must mean that something with saveasname is already in there!
-                    {
-                        MessageBox.Show("Unable to export the entry \"" + save_iterate_array[i, 0] + "\", another entry with this name already exists! Ignoring duplicate.");
-                    }
-
-
+                    string str_to_save = save_iterate_array[i, 0] + "\t" + contactData.company + "\t" + contactData.lastname + "\t" + contactData.firstname + "\t" + string.Empty + "\t" + contactData.street + "\t" + contactData.zip + "\t" + contactData.city + "\t" + "\t" + save_iterate_array[i, 2] + "\t" + save_iterate_array[i, 1] + "\t" + "\t" + "\t" + "\t" + "\t" + "A" + "\t" + "\t" + save_iterate_array[i, 3] + "\t" + CleanUpNumberMobile + "\t" + contactData.email + "\t" + "\r\n";
+                    add_nr_to_hash(ref MySaveDataHash, save_iterate_array[i, 0], str_to_save, contactData.combinedname);
                 }
+
             } // end of foreach loop for the contacts
 
             // retrieve stuff from hastable and put in resultstring:
@@ -2509,67 +2720,18 @@ namespace Contact_Conversion_Wizard
                 string name_home = contactData.combinedname;
                 string name_work = contactData.combinedname;
                 string name_mobile = contactData.combinedname;
-                int nr_in_use = 0;
-                if (CleanUpNumberHome != "") { nr_in_use++; }
-                if (CleanUpNumberWork != "") { nr_in_use++; }
-                if (CleanUpNumberMobile != "") { nr_in_use++; }
+                
+                bool separate_entries = CheckIfSeparateEntries(CleanUpNumberHome, CleanUpNumberWork, CleanUpNumberMobile);
+                
+                name_home = LimitNameLength(name_home, 31, separate_entries, " H");
+                name_work = LimitNameLength(name_work, 31, separate_entries, " W");
+                name_mobile = LimitNameLength(name_mobile, 31, separate_entries, " M");
 
-                if (nr_in_use > 1)
-                {
-                    // limit to 26 chars
-                    name_home = LimitNameLength(name_home, 26);
-                    name_work = LimitNameLength(name_work, 26);
-                    name_mobile = LimitNameLength(name_mobile, 26);
+                // write contact line if not empty
+                if (CleanUpNumberHome != "") add_nr_to_hash(ref MySaveDataHash, name_home, "\"" + name_home + "\",\"" + CleanUpNumberHome + "\"\r\n", contactData.combinedname);
+                if (CleanUpNumberWork != "") add_nr_to_hash(ref MySaveDataHash, name_work, "\"" + name_work + "\",\"" + CleanUpNumberWork + "\"\r\n", contactData.combinedname);
+                if (CleanUpNumberMobile != "") add_nr_to_hash(ref MySaveDataHash, name_mobile, "\"" + name_mobile + "\",\"" + CleanUpNumberMobile + "\"\r\n", contactData.combinedname);
 
-                    // then add 5 additional chars
-                    name_home += " home";
-                    name_work += " work";
-                    name_mobile += " mobile";
-                }
-                else
-                {
-                    // limit to 31 chars
-                    name_home = LimitNameLength(name_home, 31);
-                    name_work = LimitNameLength(name_work, 31);
-                    name_mobile = LimitNameLength(name_mobile, 31);
-                }
-
-                // write contact line, maybe twice
-                if (CleanUpNumberHome != "")
-                {
-                    try
-                    {
-                        MySaveDataHash.Add(name_home, "\"" + name_home + "\",\"" + CleanUpNumberHome + "\"\r\n");
-                    }
-                    catch (ArgumentException) // unable to add to MySaveFaxDataHash, must mean that something with (modified) contactData.combinedname is already in there!
-                    {
-                        MessageBox.Show("Unable to export the shortened entry \"" + name_home + "\",\r\nanother entry with this name already exists!\r\n\r\nIgnoring duplicate for contact source: " + contactData.combinedname);
-                    }
-                }
-
-                if (CleanUpNumberWork != "")
-                {
-                    try
-                    {
-                        MySaveDataHash.Add(name_work, "\"" + name_work + "\",\"" + CleanUpNumberWork + "\"\r\n");
-                    }
-                    catch (ArgumentException) // unable to add to MySaveFaxDataHash, must mean that something with (modified) contactData.combinedname is already in there!
-                    {
-                        MessageBox.Show("Unable to export the shortened entry \"" + name_work + "\",\r\nanother entry with this name already exists!\r\n\r\nIgnoring duplicate for contact source: " + contactData.combinedname);
-                    }
-                }
-
-                if (CleanUpNumberMobile != "")
-                {
-                    try
-                    {
-                        MySaveDataHash.Add(name_mobile, "\"" + name_mobile + "\",\"" + CleanUpNumberMobile + "\"\r\n");
-                    }
-                    catch (ArgumentException) // unable to add to MySaveFaxDataHash, must mean that something with (modified) contactData.combinedname is already in there!
-                    {
-                        MessageBox.Show("Unable to export the shortened entry \"" + name_mobile + "\",\r\nanother entry with this name already exists!\r\n\r\nIgnoring duplicate for contact source: " + contactData.combinedname);
-                    }
-                }
 
             } // end of foreach loop for the contacts
 
@@ -2611,7 +2773,7 @@ namespace Contact_Conversion_Wizard
                 string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, prefix_string);
 
                 // limit full name to 31 chars
-                string name_contact = LimitNameLength(contactData.combinedname, 31);
+                string name_contact = LimitNameLength(contactData.combinedname, 31, false, "");
 
                 // we now do all sorts of complicated stuff to generate a seemingly simple array of numbers and types
                 int phone_numbers = 0;
@@ -2773,16 +2935,8 @@ namespace Contact_Conversion_Wizard
                     + "\"" + "\r\n";
                 }
 
-                // write contact line, maybe twice
-                try
-                {
-                    MySaveDataHash.Add(name_contact, out_string);
-
-                }
-                catch (ArgumentException) // unable to add to MySaveFaxDataHash, must mean that something with (modified) contactData.combinedname is already in there!
-                {
-                    MessageBox.Show("Unable to export the entry \"" + name_contact + "\", another entry with this name already exists! Ignoring duplicate.");
-                }
+                // write contact line
+                if (CleanUpNumberHome != "") add_nr_to_hash(ref MySaveDataHash, name_contact, out_string, contactData.combinedname);
 
             } // end of foreach loop for the contacts
 
@@ -2831,67 +2985,18 @@ namespace Contact_Conversion_Wizard
                 string name_home = contactData.combinedname.Replace(",", "");
                 string name_work = contactData.combinedname.Replace(",", "");
                 string name_mobile = contactData.combinedname.Replace(",", "");
-                int nr_in_use = 0;
-                if (CleanUpNumberHome != "") { nr_in_use++; }
-                if (CleanUpNumberWork != "") { nr_in_use++; }
-                if (CleanUpNumberMobile != "") { nr_in_use++; }
+                
+                bool separate_entries = CheckIfSeparateEntries(CleanUpNumberHome, CleanUpNumberWork, CleanUpNumberMobile);
+                
+                // limit to 16 chars and append if necessary
+                name_home = LimitNameLength(name_home, 16, separate_entries, " H");
+                name_work = LimitNameLength(name_work, 16, separate_entries, " W");
+                name_mobile = LimitNameLength(name_mobile, 16, separate_entries, " M");
 
-                if (nr_in_use > 1)
-                {
-                    // limit to 26 chars
-                    name_home = LimitNameLength(name_home, 14);
-                    name_work = LimitNameLength(name_work, 14);
-                    name_mobile = LimitNameLength(name_mobile, 14);
-
-                    // then add 5 additional chars
-                    name_home += " H";
-                    name_work += " W";
-                    name_mobile += " M";
-                }
-                else
-                {
-                    // limit to 31 chars
-                    name_home = LimitNameLength(name_home, 16);
-                    name_work = LimitNameLength(name_work, 16);
-                    name_mobile = LimitNameLength(name_mobile, 16);
-                }
-
-                // write contact line, maybe twice
-                if (CleanUpNumberHome != "")
-                {
-                    try
-                    {
-                        MySaveDataHash.Add(name_home, name_home + "," + CleanUpNumberHome + "\r\n");
-                    }
-                    catch (ArgumentException) // unable to add to MySaveFaxDataHash, must mean that something with (modified) contactData.combinedname is already in there!
-                    {
-                        MessageBox.Show("Unable to export the shortened entry \"" + name_home + "\",\r\nanother entry with this name already exists!\r\n\r\nIgnoring duplicate for contact source: " + contactData.combinedname);
-                    }
-                }
-
-                if (CleanUpNumberWork != "")
-                {
-                    try
-                    {
-                        MySaveDataHash.Add(name_work, name_work + "," + CleanUpNumberWork + "\r\n");
-                    }
-                    catch (ArgumentException) // unable to add to MySaveFaxDataHash, must mean that something with (modified) contactData.combinedname is already in there!
-                    {
-                        MessageBox.Show("Unable to export the shortened entry \"" + name_work + "\",\r\nanother entry with this name already exists!\r\n\r\nIgnoring duplicate for contact source: " + contactData.combinedname);
-                    }
-                }
-
-                if (CleanUpNumberMobile != "")
-                {
-                    try
-                    {
-                        MySaveDataHash.Add(name_mobile, name_mobile + "," + CleanUpNumberMobile + "\r\n");
-                    }
-                    catch (ArgumentException) // unable to add to MySaveFaxDataHash, must mean that something with (modified) contactData.combinedname is already in there!
-                    {
-                        MessageBox.Show("Unable to export the shortened entry \"" + name_mobile + "\",\r\nanother entry with this name already exists!\r\n\r\nIgnoring duplicate for contact source: " + contactData.combinedname);
-                    }
-                }
+                // write contact line if not empty
+                if (CleanUpNumberHome != "")    add_nr_to_hash(ref MySaveDataHash, name_home, name_home + "," + CleanUpNumberHome + "\r\n", contactData.combinedname);
+                if (CleanUpNumberWork != "")    add_nr_to_hash(ref MySaveDataHash, name_work, name_work + "," + CleanUpNumberWork + "\r\n", contactData.combinedname);
+                if (CleanUpNumberMobile != "")  add_nr_to_hash(ref MySaveDataHash, name_mobile, name_mobile + "," + CleanUpNumberMobile + "\r\n", contactData.combinedname);
 
             } // end of foreach loop for the contacts
 
@@ -2931,47 +3036,18 @@ namespace Contact_Conversion_Wizard
                 string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id, prefix_string);
                 string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, prefix_string);
 
+                bool separate_entries = CheckIfSeparateEntries(CleanUpNumberHome, CleanUpNumberWork, CleanUpNumberMobile);
+
                 // limit to 31 chars
-                string name_home = LimitNameLength(contactData.combinedname, 31).Replace(",", " ");
-                string name_work = LimitNameLength(contactData.combinedname, 31).Replace(",", " ");
-                string name_mobile = LimitNameLength(contactData.combinedname, 31).Replace(",", " ");
+                string name_home = LimitNameLength(contactData.combinedname, 31, separate_entries, " H").Replace(",", " ");
+                string name_work = LimitNameLength(contactData.combinedname, 31, separate_entries, " W").Replace(",", " ");
+                string name_mobile = LimitNameLength(contactData.combinedname, 31, separate_entries, " M").Replace(",", " ");
 
-                // write contact lines
-                if (CleanUpNumberHome != "")
-                {
-                    try
-                    {
-                        MySaveDataHash.Add(name_home + "#Home", name_home + "," + CleanUpNumberHome + ",1,Home,public\n");
-                    }
-                    catch (ArgumentException) // unable to add
-                    {
-                        MessageBox.Show("Unable to export the shortened entry \"" + name_home + "#Home" + "\",\r\nanother entry with this name already exists!\r\n\r\nIgnoring duplicate for contact source: " + contactData.combinedname);
-                    }
-                }
+                // write contact line if not empty
+                if (CleanUpNumberHome != "") add_nr_to_hash(ref MySaveDataHash, name_home + "#Home", name_home + "," + CleanUpNumberHome + ",1,Home,public\n", contactData.combinedname);
+                if (CleanUpNumberWork != "") add_nr_to_hash(ref MySaveDataHash, name_work + "#Work", name_work + "," + CleanUpNumberWork + ",1,Work,public\n", contactData.combinedname);
+                if (CleanUpNumberMobile != "") add_nr_to_hash(ref MySaveDataHash, name_mobile + "#Mobile", name_mobile + "," + CleanUpNumberMobile + ",1,Mobile,public\n", contactData.combinedname);
 
-                if (CleanUpNumberWork != "")
-                {
-                    try
-                    {
-                        MySaveDataHash.Add(name_work + "#Work", name_work + "," + CleanUpNumberWork + ",1,Work,public\n");
-                    }
-                    catch (ArgumentException) // unable to add 
-                    {
-                        MessageBox.Show("Unable to export the shortened entry \"" + name_work + "#Work" + "\",\r\nanother entry with this name already exists!\r\n\r\nIgnoring duplicate for contact source: " + contactData.combinedname);
-                    }
-                }
-
-                if (CleanUpNumberMobile != "")
-                {
-                    try
-                    {
-                        MySaveDataHash.Add(name_mobile + "#Mobile", name_mobile + "," + CleanUpNumberMobile + ",1,Mobile,public\n");
-                    }
-                    catch (ArgumentException) // unable to add
-                    {
-                        MessageBox.Show("Unable to export the shortened entry \"" + name_mobile + "#Mobile" + "\",\r\nanother entry with this name already exists!\r\n\r\nIgnoring duplicate for contact source: " + contactData.combinedname);
-                    }
-                }
             } // end of foreach loop for the contacts
 
             // retrieve stuff from hastable and put in resultstring:
@@ -2986,32 +3062,116 @@ namespace Contact_Conversion_Wizard
 
         }
 
-        private void save_data_GrandstreamXml(string filename, System.Collections.Hashtable workDataHash)
+        private void save_data_AuerswaldCSV(string filename, System.Collections.Hashtable workDataHash)
         {
             // get the country ID from the combobox or from user input
             string country_id = RetrieveCountryID(combo_prefix.SelectedItem.ToString());
 
-            // create output path for fonpix, if necessary
-            string pic_export_path = "";
-            if (combo_picexport.SelectedIndex == 1)
+            // process with exporting
+            StringBuilder resultSB = new StringBuilder();
+
+            resultSB.Append("Kurzwahl;Rufnummer;Name\n");
+
+            // initialize quickdial_remaining veriable
+            int qd_remaining = 97;
+
+            System.Collections.Hashtable MySaveDataHash = new System.Collections.Hashtable();
+
+            foreach (System.Collections.DictionaryEntry contactHash in workDataHash)
             {
-                pic_export_path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(filename), System.IO.Path.GetFileNameWithoutExtension(filename) + " - fonpix-custom");
-                if (!System.IO.Directory.Exists(pic_export_path)) { System.IO.Directory.CreateDirectory(pic_export_path); }
+                // extract GroupDataList from hashtable contents
+                GroupDataContact contactData = (GroupDataContact)contactHash.Value;
+
+                //  check if all relevant phone numbers for this export here are empty
+                if (contactData.home == string.Empty && contactData.work == string.Empty && contactData.mobile == string.Empty)
+                { continue; /* if yes, abort this foreach loop and contine to the next one */ }
+
+                string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
+
+                // clean up phone number
+                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, prefix_string);
+                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id, prefix_string);
+                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, prefix_string);
+
+                string qd_home = "";
+                string qd_work = "";
+                string qd_mobile = "";
+
+                // add quickdial and vanity information to it
+                if (contactData.speeddial != "")
+                { // then we have a quickdial number then add it to the prio entry
+
+                    string qd_number = "";
+
+                    if (contactData.speeddial.Contains(","))
+                    { // two parts (01,VANITY or XX,VANITY)
+                        qd_number = contactData.speeddial.Substring(0, contactData.speeddial.IndexOf(','));
+
+                        // now handle automatic distribution of quickdial numbers for vanities without number
+                        if ((qd_number == "XX") && (qd_remaining > 9)) { qd_number = qd_remaining.ToString(); qd_remaining--; }
+                        if (qd_number == "XX")
+                        { // no remaining numbers left, so we cannot assign any quickdial number or vanity code (the field quickdial will be set to "" in the XML anyway but that probably won't matter)
+                            qd_number = "";
+                        }
+                    }
+                    else
+                    { // only 1 part, can only be number
+                        qd_number = contactData.speeddial;
+                    }
+
+                    // add quickdial number which always has to exist here (unless the autodistribtion of numbers above ran out of available numbers)
+                    if (qd_number != "")
+                    {
+                        if (contactData.preferred == "home") { qd_home = qd_number; }
+                        if (contactData.preferred == "work") { qd_work = qd_number; }
+                        if (contactData.preferred == "mobile") { qd_mobile = qd_number; }
+                    }
+
+                }
+
+                bool separate_entries = CheckIfSeparateEntries(CleanUpNumberHome, CleanUpNumberWork, CleanUpNumberMobile);
+                
+                // limit to 31 chars
+                string name_home = LimitNameLength(contactData.combinedname, 31, separate_entries, " H").Replace(";", " ");
+                string name_work = LimitNameLength(contactData.combinedname, 31, separate_entries, " W").Replace(";", " ");
+                string name_mobile = LimitNameLength(contactData.combinedname, 31, separate_entries, " M").Replace(";", " ");
+
+                // write contact line if not empty
+                if (CleanUpNumberHome != "")    add_nr_to_hash(ref MySaveDataHash, name_home,   qd_home + ";" + CleanUpNumberHome   + ";" + name_home   + "\n", contactData.combinedname);
+                if (CleanUpNumberWork != "")    add_nr_to_hash(ref MySaveDataHash, name_work,   qd_work + ";" + CleanUpNumberWork   + ";" + name_work   + "\n", contactData.combinedname);
+                if (CleanUpNumberMobile != "")  add_nr_to_hash(ref MySaveDataHash, name_mobile, qd_mobile + ";" + CleanUpNumberMobile + ";" + name_mobile + "\n", contactData.combinedname);
+
+            } // end of foreach loop for the contacts
+
+            // retrieve stuff from hastable and put in resultstring:
+            foreach (System.Collections.DictionaryEntry saveDataHash in MySaveDataHash)
+            {
+                resultSB.Append((string)saveDataHash.Value);
             }
+
+            // actually write the file to disk
+            System.IO.File.WriteAllText(filename, resultSB.ToString(), Encoding.GetEncoding("ISO-8859-1"));
+
+        }
+
+        private void save_data_GrandstreamGXV(string filename, System.Collections.Hashtable workDataHash)
+        {
+            // get the country ID from the combobox or from user input
+            string country_id = RetrieveCountryID(combo_prefix.SelectedItem.ToString());
 
             // process with exporting
             StringBuilder resultSB = new StringBuilder();
 
             // write the header
-            resultSB.Append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<AddressBook>\n  <version>1</version>");
+            resultSB.Append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                          + "<AddressBook>\n"
+                          + "    <version>1</version>\n");
 
             // initialize hashtable to store generated data results
             System.Collections.Hashtable MySaveDataHash = new System.Collections.Hashtable();
 
             foreach (System.Collections.DictionaryEntry contactHash in workDataHash)
             {
-                StringBuilder contactSB = new StringBuilder();
-
                 // extract GroupDataList from hashtable contents
                 GroupDataContact contactData = (GroupDataContact)contactHash.Value;
 
@@ -3019,55 +3179,56 @@ namespace Contact_Conversion_Wizard
                 if (contactData.home == string.Empty && contactData.work == string.Empty && contactData.mobile == string.Empty)
                 { continue; /* if yes, abort this foreach loop and contine to the next one */ }
 
-                string FirstName = contactData.firstname;
-                string LastName = contactData.lastname;
-
-                string SaveAsName = contactData.combinedname;
-
-                // limit to 32 chars
-                SaveAsName = LimitNameLength(SaveAsName, 32);
-
-                // replace "&","<",">", """
-                SaveAsName = SaveAsName.Replace("&", "&amp;");
-                SaveAsName = SaveAsName.Replace("<", "&lt;");
-                SaveAsName = SaveAsName.Replace(">", "&gt;");
-                SaveAsName = SaveAsName.Replace("\"", "&quot;"); 
-
                 // clean up phone number
-                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, contactData.FRITZprefix);
-                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id, contactData.FRITZprefix);
-                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, contactData.FRITZprefix);
+                string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
+                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, prefix_string);
+                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id, prefix_string);
+                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, prefix_string);
 
-                contactSB.Append("\n  <Contact>\n    <FirstName>" + FirstName + "</FirstName>\n    <LastName>" + LastName + "</LastName>");
+                //  limit to 32 chars (unsure if correct value)
+                string SaveAsName = LimitNameLength(contactData.combinedname, 32, false, "");
+
+                // XML replacements
+                SaveAsName = Do_XML_replace(SaveAsName);
+
+                string str_1_name = "    <Contact>\n"
+                                  + "        <FirstName></FirstName>\n"
+                                  + "        <LastName>" + SaveAsName + "</LastName>\n";
+
+
+                string str_3_end = "    </Contact>\n";
+
+                StringBuilder str_2_phones = new StringBuilder();
 
                 // add home phone number
                 if (CleanUpNumberHome != "")
                 {
-                    contactSB.Append("\n    <Phone>\n      <phonenumber>" + CleanUpNumberHome + "</phonenumber>\n      <accountindex>0</accountindex>\n    </Phone>");
+                    str_2_phones.Append("        <Phone type=\"Home\">\n"
+                                      + "            <phonenumber>" + CleanUpNumberHome + "</phonenumber>\n"
+                                      + "            <accountindex>0</accountindex>\n"
+                                      + "        </Phone>\n");
                 }
 
                 // add work phone number
                 if (CleanUpNumberWork != "")
                 {
-                    contactSB.Append("\n    <Phone>\n      <phonenumber>" + CleanUpNumberWork + "</phonenumber>\n      <accountindex>0</accountindex>\n    </Phone>");
+                    str_2_phones.Append("        <Phone type=\"Work\">\n"
+                                      + "            <phonenumber>" + CleanUpNumberWork + "</phonenumber>\n"
+                                      + "            <accountindex>0</accountindex>\n"
+                                      + "        </Phone>\n");
                 }
 
                 // add mobile phone number
                 if (CleanUpNumberMobile != "")
                 {
-                    contactSB.Append("\n    <Phone>\n      <phonenumber>" + CleanUpNumberMobile + "</phonenumber>\n      <accountindex>0</accountindex>\n    </Phone>");
+                    str_2_phones.Append("        <Phone type=\"Mobile\">\n"
+                                      + "            <phonenumber>" + CleanUpNumberMobile + "</phonenumber>\n"
+                                      + "            <accountindex>0</accountindex>\n"
+                                      + "        </Phone>\n");
                 }
 
-                contactSB.Append("\n    <Group>0</Group>\n    <PhotoUrl></PhotoUrl>\n    <RingtoneUrl>./</RingtoneUrl>\n    <RingtoneIndex>0</RingtoneIndex>\n  </Contact>");
-
-                try
-                {
-                    MySaveDataHash.Add(SaveAsName, contactSB.ToString());
-                }
-                catch (ArgumentException) // unable to add to MySaveDataHash, must mean that something with saveasname is already in there!
-                {
-                    MessageBox.Show("Unable to export the entry \"" + SaveAsName + "\", another entry with this name already exists! Ignoring duplicate.");
-                }
+                // write contact line
+                add_nr_to_hash(ref MySaveDataHash, SaveAsName, str_1_name + str_2_phones + str_3_end, contactData.combinedname);
 
             } // end of foreach loop for the contacts
 
@@ -3086,6 +3247,93 @@ namespace Contact_Conversion_Wizard
             MessageBox.Show(MySaveDataHash.Count + " contacts written to " + filename + " !" + Environment.NewLine + errorwarning);
 
         }
+
+        private void save_data_GrandstreamGXP(string filename, System.Collections.Hashtable workDataHash)
+        {
+            // get the country ID from the combobox or from user input
+            string country_id = RetrieveCountryID(combo_prefix.SelectedItem.ToString());
+
+            // process with exporting
+            StringBuilder resultSB = new StringBuilder();
+
+            // write the header
+            resultSB.Append("<?xml version=\"1.0\"?>\n<AddressBook>\n");
+
+            // initialize hashtable to store generated data results
+            System.Collections.Hashtable MySaveDataHash = new System.Collections.Hashtable();
+
+            int num_export = 0;
+            int limit_export = 250; // this value was determined using trial and error, 250 worked, 300 didn't, even larger numbers crashed the phone completely
+
+            foreach (System.Collections.DictionaryEntry contactHash in workDataHash)
+            {
+                // extract GroupDataList from hashtable contents
+                GroupDataContact contactData = (GroupDataContact)contactHash.Value;
+
+                //  check if all relevant phone numbers for this export here are empty
+                if (contactData.home == string.Empty && contactData.work == string.Empty && contactData.mobile == string.Empty)
+                { continue; /* if yes, abort this foreach loop and contine to the next one */ }
+
+                string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
+
+                // clean up phone number
+                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, prefix_string);
+                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id, prefix_string);
+                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, prefix_string);
+
+                bool separate_entries = CheckIfSeparateEntries(CleanUpNumberHome, CleanUpNumberWork, CleanUpNumberMobile);
+                
+                // add Home/Work/Mobile to name if separate entries for one name necessary and limit to 20 chars
+                string name_home = LimitNameLength(contactData.combinedname, 20, separate_entries, " H");
+                string name_work = LimitNameLength(contactData.combinedname, 20, separate_entries, " W");
+                string name_mobile = LimitNameLength(contactData.combinedname, 20, separate_entries, " M");
+
+                name_home = Do_XML_replace(name_home);
+                name_work = Do_XML_replace(name_work);
+                name_mobile = Do_XML_replace(name_mobile);
+
+                string str_1 = "    <Contact>\n"
+                             + "        <LastName>";
+                string str_2 = "</LastName>\n"
+                             + "        <FirstName></FirstName>\n"
+                             + "        <Phone>\n"
+                             + "            <phonenumber>";
+
+                string str_3 = "</phonenumber>\n"
+                             + "            <accountindex>0</accountindex>\n"
+                             + "        </Phone>\n"
+                             + "    </Contact>\n";
+
+                // write contact line if not empty
+                if (CleanUpNumberHome != "" && num_export < limit_export)
+                { add_nr_to_hash(ref MySaveDataHash, name_home, str_1 + name_home + str_2 + CleanUpNumberHome + str_3, contactData.combinedname); num_export++; }
+
+                if (CleanUpNumberWork != "" && num_export < limit_export)
+                { add_nr_to_hash(ref MySaveDataHash, name_work, str_1 + name_work + str_2 + CleanUpNumberWork + str_3, contactData.combinedname); num_export++; }
+
+                if (CleanUpNumberMobile != "" && num_export < limit_export)
+                { add_nr_to_hash(ref MySaveDataHash, name_mobile, str_1 + name_mobile + str_2 + CleanUpNumberMobile + str_3, contactData.combinedname); num_export++; }
+
+            } // end of foreach loop for the contacts
+
+            // retrieve stuff from hastable and put in resultstring:
+            foreach (System.Collections.DictionaryEntry saveDataHash in MySaveDataHash)
+            { resultSB.Append((string)saveDataHash.Value); }
+
+            // write file footer.
+            resultSB.Append("</AddressBook>\n");
+
+            // actually write the file to disk
+            System.IO.File.WriteAllText(filename, resultSB.ToString(), Encoding.GetEncoding("ISO-8859-1"));
+
+            // tell the user this has been done
+            string errorwarning = "";
+            if (num_export == limit_export) { errorwarning = Environment.NewLine + "Warning: Only " + num_export + " contacts have been exported! The GXP-2000 probably does not support more than 250!"; }
+            MessageBox.Show(MySaveDataHash.Count + " contacts written to " + filename + " !" + Environment.NewLine + errorwarning);
+        }
+
+
+
 
 
         private void addDataHash(ref string duplicates, GroupDataContact theContact)
@@ -3399,6 +3647,8 @@ namespace Contact_Conversion_Wizard
 
             return responseData;
         }
+
+
 
     }
 
