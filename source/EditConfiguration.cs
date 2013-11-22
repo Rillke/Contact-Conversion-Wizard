@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
@@ -16,7 +15,6 @@ namespace Contact_Conversion_Wizard
             OPT_hidecol.Checked = Form1.cfg_hideemptycols;
             OPT_adjustcol.Checked = Form1.cfg_adjustablecols;
             OPT_prefixNONFB.Checked = Form1.cfg_prefixNONFB;
-            OPT_fritzXML_order.Checked = Form1.cfg_fritzWorkFirst;
             OPT_importOther.Checked = Form1.cfg_importOther;
             OPT_DUPren.Checked = Form1.cfg_DUPren;
 
@@ -26,6 +24,12 @@ namespace Contact_Conversion_Wizard
             checkBox_cleanSlash.Checked = !Form1.clean_slash;
             checkBox_cleanHyphen.Checked = !Form1.clean_hyphen;
             checkBox_cleanXchar.Checked = !Form1.clean_xchar;
+            checkBox_cleanSpace.Checked = !Form1.clean_space;
+            checkBox_cleanSquareBrackets.Checked = !Form1.clean_squarebrackets;
+            checkBox_cleanLetters.Checked = !Form1.clean_letters;
+            checkBox_cleanaddzeroprefix.Checked = Form1.clean_addzeroprefix;
+
+
             textBox_gLogin.Text = Form1.g_login;
             textBox_gPass.Text = Form1.g_pass;
 
@@ -39,7 +43,6 @@ namespace Contact_Conversion_Wizard
             Form1.cfg_hideemptycols = OPT_hidecol.Checked;
             Form1.cfg_adjustablecols = OPT_adjustcol.Checked;
             Form1.cfg_prefixNONFB = OPT_prefixNONFB.Checked;
-            Form1.cfg_fritzWorkFirst = OPT_fritzXML_order.Checked;
             Form1.cfg_importOther = OPT_importOther.Checked;
             Form1.cfg_DUPren = OPT_DUPren.Checked;
 
@@ -48,6 +51,12 @@ namespace Contact_Conversion_Wizard
             Form1.clean_slash = !checkBox_cleanSlash.Checked;
             Form1.clean_hyphen = !checkBox_cleanHyphen.Checked;
             Form1.clean_xchar = !checkBox_cleanXchar.Checked;
+            Form1.clean_space = !checkBox_cleanSpace.Checked;
+            Form1.clean_squarebrackets = !checkBox_cleanSquareBrackets.Checked;
+            Form1.clean_letters = !checkBox_cleanLetters.Checked;
+            Form1.clean_addzeroprefix = checkBox_cleanaddzeroprefix.Checked;
+
+
             Form1.g_login = textBox_gLogin.Text;
             Form1.g_pass = textBox_gPass.Text;
 

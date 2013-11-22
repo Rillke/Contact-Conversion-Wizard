@@ -85,6 +85,8 @@
             this.btn_save_GrandstreamGXP = new System.Windows.Forms.Button();
             this.btn_save_Auerswald = new System.Windows.Forms.Button();
             this.btn_save_googleContacts = new System.Windows.Forms.Button();
+            this.btn_save_panasonicCSV = new System.Windows.Forms.Button();
+            this.btn_save_vCard_Gigaset = new System.Windows.Forms.Button();
             this.panel_left = new System.Windows.Forms.Panel();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -135,7 +137,8 @@
             this.btn_save_FritzXML.TabIndex = 2;
             this.btn_save_FritzXML.Text = "Fritz!Box XML";
             this.toolTip1.SetToolTip(this.btn_save_FritzXML, "Exports contacts to the XML file the Fritz!Box needs when restoring the phonebook" +
-        ".");
+        ".\r\n\r\nIf shift is pressed when clicking this button, the fax numbers will also be" +
+        " exported to the XML file.");
             this.btn_save_FritzXML.UseVisualStyleBackColor = true;
             this.btn_save_FritzXML.Click += new System.EventHandler(this.btn_save_FritzXML_Click);
             // 
@@ -188,21 +191,21 @@
             // 
             // button_7270
             // 
-            this.button_7270.Location = new System.Drawing.Point(267, 54);
+            this.button_7270.Location = new System.Drawing.Point(198, 54);
             this.button_7270.Name = "button_7270";
-            this.button_7270.Size = new System.Drawing.Size(46, 19);
+            this.button_7270.Size = new System.Drawing.Size(66, 19);
             this.button_7270.TabIndex = 8;
-            this.button_7270.Text = "7270";
+            this.button_7270.Text = "USB Stick";
             this.button_7270.UseVisualStyleBackColor = true;
             this.button_7270.Click += new System.EventHandler(this.button_7270_Click);
             // 
             // button_7390
             // 
-            this.button_7390.Location = new System.Drawing.Point(314, 54);
+            this.button_7390.Location = new System.Drawing.Point(267, 54);
             this.button_7390.Name = "button_7390";
-            this.button_7390.Size = new System.Drawing.Size(46, 19);
+            this.button_7390.Size = new System.Drawing.Size(93, 19);
             this.button_7390.TabIndex = 7;
-            this.button_7390.Text = "7390";
+            this.button_7390.Text = "Internal Memory";
             this.button_7390.UseVisualStyleBackColor = true;
             this.button_7390.Click += new System.EventHandler(this.button_7390_Click);
             // 
@@ -289,9 +292,9 @@
             this.combo_VIP.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.combo_VIP.FormattingEnabled = true;
             this.combo_VIP.Items.AddRange(new object[] {
-            "when hell freezes over (never)",
-            "when they have a nickname",
-            "when text VIP is in the Comment/Notes"});
+            "never",
+            "if contact has a nickname",
+            "if text VIP is in the Comment/Notes"});
             this.combo_VIP.Location = new System.Drawing.Point(132, 78);
             this.combo_VIP.Name = "combo_VIP";
             this.combo_VIP.Size = new System.Drawing.Size(221, 21);
@@ -344,7 +347,7 @@
             this.btn_save_vCard.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn_save_vCard.Location = new System.Drawing.Point(836, 108);
             this.btn_save_vCard.Name = "btn_save_vCard";
-            this.btn_save_vCard.Size = new System.Drawing.Size(167, 35);
+            this.btn_save_vCard.Size = new System.Drawing.Size(83, 35);
             this.btn_save_vCard.TabIndex = 14;
             this.btn_save_vCard.Text = "vCard";
             this.toolTip1.SetToolTip(this.btn_save_vCard, resources.GetString("btn_save_vCard.ToolTip"));
@@ -684,8 +687,8 @@
             this.btn_read_googleContacts.Size = new System.Drawing.Size(167, 35);
             this.btn_read_googleContacts.TabIndex = 29;
             this.btn_read_googleContacts.Text = "Google Contacts";
-            this.toolTip1.SetToolTip(this.btn_read_googleContacts, "Directly imports contacts from a Google Mail Account\r\n(without the need to create" +
-        " a vCard as intermediate step)\r\n");
+            this.toolTip1.SetToolTip(this.btn_read_googleContacts, "Directly imports contacts from a Google Mail Account\r\n\r\nHold SHIFT to select the " +
+        "groups you want to import from!\r\n");
             this.btn_read_googleContacts.UseVisualStyleBackColor = true;
             this.btn_read_googleContacts.Click += new System.EventHandler(this.btn_read_googleContacts_Click);
             // 
@@ -728,6 +731,32 @@
             this.toolTip1.SetToolTip(this.btn_save_googleContacts, "Export for Google Contacts");
             this.btn_save_googleContacts.UseVisualStyleBackColor = true;
             this.btn_save_googleContacts.Click += new System.EventHandler(this.btn_save_googleContacts_Click);
+            // 
+            // btn_save_panasonicCSV
+            // 
+            this.btn_save_panasonicCSV.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_save_panasonicCSV.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_save_panasonicCSV.Location = new System.Drawing.Point(836, 412);
+            this.btn_save_panasonicCSV.Name = "btn_save_panasonicCSV";
+            this.btn_save_panasonicCSV.Size = new System.Drawing.Size(167, 35);
+            this.btn_save_panasonicCSV.TabIndex = 35;
+            this.btn_save_panasonicCSV.Text = "Panasonic";
+            this.toolTip1.SetToolTip(this.btn_save_panasonicCSV, resources.GetString("btn_save_panasonicCSV.ToolTip"));
+            this.btn_save_panasonicCSV.UseVisualStyleBackColor = true;
+            this.btn_save_panasonicCSV.Click += new System.EventHandler(this.btn_save_panasonicCSV_Click);
+            // 
+            // btn_save_vCard_Gigaset
+            // 
+            this.btn_save_vCard_Gigaset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_save_vCard_Gigaset.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_save_vCard_Gigaset.Location = new System.Drawing.Point(920, 108);
+            this.btn_save_vCard_Gigaset.Name = "btn_save_vCard_Gigaset";
+            this.btn_save_vCard_Gigaset.Size = new System.Drawing.Size(83, 35);
+            this.btn_save_vCard_Gigaset.TabIndex = 36;
+            this.btn_save_vCard_Gigaset.Text = "Simple vCard\r\nfor Gigaset";
+            this.toolTip1.SetToolTip(this.btn_save_vCard_Gigaset, resources.GetString("btn_save_vCard_Gigaset.ToolTip"));
+            this.btn_save_vCard_Gigaset.UseVisualStyleBackColor = true;
+            this.btn_save_vCard_Gigaset.Click += new System.EventHandler(this.btn_save_vCard_Gigaset_Click);
             // 
             // panel_left
             // 
@@ -839,6 +868,8 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1004, 582);
+            this.Controls.Add(this.btn_save_vCard_Gigaset);
+            this.Controls.Add(this.btn_save_panasonicCSV);
             this.Controls.Add(this.btn_save_googleContacts);
             this.Controls.Add(this.btn_save_Auerswald);
             this.Controls.Add(this.btn_save_GrandstreamGXP);
@@ -869,7 +900,7 @@
             this.Controls.Add(this.btn_read_vCard);
             this.Controls.Add(this.btn_read_Outlook);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MinimumSize = new System.Drawing.Size(1000, 600);
+            this.MinimumSize = new System.Drawing.Size(1020, 620);
             this.Name = "Form1";
             this.Text = "Contact Conversion Wizard";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
@@ -950,6 +981,8 @@
         private System.Windows.Forms.Button btn_save_GrandstreamGXP;
         private System.Windows.Forms.Button btn_save_Auerswald;
         private System.Windows.Forms.Button btn_save_googleContacts;
+        private System.Windows.Forms.Button btn_save_panasonicCSV;
+        private System.Windows.Forms.Button btn_save_vCard_Gigaset;
     }
 }
 

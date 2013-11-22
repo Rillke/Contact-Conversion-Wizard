@@ -40,7 +40,6 @@ namespace Contact_Conversion_Wizard
             combo_Headers.SelectedIndexChanged += new System.EventHandler(this.someCombo_SelectedIndexChanged);
 
             CSV_SettingsChanged();
-
         }
 
         private void CSV_SettingsChanged()
@@ -140,7 +139,7 @@ namespace Contact_Conversion_Wizard
 
             // then reset the arrays
             int coloumns = my_LineList[0].GetLength(0);
-            label_dim.Text = "Dimensions: " + my_LineList.Count + " x " + coloumns;
+            this.Text = "CSV Row Assigner" +  " (" + my_LineList.Count + " x " + coloumns + ")";
 
             combo_array = new ComboBox[coloumns];
             label_array = new Label[5, coloumns];
@@ -268,5 +267,110 @@ namespace Contact_Conversion_Wizard
             // re run everything
             CSV_SettingsChanged();
         }
+
+        private void combo_set(ComboBox cb_to_set, string value_to_set)
+        {
+            if (cb_to_set.Items.Count > 0)
+            {
+                for (int i = 0; i < cb_to_set.Items.Count; i++)
+                {
+                    if (cb_to_set.Items[i].ToString() == value_to_set)
+                    {
+                        cb_to_set.SelectedIndex = i;
+                        return;
+                    }
+                }
+            }
+        }
+
+        private void button_regsave_Click(object sender, EventArgs e)
+        {
+            string FullCFGfilePath = Form1.MySaveFolder + System.IO.Path.DirectorySeparatorChar + "CCW-CSV-Assigner.config";
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendLine("cfg_csv_encoding" + "\t" + combo_Encoding.SelectedItem.ToString());
+            sb.AppendLine("cfg_csv_separator" + "\t" + combo_Separator.SelectedItem.ToString());
+            sb.AppendLine("cfg_csv_headers" + "\t" + combo_Headers.SelectedItem.ToString());
+
+
+            for (int i = 0; i < combo_array.Length; i++)
+            {
+
+                sb.AppendLine("cfg_csv_combo_" + i.ToString() + "\t" + combo_array[i].SelectedItem.ToString());
+
+                // for (int j = 0; j < combo_options.GetLength(0); j++)
+                // {
+                    // if (headers[i] == combo_options[j])
+                    // {
+                    //    combo_array[i].SelectedIndex = j;
+                    //}
+                // }
+            }
+
+
+            System.IO.File.WriteAllText(FullCFGfilePath, sb.ToString(), Encoding.UTF8);
+
+
+        }
+
+        private void button_regload_Click(object sender, EventArgs e)
+        {
+
+            string FullCFGfilePath = Form1.MySaveFolder + System.IO.Path.DirectorySeparatorChar + "CCW-CSV-Assigner.config";
+
+            if (System.IO.File.Exists(FullCFGfilePath))
+            {
+                System.IO.StreamReader file_cleartext_read;
+                file_cleartext_read = new System.IO.StreamReader(FullCFGfilePath, Encoding.UTF8);
+                string curline;
+                StringBuilder builder = new StringBuilder();
+                while ((curline = file_cleartext_read.ReadLine()) != null)
+                {
+                    // hachre CCW Bugfix: 3.0.0.2 (ComboBox loading Problem in Mono) - previously: builder.Append(curline + "\r\n");
+                    builder.Append(curline + Environment.NewLine);
+                }
+                file_cleartext_read.Close();
+
+                // then regEx Split by NewLine into array of lines
+                string[] allParseLines = System.Text.RegularExpressions.Regex.Split(builder.ToString(), Environment.NewLine);
+
+                foreach (string ParseLine in allParseLines)
+                {
+                    if (ParseLine == string.Empty) { continue; } // skip empty lines
+                    if (ParseLine.IndexOf("\t") == -1) { continue; } // skip lines without TAB
+                    if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_csv_separator") { combo_set(combo_Separator, ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
+                    if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_csv_headers") { combo_set(combo_Headers, ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
+                    if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_csv_encoding") { combo_set(combo_Encoding, ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
+
+                    if (ParseLine.Substring(0, ParseLine.IndexOf("\t")).StartsWith("cfg_csv_combo_") == true)
+                    {
+                        // value to set to:
+                        string set_value = ParseLine.Substring(ParseLine.IndexOf("\t") + 1);
+                        
+                        // combobox we are setting this to
+                        string count_value = ParseLine.Substring(ParseLine.IndexOf("cfg_csv_combo_") + "cfg_csv_combo_".Length);
+                        int count_box = Convert.ToInt32(count_value.Substring(0, count_value.IndexOf("\t")));
+                        
+                        if ((combo_array.Length-1) >= count_box)
+                        {
+                            for (int j = 0; j < combo_options.GetLength(0); j++)
+                            {
+                                if (combo_options[j] == set_value)
+                                {
+                                    combo_array[count_box].SelectedIndex = j;
+                                }
+                            }
+                        }
+                        // ;
+                        continue;
+                    }
+
+
+                }
+
+            }
+        }
+
+
     }
 }

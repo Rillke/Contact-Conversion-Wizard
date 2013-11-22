@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
@@ -16,6 +15,7 @@ using System.IO;
 using System.Collections;
 using System.Net;
 
+using System.Linq;
 
 namespace Contact_Conversion_Wizard
 {
@@ -24,22 +24,30 @@ namespace Contact_Conversion_Wizard
         public static bool cfg_hideemptycols = false;
         public static bool cfg_adjustablecols = false;
         public static bool cfg_prefixNONFB = false;
-        public static bool cfg_fritzWorkFirst = false;
         public static bool cfg_importOther = true;
         public static bool clean_brackets = true;
         public static bool clean_slash = true;
         public static bool clean_hashkey = true;
         public static bool clean_hyphen = true;
         public static bool clean_xchar = true;
+        public static bool clean_space = true;
+        public static bool clean_squarebrackets = true;
+        public static bool clean_letters = true;
+        public static bool clean_addzeroprefix = false;
+
+
         public static bool cfg_DUPren = false;
-        public static bool cfg_checkVersion = false;
+        public static bool cfg_checkVersion = true;
 
 
         public static string g_login = "";
         public static string g_pass = "";
 
+        public static System.Text.Encoding utf8WithoutBom = new System.Text.UTF8Encoding(false);
+
+
         System.Collections.Hashtable myGroupDataHash;
-        string MySaveFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + System.IO.Path.DirectorySeparatorChar + "ContactConversionWizard";
+        public static string MySaveFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + System.IO.Path.DirectorySeparatorChar + "ContactConversionWizard";
 
         public Form1()
         {
@@ -93,6 +101,8 @@ namespace Contact_Conversion_Wizard
             // override default load configuration (from above) with settings from file (if any)
             myConfig_Load();
 
+
+
             if (cfg_checkVersion == true)
             {
                 backgroundWorker_updateCheck.RunWorkerAsync();
@@ -122,10 +132,6 @@ namespace Contact_Conversion_Wizard
                     { // keep brackets if option to clean them set to false
                         buffer[idx] = c; idx++;
                     }
-                    else if (clean_slash == false && (c == '/'))
-                    { // keep slash if option to clean it set to false
-                        buffer[idx] = c; idx++;
-                    }
                     else if (clean_hashkey == false && (c == '#'))
                     { // keep slash if option to clean it set to false
                         buffer[idx] = c; idx++;
@@ -138,6 +144,23 @@ namespace Contact_Conversion_Wizard
                     { // keep slash if option to clean it set to false
                         buffer[idx] = c; idx++;
                     }
+                    else if (clean_slash == false && (c == '/'))
+                    { // keep slash if option to clean it set to false
+                        buffer[idx] = c; idx++;
+                    }
+                    else if (clean_space == false && (c == ' '))
+                    { // keep space if option to clean it set to false
+                        buffer[idx] = c; idx++;
+                    }
+                    else if (clean_squarebrackets == false && ((c == '[') || (c == ']')))
+                    { // keep square brackets if option to clean them set to false
+                        buffer[idx] = c; idx++;
+                    }
+                    else if (clean_letters == false && ((c >= 'a' && c <= 'z') || (c >= 'A') && (c <= 'Z')))
+                    {
+                        buffer[idx] = c; idx++;
+                    }
+
 
                 }
                 return_str = new string(buffer, 0, idx);
@@ -149,7 +172,13 @@ namespace Contact_Conversion_Wizard
                     if (return_str.StartsWith(country_prefix)) { return_str = "0" + return_str.Substring(country_prefix.Length); }
                 }
 
+                // add fritz!prefix is detected in the source
                 if (return_str != "") { return_str = dial_prefix + return_str; }
+
+                // alway add "0" prefix for outside lines if the corresponding configuration option is active
+                if (return_str != "" && clean_addzeroprefix == true ) { return_str = "0" + return_str; }
+
+
 
             }
             else
@@ -183,7 +212,7 @@ namespace Contact_Conversion_Wizard
                 else
                 {
                     // Ask the user for the correct country code
-                    SimpleInputDialog MySimpleInputDialog = new SimpleInputDialog("Please enter your local Country Prefix here (in the format 00x or 00xx)", "CustomCountryID", true);
+                    SimpleInputDialog MySimpleInputDialog = new SimpleInputDialog("Please enter your local Country Prefix here (in the format 00x or 00xx)", "CustomCountryID", true, false);
                     MySimpleInputDialog.ShowDialog();
                     my_country_id = MySimpleInputDialog.resultstring;
                     MySimpleInputDialog.Dispose();
@@ -443,6 +472,38 @@ namespace Contact_Conversion_Wizard
             return ret_val;
         }
 
+
+        private string Do_VCARD_replace(string to_replace)
+        {
+            string ret_val = to_replace;
+
+            ret_val = ret_val.Replace("\\", "\\\\");
+            ret_val = ret_val.Replace(";", "\\;");
+            ret_val = ret_val.Replace(",", "\\,");
+            ret_val = ret_val.Replace(":", "\\:");
+            ret_val = ret_val.Replace("\r\n", "\\n"); // this has to be done first since it's more specific
+            ret_val = ret_val.Replace("\n", "\\n"); // this has to be done later
+            return ret_val;
+        }
+
+
+        private string Do_VCARD_replace_Gigaset(string to_replace)
+        {
+            string ret_val = to_replace;
+            ret_val = ret_val.Replace("\\", "\\\\");
+            ret_val = ret_val.Replace(";", "\\;");
+
+            // these two must explicitly not be replaced on the dx600a
+            // ret_val = ret_val.Replace(",", "\\,");
+            // ret_val = ret_val.Replace(":", "\\:");
+            
+            // no newlines in gigaset
+            ret_val = ret_val.Replace("\r\n", ""); // this has to be done first since it's more specific
+            ret_val = ret_val.Replace("\n", ""); // this has to be done later
+            return ret_val;
+        }
+
+
         private bool CheckIfSeparateEntries(string nr1, string nr2, string nr3)
         {
             int nr_in_use = 0;
@@ -508,6 +569,7 @@ namespace Contact_Conversion_Wizard
                 btn_save_Outlook.Enabled = false;
                 btn_save_FritzXML.Enabled = false;
                 btn_save_vCard.Enabled = false;
+                btn_save_vCard_Gigaset.Enabled = false;
                 btn_save_FritzAdress.Enabled = false;
                 btn_save_SnomCSV7.Enabled = false;
                 btn_save_SnomCSV8.Enabled = false;
@@ -517,6 +579,7 @@ namespace Contact_Conversion_Wizard
                 btn_save_GrandstreamGXP.Enabled = false;
                 btn_save_Auerswald.Enabled = false;
                 btn_save_googleContacts.Enabled = false;
+                btn_save_panasonicCSV.Enabled = false;
 
                 button_clear.Enabled = false;
                 button_config.Enabled = false;
@@ -534,6 +597,7 @@ namespace Contact_Conversion_Wizard
                 btn_save_Outlook.Enabled = true;
                 btn_save_FritzXML.Enabled = true;
                 btn_save_vCard.Enabled = true;
+                btn_save_vCard_Gigaset.Enabled = true;
                 btn_save_FritzAdress.Enabled = true;
                 btn_save_SnomCSV7.Enabled = true;
                 btn_save_SnomCSV8.Enabled = true;
@@ -543,6 +607,8 @@ namespace Contact_Conversion_Wizard
                 btn_save_GrandstreamGXP.Enabled = true;
                 btn_save_Auerswald.Enabled = true;
                 btn_save_googleContacts.Enabled = true;
+                btn_save_panasonicCSV.Enabled = true;
+
 
                 button_clear.Enabled = true;
                 button_config.Enabled = true;
@@ -862,14 +928,33 @@ namespace Contact_Conversion_Wizard
             // processing starts, so now we will disable the buttons first to make sure the user knows this by not having buttons to click on
             disable_buttons(true);
 
-            if (g_login == string.Empty || g_pass == string.Empty)
+            // check whether the user had the shift key pressed while calling this function and store this in a variable for further use
+            bool shiftpressed_for_custom_folder = false;
+
+            if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift) { shiftpressed_for_custom_folder = true; }
+
+            if (g_login == string.Empty)
             {
-                MessageBox.Show("Please configure gMail Login and Password in the configuration menu first!");
+                MessageBox.Show("Please configure Google login in the configuration menu first!");
                 disable_buttons(false);
                 return;
             }
 
-            ReadDataReturn myReadDataReturn = read_data_googleContacts();
+            string custom_google_pass = "";
+            if (g_pass != string.Empty)
+            {
+                custom_google_pass = g_pass;
+            }
+            else
+            {
+                SimpleInputDialog MySimpleInputDialog = new SimpleInputDialog("Please enter the Google password for login " + g_login + ":", "Enter Google Password", false, true);
+                MySimpleInputDialog.ShowDialog();
+                custom_google_pass = MySimpleInputDialog.resultstring;
+                MySimpleInputDialog.Dispose();
+            }
+
+
+            ReadDataReturn myReadDataReturn = read_data_googleContacts(shiftpressed_for_custom_folder, custom_google_pass);
 
             if (myReadDataReturn.duplicates != "") MessageBox.Show(myReadDataReturn.duplicates, "The following duplicate entries could not be imported");
             update_datagrid();
@@ -958,7 +1043,7 @@ namespace Contact_Conversion_Wizard
             string my_category_filter = "";
             if (categoryfilter == true)
             {
-                SimpleInputDialog MySimpleInputDialog = new SimpleInputDialog("Please enter the string that must be present in the category field:", "Category Filter", false);
+                SimpleInputDialog MySimpleInputDialog = new SimpleInputDialog("Please enter the string that must be present in the category field:", "Category Filter", false, false);
                 MySimpleInputDialog.ShowDialog();
                 my_category_filter = MySimpleInputDialog.resultstring;
                 MySimpleInputDialog.Dispose();
@@ -1081,7 +1166,19 @@ namespace Contact_Conversion_Wizard
             string duplicates = "";
 
             GroupDataContact myContact = new GroupDataContact();
-            System.IO.StreamReader file1 = new System.IO.StreamReader(filename, Encoding.GetEncoding("ISO-8859-1"));
+
+            // auto detect encoding used in xml file!
+            string line1 = "";
+            using (StreamReader reader = new StreamReader(filename)) { line1 = reader.ReadLine(); }
+
+            // set default in case we don't find something in the first line
+            System.Text.Encoding fritzXMLreadencoding = utf8WithoutBom;
+            
+            if (line1.Contains("encoding=\"utf-8\"") == true)           { fritzXMLreadencoding = utf8WithoutBom; }
+            else if (line1.Contains("encoding=\"iso-8859-1\"") == true) { fritzXMLreadencoding = Encoding.GetEncoding("ISO-8859-1"); }
+            else                                                        { MessageBox.Show("Unable to determine file encoding from header, defaulting to: " + fritzXMLreadencoding.EncodingName.ToString()); }
+
+            System.IO.StreamReader file1 = new System.IO.StreamReader(filename, fritzXMLreadencoding);
 
             try
             {
@@ -1094,6 +1191,7 @@ namespace Contact_Conversion_Wizard
 
                 r.MoveToContent();
 
+                string parsing_errors = "";
                 while (r.ReadToFollowing("contact"))                // loop starts here, if we are able to arrive at a new contact
                 {
                     myContact = new GroupDataContact();                 // then we first clean out myContact Storage
@@ -1145,7 +1243,29 @@ namespace Contact_Conversion_Wizard
                             myContact.mobile = r.ReadElementContentAsString();
                             continue;
                         }
+                        if (r.GetAttribute("type") == "fax_work")
+                        {
+                            if (combo_typeprefer.SelectedIndex == 0)
+                            { // prefer storing as home
+                                myContact.homefax = r.ReadElementContentAsString();
+                            }
+                            if (combo_typeprefer.SelectedIndex == 1)
+                            { // prefer storing as work
+                                myContact.workfax = r.ReadElementContentAsString();
+                            }
+                            continue;
+                        }
+                        
+                        // if we are still here, there is an attribute we don't know about
+                        parsing_errors += "Unknown XML Attribute: " + r.GetAttribute("type") + "=" + r.ReadElementContentAsString();
+                        continue;
                     }
+
+                    if (parsing_errors != "")
+                    {
+                        MessageBox.Show("The following parsing errors have occured:" + Environment.NewLine + Environment.NewLine + parsing_errors);
+                    }
+
 
                     // Now all information should be stored in the array, so save it to the hashtable!
                     addDataHash(ref duplicates, myContact);
@@ -1209,7 +1329,7 @@ namespace Contact_Conversion_Wizard
                 string currentline_for_crash = "";
                 try
                 {
-                    // replace escaped ":" characters, they should not be a problem when parsing (TODO: This could be a problem? Or maybe not? Do some additional tests sometime)
+                    // replace escaped ":" characters, they should not be a problem when parsing
                     string vParseLine = ParseLine.Replace("\\:", ":").Replace("\\\\", "\\").Replace("\\;", ",").Replace("\\,", ",");
                     currentline_for_crash = vParseLine;
 
@@ -1232,11 +1352,11 @@ namespace Contact_Conversion_Wizard
 
                     string vParseValue = vParseLine.Substring(vParseLine.IndexOf(":") + 1);
 
-                    // TODO: If value is quoted printable we need to decode it first, I was unable to find proper working code so far :-(
+                    // maybe someday ==> If value is quoted printable we need to decode it first, I was unable to find proper working code so far :-(
                     // if (vParseOptions.ToUpper().Contains("CHARSET=UTF-8") && vParseOptions.ToUpper().Contains("ENCODING=QUOTED-PRINTABLE"))
                     // {
                         // MessageBox.Show("Now decoding:\r\n" + vParseValue + "\r\n" + UTF8Decode(vParseValue));
-                        // TODO, this doesn't really work yet
+                        // this doesn't really work yet
                     // }
 
                     // MessageBox.Show(vParseLine + "\r\n==> ITEM: " + vParseItem + "\r\n==> OPT:" + vParseOptions + "\r\n==> VALUE: " + vParseValue);
@@ -1534,7 +1654,8 @@ namespace Contact_Conversion_Wizard
 
             if (crashed == true)
             {
-                // TODO: Hier wäre es schön ein Custom Form für die Fehlermeldung zu haben, in dem man auch Markieren&Kopieren in die Zwischenablage kann und das viel Text besser anzeigt (Textbox?)
+                // Hier wäre es natürlich schöner ein Custom Form für die Fehlermeldung zu haben, in dem man auch Markieren&Kopieren in die Zwischenablage kann und das viel Text besser anzeigt (Textbox?)
+                // habe aber keine Lust sowas zu implementieren momentan :-)
                 MessageBox.Show("One or more lines in the vCard file could not be parsed and were ignored. If you think those lines were standard-compliant please report a bug in the IP-Phone-Forum with the vCard entry that caused the problem" + Environment.NewLine
                                 + Environment.NewLine
                                 + crashlog.ToString());
@@ -1728,17 +1849,54 @@ namespace Contact_Conversion_Wizard
             return (new ReadDataReturn(duplicates));
         }
 
-        private ReadDataReturn read_data_googleContacts()
+        private ReadDataReturn read_data_googleContacts(bool customfolder, string google_pass)
         {
             string duplicates = "";
 
-            RequestSettings rs = new RequestSettings(this.ProductName + " v" + this.ProductVersion, g_login, g_pass);
+            RequestSettings rs = new RequestSettings(this.ProductName + " v" + this.ProductVersion, g_login, google_pass);
             rs.AutoPaging = true; // AutoPaging results in automatic paging in order to retrieve all contacts
             ContactsRequest cr = new ContactsRequest(rs);
 
             Feed<Contact> f = cr.GetContacts();
 
-            string der_token = cr.Service.QueryClientLoginToken();
+            
+            // this is where the actual login/pass check happens
+            string der_token = "";
+            try
+            { // we need the token for later (photo download)
+                der_token = cr.Service.QueryClientLoginToken();
+            }
+            catch (Exception ex)
+            {
+                string exception_message = ex.ToString();
+                if (exception_message.Contains(" at ") == true)
+                {
+                    exception_message = exception_message.Substring(0, exception_message.IndexOf(" at "));
+                }
+
+                MessageBox.Show("Google login failed with the following exception:" + Environment.NewLine + Environment.NewLine + exception_message);
+                return (new ReadDataReturn(duplicates));
+            }
+                
+
+            List<string> ListSelectedGroups = new List<string>(); 
+
+            if (customfolder == true)
+            {
+                Feed<Group> g = cr.GetGroups();
+                List<string[]> ListAllGroups = new List<string[]>();
+                foreach (Group ge in g.Entries) { ListAllGroups.Add(new string[] { ge.Title, ge.Id}); }
+
+                ImportGroupsChooser MyGoogleImportGroupsChooser = new ImportGroupsChooser("Please select the groups you want to import contacts from:", "Google Contact Group Chooser", ListAllGroups);
+                MyGoogleImportGroupsChooser.ShowDialog();
+                
+                foreach (string[] z in MyGoogleImportGroupsChooser.resultList)
+                {   // add group identifyer to selected groups list
+                    ListSelectedGroups.Add(z[1]);
+                }
+                
+                MyGoogleImportGroupsChooser.Dispose();
+            }
 
             foreach (Contact entry in f.Entries)
             {
@@ -1753,16 +1911,66 @@ namespace Contact_Conversion_Wizard
                         myContact.company = (string.IsNullOrEmpty(entry.Organizations[0].Name)) ? string.Empty : entry.Organizations[0].Name;
                     }
 
+                    
+                    
+                    if (customfolder == true)
+                    {
+                        bool is_member_of_selected_group = false;
+
+                        foreach (GroupMembership memberGroup in entry.GroupMembership)
+                        {
+                            foreach (string currentGroup in ListSelectedGroups)
+                            {
+                                if (memberGroup.HRef == currentGroup)
+                                {
+                                    is_member_of_selected_group = true;
+                                    break; // no need to check further groups, we already know we want this contact
+                                }
+                            }
+                        }
+
+                        if (is_member_of_selected_group == false)
+                        {
+                            // MessageBox.Show("Skipping: " + myContact.lastname + "/" + myContact.firstname + "/" + entry.GroupMembership.Count.ToString());
+                            continue;
+                        }
+
+                    }
+
+                    string google_main_number = "";
+
                     foreach (PhoneNumber pnr in entry.Phonenumbers)
                     {
                         if (string.IsNullOrEmpty(pnr.Value) == true) { continue; } // if phone number string should be empty, go to next item
 
                         if (pnr.Rel == ContactsRelationships.IsHome) { if (myContact.home == string.Empty)    myContact.home = pnr.Value; }
                         if (pnr.Rel == ContactsRelationships.IsWork) { if (myContact.work == string.Empty)    myContact.work = pnr.Value; }
+                        if (pnr.Rel == ContactsRelationships.IsMain) { google_main_number = pnr.Value; }
                         if (pnr.Rel == ContactsRelationships.IsHomeFax) { if (myContact.homefax == string.Empty) myContact.homefax = pnr.Value; }
                         if (pnr.Rel == ContactsRelationships.IsWorkFax) { if (myContact.workfax == string.Empty) myContact.workfax = pnr.Value; }
                         if (pnr.Rel == ContactsRelationships.IsMobile) { if (myContact.mobile == string.Empty)  myContact.mobile = pnr.Value; }
                     }
+
+
+                    if (cfg_importOther == true && google_main_number != "")
+                    { // if we are to import the other number and it is NOT empty, then
+
+                        if (combo_typeprefer.SelectedIndex == 0)
+                        { // prefer storing as home
+                            if (myContact.home == string.Empty) { myContact.home = google_main_number; }
+                            else if (myContact.work == string.Empty) { myContact.work = google_main_number; }
+                        }
+                        if (combo_typeprefer.SelectedIndex == 1)
+                        { // prefer storing as work
+                            if (myContact.work == string.Empty) { myContact.work = google_main_number; }
+                            else if (myContact.home == string.Empty) { myContact.home = google_main_number; }
+                        }
+                    }
+
+
+
+
+
 
                     myContact.preferred = string.Empty; // Google Contacts has no preferred phone (at least not in the GUI, so we don't support it here)
 
@@ -1844,6 +2052,10 @@ namespace Contact_Conversion_Wizard
 
         private void btn_save_FritzXML_Click(object sender, EventArgs e)
         {
+            // check whether the user had the shift key pressed while calling this function and store this in a variable for further use
+            bool shiftpressed_for_export_fax = false;
+            if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift) { shiftpressed_for_export_fax = true; }
+
             SaveFileDialog SaveXML_Dialog = new SaveFileDialog();
             SaveXML_Dialog.Title = "Select the XML file you wish to create";
             SaveXML_Dialog.DefaultExt = "xml";
@@ -1858,7 +2070,7 @@ namespace Contact_Conversion_Wizard
 
             disable_buttons(true);
 
-            save_data_FritzXML(SaveXML_Dialog.FileName, myGroupDataHash);
+            save_data_FritzXML(SaveXML_Dialog.FileName, myGroupDataHash, shiftpressed_for_export_fax);
 
             // and reenable user interface
             disable_buttons(false);
@@ -1890,6 +2102,32 @@ namespace Contact_Conversion_Wizard
             disable_buttons(false);
 
         }      // just click handler
+
+
+        private void btn_save_vCard_Gigaset_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog SaveVCF_Dialog = new SaveFileDialog();
+            SaveVCF_Dialog.Title = "Select the Gigaset vCard file you wish to create";
+            SaveVCF_Dialog.DefaultExt = "vcf";
+            SaveVCF_Dialog.Filter = "VCF files (*.vcf)|*.vcf";
+            SaveVCF_Dialog.InitialDirectory = Environment.SpecialFolder.Desktop.ToString();
+            SaveVCF_Dialog.FileName = "Simplified vCard Export for Gigaset";
+
+            if (SaveVCF_Dialog.ShowDialog() == DialogResult.Cancel)
+            {
+                return;
+            }
+
+            disable_buttons(true);
+
+            save_data_vCard_Gigaset(SaveVCF_Dialog.FileName, myGroupDataHash);
+
+            // and reenable user interface
+            disable_buttons(false);
+
+        }      // just click handler
+
+
 
         private void btn_save_FritzAdr_Click(object sender, EventArgs e)
         {
@@ -2075,28 +2313,154 @@ namespace Contact_Conversion_Wizard
         private void btn_save_googleContacts_Click(object sender, EventArgs e)    // just click handler
         {
             disable_buttons(true);
-            save_data_googleContacts(myGroupDataHash);
+
+            if (g_login == string.Empty)
+            {
+                MessageBox.Show("Please configure Google login in the configuration menu first!");
+                disable_buttons(false);
+                return;
+            }
+
+            string custom_google_pass = "";
+            if (g_pass != string.Empty)
+            {
+                custom_google_pass = g_pass;
+            }
+            else
+            {
+                SimpleInputDialog MySimpleInputDialog = new SimpleInputDialog("Please enter the Google password for login " + g_login + ":", "Enter Google Password", false, true);
+                MySimpleInputDialog.ShowDialog();
+                custom_google_pass = MySimpleInputDialog.resultstring;
+                MySimpleInputDialog.Dispose();
+            }
+
+            save_data_googleContacts(myGroupDataHash, custom_google_pass);
+            disable_buttons(false);
+        }
+        
+        private void btn_save_panasonicCSV_Click(object sender, EventArgs e)
+        {
+
+            SaveFileDialog SaveXML_Dialog = new SaveFileDialog();
+            SaveXML_Dialog.Title = "Select the CSV file you wish to create";
+            SaveXML_Dialog.DefaultExt = "phb";
+            SaveXML_Dialog.Filter = "PHB files (*.phb)|*.phb";
+            SaveXML_Dialog.InitialDirectory = Environment.SpecialFolder.Desktop.ToString();
+            SaveXML_Dialog.FileName = "PanasonicExport";
+
+            if (SaveXML_Dialog.ShowDialog() == DialogResult.Cancel)
+            {
+                return;
+            }
+
+            disable_buttons(true);
+            save_data_PanasonicCSV(SaveXML_Dialog.FileName, myGroupDataHash);
+
+            // and reenable user interface
             disable_buttons(false);
         }
 
-        private void save_data_googleContacts(System.Collections.Hashtable workDataHash)
+        private void save_data_PanasonicCSV(string filename, System.Collections.Hashtable workDataHash)
         {
             // get the country ID from the combobox or from user input
             string country_id = RetrieveCountryID(combo_prefix.SelectedItem.ToString());
 
-            RequestSettings rs = new RequestSettings(this.ProductName + " v" + this.ProductVersion, g_login, g_pass);
+            // process with exporting
+            StringBuilder resultSB = new StringBuilder();
+
+            // write the header for panasonic
+            resultSB.Append("; Panasonic Communications Co., Ltd. Phonebook DECT Version 2.00\r\n");
+
+            System.Collections.Hashtable MySaveDataHash = new System.Collections.Hashtable();
+
+            foreach (System.Collections.DictionaryEntry contactHash in workDataHash)
+            {
+                // extract GroupDataList from hashtable contents
+                GroupDataContact contactData = (GroupDataContact)contactHash.Value;
+
+                // clean up phone number
+                string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
+                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, prefix_string);
+                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id, prefix_string);
+                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, prefix_string);
+                
+                //  check if all relevant clean phone numbers for this export here are empty
+                if (CleanUpNumberHome == string.Empty && CleanUpNumberWork == string.Empty && CleanUpNumberMobile == string.Empty)
+                { continue; /* if yes, abort this foreach loop and contine to the next one */ }
+
+
+                // this is the list of numbers for the contact
+                List<String> numbers = new List<string>();
+
+                if (CleanUpNumberHome != "") { numbers.Add(CleanUpNumberHome); }
+                if (CleanUpNumberWork != "") { numbers.Add(CleanUpNumberWork); }
+                if (CleanUpNumberMobile != "") { numbers.Add(CleanUpNumberMobile); }
+
+                // if there are no phone numbers remaining after cleanup, abort this loop
+                if (numbers.Count == 0) { MessageBox.Show("Skipping " + contactData.combinedname); continue; }
+
+                string name_home = LimitNameLength(contactData.combinedname, 16, false, "");
+                string sep = ",";
+
+                //maybe one day add possibility for menaingful mapping of groups. use constant 1 for the moment
+                string contactgroup = "1";
+                
+                try
+                {
+                    MySaveDataHash.Add(name_home, "\"" + name_home + "\"" + sep + contactgroup + sep + numbers.Aggregate((current, next) => current + sep + next) + "\n");
+                }
+                catch (ArgumentException) // unable to add to MySaveFaxDataHash, must mean that something with (modified) contactData.combinedname is already in there!
+               {
+                    MessageBox.Show("Unable to export the shortened entry \"" + name_home + "\",\r\nanother entry with this name already exists!\r\n\r\nIgnoring duplicate for contact source: " + contactData.combinedname);
+                }
+
+            } // end of foreach loop for the contacts
+
+            // retrieve stuff from hastable and put in resultstring:
+            foreach (System.Collections.DictionaryEntry saveDataHash in MySaveDataHash)
+           {
+                resultSB.Append((string)saveDataHash.Value);
+            }
+
+            // actually write the file to disk
+            System.IO.File.WriteAllText(filename, resultSB.ToString(), Encoding.GetEncoding("ISO-8859-1"));
+        }
+
+        private void save_data_googleContacts(System.Collections.Hashtable workDataHash, string google_pass)
+        {
+            // get the country ID from the combobox or from user input
+            string country_id = RetrieveCountryID(combo_prefix.SelectedItem.ToString());
+
+            RequestSettings rs = new RequestSettings(this.ProductName + " v" + this.ProductVersion, g_login, google_pass);
             rs.AutoPaging = true; // AutoPaging results in automatic paging in order to retrieve all contacts
             ContactsRequest cr = new ContactsRequest(rs);
 
+            // this is where the actual login/pass check happens
+            try
+            {   // this line does absolutely nothing here (we don't save the result), but it checks if l/p is ok so we don't run into trouble later!
+                cr.Service.QueryClientLoginToken();
+            }
+            catch (Exception ex)
+            {
+                string exception_message = ex.ToString();
+                if (exception_message.Contains(" at ") == true)
+                {
+                    exception_message = exception_message.Substring(0, exception_message.IndexOf(" at "));
+                }
+
+                MessageBox.Show("Google login failed with the following exception:" + Environment.NewLine + Environment.NewLine + exception_message);
+                return;
+            }
+
+            
+            
+            
             // List that holds the batch request entries.
             List<Contact> requestFeed = new List<Contact>();
 
             // iterate through the contacts in workDatahash and save them to the selected Outlook Folder
-            // int count = 0; TODO WEG DAMIT
             foreach (System.Collections.DictionaryEntry contactHash in workDataHash)
             {
-                // if (count > 3) { continue; }  TODO WEG DAMIT
-
                 // extract GroupDataList from hashtable contents
                 GroupDataContact contactData = (GroupDataContact)contactHash.Value;
 
@@ -2122,7 +2486,7 @@ namespace Contact_Conversion_Wizard
 
                 newEntry.Name = new Name() { FullName = contactData.combinedname, GivenName = contactData.firstname, FamilyName = contactData.lastname, }; // Set the contact's name.
                 if (contactData.company != "") newEntry.Organizations.Add(new Organization() { Primary = true, Rel = Google.GData.Extensions.ContactsRelationships.IsWork, Name = contactData.company });
-                if (contactData.email != "") newEntry.Emails.Add(new EMail() { Primary = true, Rel = ContactsRelationships.IsHome, Address = contactData.email }); // Set the contact's e-mail addresses. // TODO - home or work, da gibts ein preset?
+                if (contactData.email != "") newEntry.Emails.Add(new EMail() { Primary = true, Rel = ContactsRelationships.IsHome, Address = contactData.email }); // Set the contact's e-mail addresses.
                 
                 // primary phone number
                 bool prefer_homephone = false;
@@ -2156,9 +2520,8 @@ namespace Contact_Conversion_Wizard
 
                 requestFeed.Add(newEntry);
 
-                // count++;  TODO WEG DAMIT
-
             } // end of foreach loop for the contacts
+
 
             // Submit the batch request to the server.
             List<Contact> uploadFeed = new List<Contact>();
@@ -2184,11 +2547,11 @@ namespace Contact_Conversion_Wizard
                     uploadFeed.Clear();
 
                     // tell the user what has been done
-                    MessageBox.Show((i+1).ToString() + "/" + requestFeed.Count + " contacts have been written to the gMail Folder 'Other Contacts'!" + Environment.NewLine + responseData.ToString());
+                    MessageBox.Show((i+1).ToString() + "/" + requestFeed.Count + " contacts have been written to the Google Folder 'Other Contacts'!" + Environment.NewLine + responseData.ToString());
                 }
             }
-        }
 
+        }
 
         private void save_data_Outlook(System.Collections.Hashtable workDataHash)
         {
@@ -2270,7 +2633,7 @@ namespace Contact_Conversion_Wizard
             MessageBox.Show(count + " contacts have been written to the selected Outlook folder!" + Environment.NewLine);
         }
 
-        private void save_data_FritzXML(string filename, System.Collections.Hashtable workDataHash)
+        private void save_data_FritzXML(string filename, System.Collections.Hashtable workDataHash, bool export_fax)
         {
             // get the country ID from the combobox or from user input
             string country_id = RetrieveCountryID(combo_prefix.SelectedItem.ToString());
@@ -2295,6 +2658,8 @@ namespace Contact_Conversion_Wizard
             // initialize hashtable to store generated data results
             System.Collections.Hashtable MySaveDataHash = new System.Collections.Hashtable();
 
+            bool pics_actually_exported = false;
+
             foreach (System.Collections.DictionaryEntry contactHash in workDataHash)
             {
                 StringBuilder contactSB = new StringBuilder();
@@ -2302,22 +2667,19 @@ namespace Contact_Conversion_Wizard
                 // extract GroupDataList from hashtable contents
                 GroupDataContact contactData = (GroupDataContact)contactHash.Value;
 
-                // check if all relevant phone numbers for this export here are empty
-                if (contactData.home == string.Empty && contactData.work == string.Empty && contactData.mobile == string.Empty)
-                { continue; /* if yes, abort this foreach loop and contine to the next one */ }
-
-                string SaveAsName = contactData.combinedname;
-
-                // limit to 32 chars
-                SaveAsName = LimitNameLength(SaveAsName, 32, false, "");
-
-                // replace "&","<",">", """
-                SaveAsName = Do_XML_replace(SaveAsName);
-
                 // clean up phone number
                 string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, contactData.FRITZprefix);
                 string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id, contactData.FRITZprefix);
                 string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, contactData.FRITZprefix);
+                string CleanUpNumberHomeFax = CleanUpNumber(contactData.homefax, country_id, contactData.FRITZprefix);
+                string CleanUpNumberWorkFax = CleanUpNumber(contactData.workfax, country_id, contactData.FRITZprefix);
+
+                // check if all relevant phone numbers for this export here are empty
+                if (CleanUpNumberHome == string.Empty && CleanUpNumberWork == string.Empty && CleanUpNumberMobile == string.Empty)
+                { continue; /* if yes, abort this foreach loop and contine to the next one */ }
+
+                // limit to 32 chars and replace "&","<",">", """
+                string SaveAsName = Do_XML_replace(LimitNameLength(contactData.combinedname, 32, false, ""));
 
                 // write contact header
 
@@ -2332,6 +2694,8 @@ namespace Contact_Conversion_Wizard
                     string picfile = System.IO.Path.ChangeExtension(System.IO.Path.GetRandomFileName(), "jpg");
                     writeByteArrayToFile(contactData.jpeg, System.IO.Path.Combine(pic_export_path, picfile));
                     imageURLstring = "<imageURL>" + textBox_PicPath.Text + picfile + "</imageURL>\n";
+
+                    pics_actually_exported = true;
                 }
 
                 contactSB.Append("<contact>\n<category>" + VIPid + "</category>\n<person>\n<realName>" + SaveAsName + "</realName>\n" + imageURLstring + "</person>\n<telephony>\n");
@@ -2412,10 +2776,21 @@ namespace Contact_Conversion_Wizard
                 }
                 else { fritzXMLmobile = "<number type=\"mobile\" />\n"; }
 
+                string fritzXMLfax = "";
+                
+                // add fax phone number
+                if (export_fax == true && CleanUpNumberHomeFax != "")
+                {
+                    { fritzXMLfax += "<number type=\"fax_work\">" + CleanUpNumberHomeFax + "</number>\n"; }
+                }
+                if (export_fax == true && CleanUpNumberWorkFax != "")
+                {
+                    { fritzXMLfax += "<number type=\"fax_work\">" + CleanUpNumberWorkFax + "</number>\n"; }
+                }
 
                 // actually add stuff we have prepared above
-                if (cfg_fritzWorkFirst == false)
-                {
+                if (combo_typeprefer.SelectedIndex == 0)
+                { // preferred is home for import/export
                     contactSB.Append(fritzXMLhome);
                     contactSB.Append(fritzXMLwork);
                 }
@@ -2426,6 +2801,7 @@ namespace Contact_Conversion_Wizard
                 }
                 
                 contactSB.Append(fritzXMLmobile);
+                contactSB.Append(fritzXMLfax);
 
 
 
@@ -2435,7 +2811,7 @@ namespace Contact_Conversion_Wizard
                 // depending on whether an eMail exists, add email or not
                 if (contactData.email != "")
                 {
-                    contactSB.Append("<email classifier=\"private\">" + contactData.email + "</email>");
+                    contactSB.Append("<email classifier=\"private\">" + Do_XML_replace(contactData.email) + "</email>");
                     contactSB.Append("<email />\n");
                 }
                 else
@@ -2454,7 +2830,7 @@ namespace Contact_Conversion_Wizard
             foreach (System.Collections.DictionaryEntry saveDataHash in MySaveDataHash)
             { resultSB.Append((string)saveDataHash.Value); }
 
-            // write file footer with AVM HD Music test stuff, currently not added. Not sure if thats a good idea to add this always.
+            // write file footer with AVM HD Music test stuff, currently not added. Not sure if it's a good idea to add this always.
             // resultstring += "<contact><category /><person><realName>~AVM-HD-Musik</realName></person><telephony><number\nprio=\"1\" type=\"home\" quickdial=\"98\">200@hd-telefonie.avm.de</number></telephony><services /><setup /></contact><contact><category /><person><realName>~AVM-HD-Sprache</realName></person><telephony><number\nprio=\"1\" type=\"home\" quickdial=\"99\">100@hd-telefonie.avm.de</number></telephony><services /><setup /></contact>";
             resultSB.Append("</phonebook>\n</phonebooks>");
 
@@ -2463,8 +2839,48 @@ namespace Contact_Conversion_Wizard
 
             // tell the user this has been done
             string errorwarning = "";
-            if (MySaveDataHash.Count > 300) { errorwarning = Environment.NewLine + "Warning: Over 300 contacts have been exported! This might or might not be officially supported by AVM's Fritz!Box and may cause problems. Proceed with care!"; }
+            if (MySaveDataHash.Count > 300) { errorwarning = Environment.NewLine + "Warning: Over 300 contacts have been exported! This might or might not be officially supported by AVM's Fritz!Box and may cause problems."; }
             MessageBox.Show(MySaveDataHash.Count + " contacts written to " + filename + " !" + Environment.NewLine + errorwarning);
+
+            if (textBox_PicPath.Text.Contains("fonpix-custom") == true && pics_actually_exported == true)
+            {
+                string targetPath = @"\\fritz.nas\FRITZ.NAS\FRITZ\fonpix-custom\";
+
+                DialogResult dialogResult = MessageBox.Show("Do you want CCW to try copying the contact pictures to " + targetPath + " ?" + Environment.NewLine + "This can only work if your windows user already has access rights to this network share!" + Environment.NewLine + "Existing files in this directory will be removed!", "Try copying pictures to \\\\FRITZ.NAS\\ ?", MessageBoxButtons.YesNo);
+
+                try
+                {
+
+                    if (dialogResult == DialogResult.Yes)
+                    {
+
+                        if (!System.IO.Directory.Exists(targetPath))
+                        {
+                            System.IO.Directory.CreateDirectory(targetPath);
+                        }
+
+                        foreach (FileInfo f in new DirectoryInfo(targetPath).GetFiles("*.jpg"))
+                        {
+                            f.Delete();
+                        }
+
+                        foreach (FileInfo f in new DirectoryInfo(pic_export_path).GetFiles("*.jpg"))
+                        {
+                            f.CopyTo(System.IO.Path.Combine(targetPath, f.Name), true);
+                        }
+
+                    }
+                    else if (dialogResult == DialogResult.No)
+                    {
+                        //do something else
+                    }
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show("Copying failed with exception: " + e.ToString());
+                }
+
+            }
 
         }
 
@@ -2492,14 +2908,14 @@ namespace Contact_Conversion_Wizard
                 string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, prefix_string);
 
                 // clean up the rest of the data
-                string CleanUpStreet = contactData.street.Replace("\\", "\\\\").Replace(";", "\\;").Replace(",", "\\,");
-                string CleanUpCity = contactData.city.Replace("\\", "\\\\").Replace(";", "\\;").Replace(",", "\\,");
-                string CleanUpZIP = contactData.zip.Replace("\\", "\\\\").Replace(";", "\\;").Replace(",", "\\,");
-                string CleanUpeMail = contactData.email.Replace("\\", "\\\\").Replace(";", "\\;").Replace(",", "\\,");
-                string CleanUpFirstName = contactData.firstname.Replace("\\", "\\\\").Replace(";", "\\;").Replace(",", "\\,");
-                string CleanUpLastName = contactData.lastname.Replace("\\", "\\\\").Replace(";", "\\;").Replace(",", "\\,");
-                string CleanUpCompany = contactData.company.Replace("\\", "\\\\").Replace(";", "\\;").Replace(",", "\\,");
-                string CleanUpCombined = contactData.combinedname.Replace("\\", "\\\\").Replace(";", "\\;").Replace(",", "\\,");
+                string CleanUpStreet = Do_VCARD_replace(contactData.street);
+                string CleanUpCity = Do_VCARD_replace(contactData.city);
+                string CleanUpZIP = Do_VCARD_replace(contactData.zip);
+                string CleanUpeMail = Do_VCARD_replace(contactData.email);
+                string CleanUpFirstName = Do_VCARD_replace(contactData.firstname);
+                string CleanUpLastName = Do_VCARD_replace(contactData.lastname);
+                string CleanUpCompany = Do_VCARD_replace(contactData.company);
+                string CleanUpCombined = Do_VCARD_replace(contactData.combinedname);
 
                 // if we only wish to export phone numbers => check if all relevant phone fields for this export are empty
                 if (export_only_phone == true && (CleanUpNumberHome == string.Empty && CleanUpNumberWork == string.Empty && CleanUpNumberMobile == string.Empty))
@@ -2596,7 +3012,101 @@ namespace Contact_Conversion_Wizard
             }
 
             // actually write the file to disk
-            System.IO.File.WriteAllText(filename, resultstring.ToString(), Encoding.Unicode);
+            System.IO.File.WriteAllText(filename, resultstring.ToString(), Encoding.UTF8);
+        }
+
+        private void save_data_vCard_Gigaset(string filename, System.Collections.Hashtable workDataHash)
+        {
+            // get the country ID from the combobox or from user input
+            string country_id = RetrieveCountryID(combo_prefix.SelectedItem.ToString());
+
+            System.Collections.Hashtable MySaveDataHash = new System.Collections.Hashtable();
+            foreach (System.Collections.DictionaryEntry contactHash in workDataHash)
+            {
+                // process with exporting
+                StringBuilder sb_resultstring = new StringBuilder();
+
+                // extract GroupDataList from hashtable contents
+                GroupDataContact contactData = (GroupDataContact)contactHash.Value;
+
+                string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
+
+                // clean up phone numbers
+                string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, prefix_string);
+                string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id, prefix_string);
+                string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, prefix_string);
+
+                // clean up the rest of the data
+                string CleanUpeMail = Do_VCARD_replace(contactData.email);
+
+                // limit to 16 chars (maximum for Gigaset DX600A)
+
+                string CleanUpFirstName = Do_VCARD_replace_Gigaset(LimitNameLength(contactData.firstname, 16, false, ""));
+                string CleanUpLastName = Do_VCARD_replace_Gigaset(LimitNameLength(contactData.lastname, 16, false, ""));
+                string CleanUpCombined = Do_VCARD_replace_Gigaset(LimitNameLength(contactData.combinedname, 16, false, ""));
+
+                // we only wish to export phone numbers for Gigaset (plus email) => check if all relevant phone fields for this export are empty and quit if so
+                if (CleanUpNumberHome == string.Empty && CleanUpNumberWork == string.Empty && CleanUpNumberMobile == string.Empty)
+                {
+                    // MessageBox.Show("Contact |" + CleanUpCombined + "| ignored, due to missing numbers");
+                    // if yes, abort this foreach loop and contine to the next one
+                    continue;
+                }
+
+                sb_resultstring.AppendLine("BEGIN:VCARD");
+                sb_resultstring.AppendLine("VERSION:2.1");
+
+                // if we have chosen to not have a company or if the company string is empty, export lastname and firstname separately
+                if (combo_namestyle.SelectedItem.ToString().Contains("Company") == true && contactData.company != "")
+                {
+                    sb_resultstring.AppendLine("N:" + CleanUpCombined + ";");
+                }
+                else
+                {
+                    sb_resultstring.AppendLine("N:" + CleanUpLastName + ";" + CleanUpFirstName);
+                }
+
+
+                // save home phone number
+                if (CleanUpNumberHome != string.Empty)
+                {
+                    { sb_resultstring.AppendLine("TEL;HOME:" + CleanUpNumberHome); }
+                }
+
+                // save work phone number
+                if (CleanUpNumberWork != string.Empty)
+                {
+                    { sb_resultstring.AppendLine("TEL;WORK:" + CleanUpNumberWork); }
+                }
+
+                // save mobile phone number
+                if (CleanUpNumberMobile != string.Empty)
+                {
+                    { sb_resultstring.AppendLine("TEL;CELL:" + CleanUpNumberMobile); }
+                }
+
+                // save email
+                if (CleanUpeMail != string.Empty)
+                {
+                    sb_resultstring.AppendLine("EMAIL:" + CleanUpeMail);
+                }
+
+                sb_resultstring.AppendLine("END:VCARD");
+
+                // add contact line
+                add_nr_to_hash(ref MySaveDataHash, contactData.combinedname, sb_resultstring.ToString(), contactData.combinedname);
+
+            } // end of foreach loop for the contacts
+
+            StringBuilder resultstring = new StringBuilder();
+            // retrieve stuff from hastable and put in resultstring:
+            foreach (System.Collections.DictionaryEntry saveDataHash in MySaveDataHash)
+            {
+                resultstring.Append((string)saveDataHash.Value);
+            }
+
+            // actually write the file to disk
+            System.IO.File.WriteAllText(filename, resultstring.ToString(), utf8WithoutBom);
         }
 
         private void save_data_FritzAdress(string filename, System.Collections.Hashtable workDataHash, bool only_export_fax)
@@ -2618,22 +3128,22 @@ namespace Contact_Conversion_Wizard
                 // extract GroupDataList from hashtable contents
                 GroupDataContact contactData = (GroupDataContact)contactHash.Value;
 
-                // check if both relevant fax fields for this export are empty - AND we only wish to export those who have faxnumbers
-                if (contactData.homefax == string.Empty && contactData.workfax == string.Empty && (only_export_fax == true))
-                {
-                    // if yes, abort this foreach loop and contine to the next one
-                    continue;
-                }
-
-                string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
-
                 // clean up phone numbers
+                string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
                 string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, prefix_string);
                 string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id, prefix_string);
                 string CleanUpNumberHomefax = CleanUpNumber(contactData.homefax, country_id, prefix_string);
                 string CleanUpNumberWorkfax = CleanUpNumber(contactData.workfax, country_id, prefix_string);
                 string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, prefix_string);
 
+                // check if both relevant fax fields for this export are empty - AND we only wish to export those who have faxnumbers
+                if (CleanUpNumberHomefax == string.Empty && CleanUpNumberWorkfax == string.Empty && (only_export_fax == true))
+                {
+                    // if yes, abort this foreach loop and contine to the next one
+                    continue;
+                }
+
+               
                 string[,] save_iterate_array;
 
 
@@ -2705,27 +3215,23 @@ namespace Contact_Conversion_Wizard
                 // extract GroupDataList from hashtable contents
                 GroupDataContact contactData = (GroupDataContact)contactHash.Value;
 
-                //  check if all relevant phone numbers for this export here are empty
-                if (contactData.home == string.Empty && contactData.work == string.Empty && contactData.mobile == string.Empty)
-                { continue; /* if yes, abort this foreach loop and contine to the next one */ }
-
-                string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
-
                 // clean up phone number
+                string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
                 string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, prefix_string);
                 string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id, prefix_string);
                 string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, prefix_string);
 
+
+                //  check if all relevant phone numbers for this export here are empty
+                if (CleanUpNumberHome == string.Empty && CleanUpNumberWork == string.Empty && CleanUpNumberMobile == string.Empty)
+                { continue; /* if yes, abort this foreach loop and contine to the next one */ }
+
                 // add privat/gesch. to name if necessary (if two entries for one name necessary)
-                string name_home = contactData.combinedname;
-                string name_work = contactData.combinedname;
-                string name_mobile = contactData.combinedname;
-                
                 bool separate_entries = CheckIfSeparateEntries(CleanUpNumberHome, CleanUpNumberWork, CleanUpNumberMobile);
-                
-                name_home = LimitNameLength(name_home, 31, separate_entries, " H");
-                name_work = LimitNameLength(name_work, 31, separate_entries, " W");
-                name_mobile = LimitNameLength(name_mobile, 31, separate_entries, " M");
+
+                string name_home = LimitNameLength(contactData.combinedname, 31, separate_entries, " H");
+                string name_work = LimitNameLength(contactData.combinedname, 31, separate_entries, " W");
+                string name_mobile = LimitNameLength(contactData.combinedname, 31, separate_entries, " M");
 
                 // write contact line if not empty
                 if (CleanUpNumberHome != "") add_nr_to_hash(ref MySaveDataHash, name_home, "\"" + name_home + "\",\"" + CleanUpNumberHome + "\"\r\n", contactData.combinedname);
@@ -2742,7 +3248,6 @@ namespace Contact_Conversion_Wizard
             }
 
             // actually write the file to disk
-            System.Text.Encoding utf8WithoutBom = new System.Text.UTF8Encoding(false);
             System.IO.File.WriteAllText(filename, resultSB.ToString(), utf8WithoutBom);
         }
 
@@ -2756,21 +3261,22 @@ namespace Contact_Conversion_Wizard
 
             System.Collections.Hashtable MySaveDataHash = new System.Collections.Hashtable();
 
+            int master_id = 100000;
+
             foreach (System.Collections.DictionaryEntry contactHash in workDataHash)
             {
                 // extract GroupDataList from hashtable contents
                 GroupDataContact contactData = (GroupDataContact)contactHash.Value;
 
-                //  check if all relevant phone numbers for this export here are empty
-                if (contactData.home == string.Empty && contactData.work == string.Empty && contactData.mobile == string.Empty)
-                { continue; /* if yes, abort this foreach loop and contine to the next one */ }
-
-                string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
-
                 // clean up phone number
+                string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
                 string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, prefix_string);
                 string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id, prefix_string);
                 string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, prefix_string);
+
+                //  check if all relevant phone numbers for this export here are empty
+                if (CleanUpNumberHome == string.Empty && CleanUpNumberWork == string.Empty && CleanUpNumberMobile == string.Empty)
+                { continue; /* if yes, abort this foreach loop and contine to the next one */ }
 
                 // limit full name to 31 chars
                 string name_contact = LimitNameLength(contactData.combinedname, 31, false, "");
@@ -2872,8 +3378,10 @@ namespace Contact_Conversion_Wizard
                 if (phone_numbers > 1)
                 {
 
+                    master_id = master_id + 1;
+
                     out_string += "\"" + name_contact
-                                        + sep + phones[0, 1]
+                                        + sep + master_id.ToString("D8")
                                         + sep + "MASTER"
                                         + sep + string.Empty
                                         + sep + contactData.firstname
@@ -2898,7 +3406,7 @@ namespace Contact_Conversion_Wizard
                                                     + sep + phones[i, 2] // add vip if VIP
                                                     + sep + string.Empty
                                                     + sep + "Member_Alias"
-                                                    + sep + phones[0, 1] // main number
+                                                    + sep + master_id.ToString("D8") // master id for association with main contact
                                                     + sep + string.Empty
                                                     + sep + string.Empty
                                                     + sep + string.Empty
@@ -2936,7 +3444,7 @@ namespace Contact_Conversion_Wizard
                 }
 
                 // write contact line
-                if (CleanUpNumberHome != "") add_nr_to_hash(ref MySaveDataHash, name_contact, out_string, contactData.combinedname);
+                add_nr_to_hash(ref MySaveDataHash, name_contact, out_string, contactData.combinedname);
 
             } // end of foreach loop for the contacts
 
@@ -2947,7 +3455,6 @@ namespace Contact_Conversion_Wizard
             }
 
             // actually write the file to disk
-            System.Text.Encoding utf8WithoutBom = new System.Text.UTF8Encoding(false);
             System.IO.File.WriteAllText(filename, resultSB.ToString(), utf8WithoutBom);
 
         }
@@ -2970,16 +3477,15 @@ namespace Contact_Conversion_Wizard
                 // extract GroupDataList from hashtable contents
                 GroupDataContact contactData = (GroupDataContact)contactHash.Value;
 
-                //  check if all relevant phone numbers for this export here are empty
-                if (contactData.home == string.Empty && contactData.work == string.Empty && contactData.mobile == string.Empty)
-                { continue; /* if yes, abort this foreach loop and contine to the next one */ }
-
-                string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
-
                 // clean up phone number
+                string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
                 string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, prefix_string);
                 string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id, prefix_string);
                 string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, prefix_string);
+                
+                //  check if all relevant phone numbers for this export here are empty
+                if (CleanUpNumberHome == string.Empty && CleanUpNumberWork == string.Empty && CleanUpNumberMobile == string.Empty)
+                { continue; /* if yes, abort this foreach loop and contine to the next one */ }
 
                 // add privat/gesch. to name if necessary (if seperate entries for one name necessary) - and remove "," because talk&surf can't handle it properly
                 string name_home = contactData.combinedname.Replace(",", "");
@@ -3025,16 +3531,15 @@ namespace Contact_Conversion_Wizard
                 // extract GroupDataList from hashtable contents
                 GroupDataContact contactData = (GroupDataContact)contactHash.Value;
 
-                //  check if all relevant phone numbers for this export here are empty
-                if (contactData.home == string.Empty && contactData.work == string.Empty && contactData.mobile == string.Empty)
-                { continue; /* if yes, abort this foreach loop and contine to the next one */ }
-
-                string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
-
                 // clean up phone number
+                string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
                 string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, prefix_string);
                 string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id, prefix_string);
                 string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, prefix_string);
+
+                //  check if all relevant phone numbers for this export here are empty
+                if (CleanUpNumberHome == string.Empty && CleanUpNumberWork == string.Empty && CleanUpNumberMobile == string.Empty)
+                { continue; /* if yes, abort this foreach loop and contine to the next one */ }
 
                 bool separate_entries = CheckIfSeparateEntries(CleanUpNumberHome, CleanUpNumberWork, CleanUpNumberMobile);
 
@@ -3057,7 +3562,6 @@ namespace Contact_Conversion_Wizard
             }
 
             // actually write the file to disk
-            System.Text.Encoding utf8WithoutBom = new System.Text.UTF8Encoding(false);
             System.IO.File.WriteAllText(filename, resultSB.ToString(), utf8WithoutBom);
 
         }
@@ -3082,16 +3586,15 @@ namespace Contact_Conversion_Wizard
                 // extract GroupDataList from hashtable contents
                 GroupDataContact contactData = (GroupDataContact)contactHash.Value;
 
-                //  check if all relevant phone numbers for this export here are empty
-                if (contactData.home == string.Empty && contactData.work == string.Empty && contactData.mobile == string.Empty)
-                { continue; /* if yes, abort this foreach loop and contine to the next one */ }
-
-                string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
-
                 // clean up phone number
+                string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
                 string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, prefix_string);
                 string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id, prefix_string);
                 string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, prefix_string);
+
+                //  check if all relevant phone numbers for this export here are empty
+                if (CleanUpNumberHome == string.Empty && CleanUpNumberWork == string.Empty && CleanUpNumberMobile == string.Empty)
+                { continue; /* if yes, abort this foreach loop and contine to the next one */ }
 
                 string qd_home = "";
                 string qd_work = "";
@@ -3175,9 +3678,6 @@ namespace Contact_Conversion_Wizard
                 // extract GroupDataList from hashtable contents
                 GroupDataContact contactData = (GroupDataContact)contactHash.Value;
 
-                // check if all relevant phone numbers for this export here are empty
-                if (contactData.home == string.Empty && contactData.work == string.Empty && contactData.mobile == string.Empty)
-                { continue; /* if yes, abort this foreach loop and contine to the next one */ }
 
                 // clean up phone number
                 string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
@@ -3185,16 +3685,30 @@ namespace Contact_Conversion_Wizard
                 string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id, prefix_string);
                 string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, prefix_string);
 
-                //  limit to 32 chars (unsure if correct value)
-                string SaveAsName = LimitNameLength(contactData.combinedname, 32, false, "");
+                // check if all relevant phone numbers for this export here are empty
+                if (CleanUpNumberHome == string.Empty && CleanUpNumberWork == string.Empty && CleanUpNumberMobile == string.Empty)
+                { continue; /* if yes, abort this foreach loop and contine to the next one */ }
 
-                // XML replacements
-                SaveAsName = Do_XML_replace(SaveAsName);
 
-                string str_1_name = "    <Contact>\n"
+                //  limit to 32 chars (unsure if correct value) and XML replacements
+                string SaveAsName = Do_XML_replace(LimitNameLength(contactData.combinedname, 32, false, ""));
+                string FirstName = Do_XML_replace(LimitNameLength(contactData.firstname, 32, false, ""));
+                string LastName = Do_XML_replace(LimitNameLength(contactData.lastname, 32, false, ""));
+
+                string str_1_name = "";
+                // if we have chosen to not have a company or if the company string is empty, export lastname and firstname separately
+                if (combo_namestyle.SelectedItem.ToString().Contains("Company") == true && contactData.company != "")
+                {
+                    str_1_name = "    <Contact>\n"
                                   + "        <FirstName></FirstName>\n"
                                   + "        <LastName>" + SaveAsName + "</LastName>\n";
-
+                }
+                else
+                {
+                    str_1_name = "    <Contact>\n"
+                                  + "        <FirstName>" + FirstName + "</FirstName>\n"
+                                  + "        <LastName>" + LastName + "</LastName>\n";
+                }
 
                 string str_3_end = "    </Contact>\n";
 
@@ -3262,24 +3776,20 @@ namespace Contact_Conversion_Wizard
             // initialize hashtable to store generated data results
             System.Collections.Hashtable MySaveDataHash = new System.Collections.Hashtable();
 
-            int num_export = 0;
-            int limit_export = 250; // this value was determined using trial and error, 250 worked, 300 didn't, even larger numbers crashed the phone completely
-
             foreach (System.Collections.DictionaryEntry contactHash in workDataHash)
             {
                 // extract GroupDataList from hashtable contents
                 GroupDataContact contactData = (GroupDataContact)contactHash.Value;
 
-                //  check if all relevant phone numbers for this export here are empty
-                if (contactData.home == string.Empty && contactData.work == string.Empty && contactData.mobile == string.Empty)
-                { continue; /* if yes, abort this foreach loop and contine to the next one */ }
-
-                string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
-
                 // clean up phone number
+                string prefix_string = (cfg_prefixNONFB == true) ? contactData.FRITZprefix : string.Empty;
                 string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, prefix_string);
                 string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id, prefix_string);
                 string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, prefix_string);
+
+                //  check if all relevant phone numbers for this export here are empty
+                if (CleanUpNumberHome == string.Empty && CleanUpNumberWork == string.Empty && CleanUpNumberMobile == string.Empty)
+                { continue; /* if yes, abort this foreach loop and contine to the next one */ }
 
                 bool separate_entries = CheckIfSeparateEntries(CleanUpNumberHome, CleanUpNumberWork, CleanUpNumberMobile);
                 
@@ -3305,14 +3815,14 @@ namespace Contact_Conversion_Wizard
                              + "    </Contact>\n";
 
                 // write contact line if not empty
-                if (CleanUpNumberHome != "" && num_export < limit_export)
-                { add_nr_to_hash(ref MySaveDataHash, name_home, str_1 + name_home + str_2 + CleanUpNumberHome + str_3, contactData.combinedname); num_export++; }
+                if (CleanUpNumberHome != "")
+                { add_nr_to_hash(ref MySaveDataHash, name_home, str_1 + name_home + str_2 + CleanUpNumberHome + str_3, contactData.combinedname); }
 
-                if (CleanUpNumberWork != "" && num_export < limit_export)
-                { add_nr_to_hash(ref MySaveDataHash, name_work, str_1 + name_work + str_2 + CleanUpNumberWork + str_3, contactData.combinedname); num_export++; }
+                if (CleanUpNumberWork != "")
+                { add_nr_to_hash(ref MySaveDataHash, name_work, str_1 + name_work + str_2 + CleanUpNumberWork + str_3, contactData.combinedname); }
 
-                if (CleanUpNumberMobile != "" && num_export < limit_export)
-                { add_nr_to_hash(ref MySaveDataHash, name_mobile, str_1 + name_mobile + str_2 + CleanUpNumberMobile + str_3, contactData.combinedname); num_export++; }
+                if (CleanUpNumberMobile != "")
+                { add_nr_to_hash(ref MySaveDataHash, name_mobile, str_1 + name_mobile + str_2 + CleanUpNumberMobile + str_3, contactData.combinedname); }
 
             } // end of foreach loop for the contacts
 
@@ -3327,9 +3837,7 @@ namespace Contact_Conversion_Wizard
             System.IO.File.WriteAllText(filename, resultSB.ToString(), Encoding.GetEncoding("ISO-8859-1"));
 
             // tell the user this has been done
-            string errorwarning = "";
-            if (num_export == limit_export) { errorwarning = Environment.NewLine + "Warning: Only " + num_export + " contacts have been exported! The GXP-2000 probably does not support more than 250!"; }
-            MessageBox.Show(MySaveDataHash.Count + " contacts written to " + filename + " !" + Environment.NewLine + errorwarning);
+            MessageBox.Show(MySaveDataHash.Count + " contacts written to " + filename + " !");
         }
 
 
@@ -3404,7 +3912,6 @@ namespace Contact_Conversion_Wizard
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_hideemptycols") { cfg_hideemptycols = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_adjustablecols") { cfg_adjustablecols = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_prefixNONFB") { cfg_prefixNONFB = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
-                    if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_fritzWorkFirst") { cfg_fritzWorkFirst = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_importOther") { cfg_importOther = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_DUPren") { cfg_DUPren = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_checkVersion") { cfg_checkVersion = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
@@ -3413,6 +3920,11 @@ namespace Contact_Conversion_Wizard
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "clean_slash") { clean_slash = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "clean_hyphen") { clean_hyphen = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "clean_xchar") { clean_xchar = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
+                    if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "clean_space") { clean_space = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
+                    if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "clean_squarebrackets") { clean_squarebrackets = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
+                    if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "clean_letters") { clean_letters = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
+                    if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "clean_addzeroprefix") { clean_addzeroprefix = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
+
 
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "combo_namestyle") { combo_namestyle.SelectedItem = ParseLine.Substring(ParseLine.IndexOf("\t") + 1); continue; }
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "combo_typeprefer") { combo_typeprefer.SelectedItem = ParseLine.Substring(ParseLine.IndexOf("\t") + 1); continue; }
@@ -3436,7 +3948,6 @@ namespace Contact_Conversion_Wizard
             sb.AppendLine("cfg_hideemptycols" + "\t" + cfg_hideemptycols.ToString());
             sb.AppendLine("cfg_adjustablecols" + "\t" + cfg_adjustablecols.ToString());
             sb.AppendLine("cfg_prefixNONFB" + "\t" + cfg_prefixNONFB.ToString());
-            sb.AppendLine("cfg_fritzWorkFirst" + "\t" + cfg_fritzWorkFirst.ToString());
             sb.AppendLine("cfg_importOther" + "\t" + cfg_importOther.ToString());
             sb.AppendLine("cfg_DUPren" + "\t" + cfg_DUPren.ToString());
             sb.AppendLine("cfg_checkVersion" + "\t" + cfg_checkVersion.ToString());
@@ -3445,6 +3956,10 @@ namespace Contact_Conversion_Wizard
             sb.AppendLine("clean_slash" + "\t" + clean_slash.ToString());
             sb.AppendLine("clean_hyphen" + "\t" + clean_hyphen.ToString());
             sb.AppendLine("clean_xchar" + "\t" + clean_xchar.ToString());
+            sb.AppendLine("clean_space" + "\t" + clean_space.ToString());
+            sb.AppendLine("clean_squarebrackets" + "\t" + clean_squarebrackets.ToString());
+            sb.AppendLine("clean_letters" + "\t" + clean_letters.ToString());
+            sb.AppendLine("clean_addzeroprefix" + "\t" + clean_addzeroprefix.ToString());
 
             sb.AppendLine("combo_namestyle" + "\t" + combo_namestyle.SelectedItem.ToString());
             sb.AppendLine("combo_typeprefer" + "\t" + combo_typeprefer.SelectedItem.ToString());
@@ -3647,6 +4162,9 @@ namespace Contact_Conversion_Wizard
 
             return responseData;
         }
+
+
+
 
 
 
