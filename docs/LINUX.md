@@ -19,9 +19,9 @@ Das WinForms Fenster ohne ordentliches Theme ist zwar nicht unbedingt schön anz
 Anleitung Stand 06/2014:
 
 * Er geht wieder! Man braucht:
-      * CCW 3.5.0.0 OS X
-      * XQuartz 2.7.6 (http://xquartz.macosforge.org/trac/wiki) - muss man vor Mono installieren!
-      * Mono MRE von http://www.go-mono.com/mono-downloads/download.html
+  * CCW 3.5.0.0 OS X
+  * XQuartz 2.7.6 (http://xquartz.macosforge.org/trac/wiki) - muss man vor Mono installieren!
+  * Mono MRE von http://www.go-mono.com/mono-downloads/download.html
 * Der erste Start vom CCW dauert ewig (>1 min) und er meint ständig er würde hängen im Activity Monitor. Irgendwann kommt er dann und ab dann geht er schnell auch über Beenden und wieder Starten hinweg.
 
 ![MacOS Screenshot, das den Contact Conversion Wizard v3.5.0.0 zeigt: Ein GUI Fenster mit 3 Bereichen: Links: Daten laden; Mitte: Daten ansehen; Rechts: Daten abspeichern](../img/Contact%20Conversion%20Wizard%20v3.5.0.0%20-%20MacOSX.png)
