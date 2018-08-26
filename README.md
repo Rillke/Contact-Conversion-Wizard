@@ -14,7 +14,7 @@ Das Programm ist in C# geschrieben (Lizenz GPLv3). Binaries (`.exe`) zum Herunte
 
 ## Screenshot
 
-![Windows 7 Screenshot, das den Contact Conversion Wizard v3.0.0.4 zeigt: Ein GUI Fenster mit 3 Bereichen: Links: Daten laden; Mitte: Daten ansehen; Rechts: Daten abspeichern](img/Contact Conversion Wizard v3.0.0.4 - Windows.jpg)
+![Windows 7 Screenshot, das den Contact Conversion Wizard v3.0.0.4 zeigt: Ein GUI Fenster mit 3 Bereichen: Links: Daten laden; Mitte: Daten ansehen; Rechts: Daten abspeichern](img/Contact%20Conversion%20Wizard%20v3.0.0.4%20-%20Windows.jpg)
 
 ## Abhängigkeiten
 
@@ -26,6 +26,6 @@ Andere: Siehe [Linux](/docs/LINUX.md)
 | Tool                                                                             | Programmiersprache / Plattform                                          | Web-Version                                  | Import                                                         | Export                                                                                                                             | Lizenz |
 |----------------------------------------------------------------------------------|-------------------------------------------------------------------------|----------------------------------------------|----------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|--------|
 | [Contact-Conversion-Wizard](https://github.com/Rillke/Contact-Conversion-Wizard) | C# bevorzugt Windows; MacOS und Linux ggf. möglich                      | -                                            | Outlook, Fritz!Box XML, vCard, Fritz!Adr, CSV, Google Contacts | Outlook, Fritz!Box XML, vCard, Fritz!Adr, Snom v7, Snom v8, Gigaset Talk&Surf CSV, Asstra, Grandstream, Auerswald, Google Contacts | GPLv3  |
-| [fritzXML2vcard](https://github.com/Rillke/fritzXML2vcard)                       | JavaScript - Node.js Nahezu alle Betriebssysteme; Web-Version verfügbar | [+](https://blog.rillke.com/fritzXML2vcard/) | Fritz!Box XML                                                  | vCard(s)                                                                                                                           | MIT    |
+| [fritzXML2vcard](https://github.com/Rillke/fritzXML2vcard)                       | JavaScript - Node.js Nahezu alle Betriebssysteme                        | [verfügbar](https://blog.rillke.com/fritzXML2vcard/) | Fritz!Box XML                                                  | vCard(s)                                                                                                                           | MIT    |
 | [vcard2fritzXML](https://github.com/berkholz/vcard2fritzXML)                     | Java Nahezu alle Betriebssysteme                                        | -                                            | vCard                                                          | Fritz!Box XML                                                                                                                      | GPLv2  |
 

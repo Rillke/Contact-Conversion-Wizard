@@ -12,7 +12,7 @@ Anleitung Stand 11/2013:
 
 Das WinForms Fenster ohne ordentliches Theme ist zwar nicht unbedingt schön anzusehen, aber volle Funktionalität scheint mir gegeben zu sein. "&" Zeichen in der Tabelle wird nicht korrekt dargestellt (stattdessen "_"), im XML Ausgabefile war es allerdings ok. Sollte also eigentlich alles gehen. Outlook Import natürlich nicht mangels Outlook unter Linux.
 
-![OpenSuse Screenshot, das den Contact Conversion Wizard v3.5.0.0 zeigt: Ein GUI Fenster mit 3 Bereichen: Links: Daten laden; Mitte: Daten ansehen; Rechts: Daten abspeichern](../img/Contact Conversion Wizard v3.5.0.0 - OpenSuse 13.1.jpg)
+![OpenSuse Screenshot, das den Contact Conversion Wizard v3.5.0.0 zeigt: Ein GUI Fenster mit 3 Bereichen: Links: Daten laden; Mitte: Daten ansehen; Rechts: Daten abspeichern](../img/Contact%20Conversion%20Wizard%20v3.5.0.0%20-%20OpenSuse%2013.1.jpg)
 
 ## MacOS X
 
@@ -24,5 +24,5 @@ Anleitung Stand 06/2014:
       * Mono MRE von http://www.go-mono.com/mono-downloads/download.html
 * Der erste Start vom CCW dauert ewig (>1 min) und er meint ständig er würde hängen im Activity Monitor. Irgendwann kommt er dann und ab dann geht er schnell auch über Beenden und wieder Starten hinweg.
 
-![MacOS Screenshot, das den Contact Conversion Wizard v3.5.0.0 zeigt: Ein GUI Fenster mit 3 Bereichen: Links: Daten laden; Mitte: Daten ansehen; Rechts: Daten abspeichern](../img/Contact Conversion Wizard v3.5.0.0 - MacOSX.png)
+![MacOS Screenshot, das den Contact Conversion Wizard v3.5.0.0 zeigt: Ein GUI Fenster mit 3 Bereichen: Links: Daten laden; Mitte: Daten ansehen; Rechts: Daten abspeichern](../img/Contact%20Conversion%20Wizard%20v3.5.0.0%20-%20MacOSX.png)
 
