@@ -1,6 +1,8 @@
 # Contact-Conversion-Wizard
 
-Programm um auf einfache Weise Kontaktlisten zwischen verschiedenen Programmen/Geräten zu konvertieren
+Programm, welches auf einfache Weise Kontaktlisten zwischen verschiedenen Programmen/Geräten konvertiert.
+
+Dieses Programm sucht **Mitwirkende**. Auch gelegentliche Patches (Tests, CI, Weiterentwicklung, Build/Projekt-Datei) und Dokumentation sind Willkommen.
 
 ## Einsatzzweck
 
@@ -20,6 +22,10 @@ Das Programm ist in C# geschrieben (Lizenz GPLv3). Binaries (`.exe`) zum Herunte
 
 Windows: [.NET Runtime v4](https://www.microsoft.com/de-de/download/details.aspx?id=17718)
 Andere: Siehe [Linux](/docs/LINUX.md)
+
+## Autor, Contributing, Mitmachen
+
+Gerald Hopf entwickelte und stellte das Tool bis Mitte 2016 auf seiner Website zur Verfügung. Im [ip-phone-forum](https://www.ip-phone-forum.de/threads/contact-conversion-wizard.209976/page-44#post-2209489) wurde über einen Fork nachgedacht. Here it is.
 
 ## Weitere Tool
 
