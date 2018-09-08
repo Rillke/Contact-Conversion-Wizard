@@ -27,7 +27,7 @@ Andere: Siehe [Linux](/docs/LINUX.md)
 
 Gerald Hopf entwickelte und stellte das Tool bis Mitte 2016 auf seiner Website zur Verfügung. Im [ip-phone-forum](https://www.ip-phone-forum.de/threads/contact-conversion-wizard.209976/page-44#post-2209489) wurde über einen Fork nachgedacht. Here it is.
 
-## Weitere Tool
+## Weitere Tools
 
 | Tool                                                                             | Programmiersprache / Plattform                                          | Web-Version                                  | Import                                                         | Export                                                                                                                             | Lizenz |
 |----------------------------------------------------------------------------------|-------------------------------------------------------------------------|----------------------------------------------|----------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|--------|
