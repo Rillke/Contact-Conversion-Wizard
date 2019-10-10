@@ -496,7 +496,7 @@ namespace Contact_Conversion_Wizard
             // these two must explicitly not be replaced on the dx600a
             // ret_val = ret_val.Replace(",", "\\,");
             // ret_val = ret_val.Replace(":", "\\:");
-            
+
             // no newlines in gigaset
             ret_val = ret_val.Replace("\r\n", ""); // this has to be done first since it's more specific
             ret_val = ret_val.Replace("\n", ""); // this has to be done later
@@ -921,7 +921,7 @@ namespace Contact_Conversion_Wizard
             update_datagrid();
 
             disable_buttons(false);
-        }   // just click handler                       
+        }   // just click handler
 
         private void btn_read_googleContacts_Click(object sender, EventArgs e)
         {
@@ -1027,7 +1027,7 @@ namespace Contact_Conversion_Wizard
 
             // sucessfully connected to outlook, do some further setup work
             Microsoft.Office.Interop.Outlook.NameSpace outlookNS = outlookObj.GetNamespace("MAPI");
-            
+
             // if the user had shift pressed, allow him to select a custom folder. If not, select the default folder.
             if (customfolder == false)
             {
@@ -1107,7 +1107,7 @@ namespace Contact_Conversion_Wizard
                     { // prefer storing as home
                         if (myContact.home == string.Empty) { myContact.home = myContactItem.OtherTelephoneNumber; }
                         else if (myContact.work == string.Empty) { myContact.work = myContactItem.OtherTelephoneNumber; }
-                    }     
+                    }
                     if (combo_typeprefer.SelectedIndex == 1)
                     { // prefer storing as work
                         if (myContact.work == string.Empty) { myContact.work = myContactItem.OtherTelephoneNumber; }
@@ -1173,7 +1173,7 @@ namespace Contact_Conversion_Wizard
 
             // set default in case we don't find something in the first line
             System.Text.Encoding fritzXMLreadencoding = utf8WithoutBom;
-            
+
             if (line1.Contains("encoding=\"utf-8\"") == true)           { fritzXMLreadencoding = utf8WithoutBom; }
             else if (line1.Contains("encoding=\"iso-8859-1\"") == true) { fritzXMLreadencoding = Encoding.GetEncoding("ISO-8859-1"); }
             else                                                        { MessageBox.Show("Unable to determine file encoding from header, defaulting to: " + fritzXMLreadencoding.EncodingName.ToString()); }
@@ -1255,7 +1255,7 @@ namespace Contact_Conversion_Wizard
                             }
                             continue;
                         }
-                        
+
                         // if we are still here, there is an attribute we don't know about
                         parsing_errors += "Unknown XML Attribute: " + r.GetAttribute("type") + "=" + r.ReadElementContentAsString();
                         continue;
@@ -1643,7 +1643,7 @@ namespace Contact_Conversion_Wizard
             {
                 crashed = true;
                 string crash_cause = vcard_exception.ToString().Replace(Environment.NewLine, " ");
-                if (crash_cause.IndexOf("(") != -1) // make error cause more concise 
+                if (crash_cause.IndexOf("(") != -1) // make error cause more concise
                 {
                     crash_cause = crash_cause.Substring(0, crash_cause.IndexOf("("));
                 }
@@ -1699,7 +1699,7 @@ namespace Contact_Conversion_Wizard
                     // 7: ORT                               // 12: TERMINAL
                     // 9: TELEFON                           // 11: TRANSFER
                     // 10: TELEFAX                          // 8: KOMMENT (ok we use that now)
-                    // 18: MOBILFON                         // 4: ABTEILUNG 
+                    // 18: MOBILFON                         // 4: ABTEILUNG
                     #endregion
 
                     myContact.combinedname = cDataArray[0];
@@ -1721,9 +1721,9 @@ namespace Contact_Conversion_Wizard
                     int wheretostore = combo_typeprefer.SelectedIndex;
                     // unless combinedname ends on (gesch.) or (privat), the override using that!
                     if (myContact.combinedname.EndsWith(" (privat)") == true)
-                    { wheretostore = 0; } // store as home 
+                    { wheretostore = 0; } // store as home
                     if (myContact.combinedname.EndsWith(" (gesch.)") == true)
-                    { wheretostore = 1; } // store as work 
+                    { wheretostore = 1; } // store as work
 
                     switch (wheretostore)
                     {
@@ -1859,7 +1859,7 @@ namespace Contact_Conversion_Wizard
 
             Feed<Contact> f = cr.GetContacts();
 
-            
+
             // this is where the actual login/pass check happens
             string der_token = "";
             try
@@ -1877,9 +1877,9 @@ namespace Contact_Conversion_Wizard
                 MessageBox.Show("Google login failed with the following exception:" + Environment.NewLine + Environment.NewLine + exception_message);
                 return (new ReadDataReturn(duplicates));
             }
-                
 
-            List<string> ListSelectedGroups = new List<string>(); 
+
+            List<string> ListSelectedGroups = new List<string>();
 
             if (customfolder == true)
             {
@@ -1889,12 +1889,12 @@ namespace Contact_Conversion_Wizard
 
                 ImportGroupsChooser MyGoogleImportGroupsChooser = new ImportGroupsChooser("Please select the groups you want to import contacts from:", "Google Contact Group Chooser", ListAllGroups);
                 MyGoogleImportGroupsChooser.ShowDialog();
-                
+
                 foreach (string[] z in MyGoogleImportGroupsChooser.resultList)
                 {   // add group identifyer to selected groups list
                     ListSelectedGroups.Add(z[1]);
                 }
-                
+
                 MyGoogleImportGroupsChooser.Dispose();
             }
 
@@ -1911,8 +1911,8 @@ namespace Contact_Conversion_Wizard
                         myContact.company = (string.IsNullOrEmpty(entry.Organizations[0].Name)) ? string.Empty : entry.Organizations[0].Name;
                     }
 
-                    
-                    
+
+
                     if (customfolder == true)
                     {
                         bool is_member_of_selected_group = false;
@@ -2337,7 +2337,7 @@ namespace Contact_Conversion_Wizard
             save_data_googleContacts(myGroupDataHash, custom_google_pass);
             disable_buttons(false);
         }
-        
+
         private void btn_save_panasonicCSV_Click(object sender, EventArgs e)
         {
 
@@ -2383,7 +2383,7 @@ namespace Contact_Conversion_Wizard
                 string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, prefix_string);
                 string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id, prefix_string);
                 string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, prefix_string);
-                
+
                 //  check if all relevant clean phone numbers for this export here are empty
                 if (CleanUpNumberHome == string.Empty && CleanUpNumberWork == string.Empty && CleanUpNumberMobile == string.Empty)
                 { continue; /* if yes, abort this foreach loop and contine to the next one */ }
@@ -2404,7 +2404,7 @@ namespace Contact_Conversion_Wizard
 
                 //maybe one day add possibility for menaingful mapping of groups. use constant 1 for the moment
                 string contactgroup = "1";
-                
+
                 try
                 {
                     MySaveDataHash.Add(name_home, "\"" + name_home + "\"" + sep + contactgroup + sep + numbers.Aggregate((current, next) => current + sep + next) + "\n");
@@ -2452,9 +2452,9 @@ namespace Contact_Conversion_Wizard
                 return;
             }
 
-            
-            
-            
+
+
+
             // List that holds the batch request entries.
             List<Contact> requestFeed = new List<Contact>();
 
@@ -2487,7 +2487,7 @@ namespace Contact_Conversion_Wizard
                 newEntry.Name = new Name() { FullName = contactData.combinedname, GivenName = contactData.firstname, FamilyName = contactData.lastname, }; // Set the contact's name.
                 if (contactData.company != "") newEntry.Organizations.Add(new Organization() { Primary = true, Rel = Google.GData.Extensions.ContactsRelationships.IsWork, Name = contactData.company });
                 if (contactData.email != "") newEntry.Emails.Add(new EMail() { Primary = true, Rel = ContactsRelationships.IsHome, Address = contactData.email }); // Set the contact's e-mail addresses.
-                
+
                 // primary phone number
                 bool prefer_homephone = false;
                 bool prefer_workphone = false;
@@ -2777,7 +2777,7 @@ namespace Contact_Conversion_Wizard
                 else { fritzXMLmobile = "<number type=\"mobile\" />\n"; }
 
                 string fritzXMLfax = "";
-                
+
                 // add fax phone number
                 if (export_fax == true && CleanUpNumberHomeFax != "")
                 {
@@ -2799,7 +2799,7 @@ namespace Contact_Conversion_Wizard
                     contactSB.Append(fritzXMLwork);
                     contactSB.Append(fritzXMLhome);
                 }
-                
+
                 contactSB.Append(fritzXMLmobile);
                 contactSB.Append(fritzXMLfax);
 
@@ -3143,7 +3143,7 @@ namespace Contact_Conversion_Wizard
                     continue;
                 }
 
-               
+
                 string[,] save_iterate_array;
 
 
@@ -3482,7 +3482,7 @@ namespace Contact_Conversion_Wizard
                 string CleanUpNumberHome = CleanUpNumber(contactData.home, country_id, prefix_string);
                 string CleanUpNumberWork = CleanUpNumber(contactData.work, country_id, prefix_string);
                 string CleanUpNumberMobile = CleanUpNumber(contactData.mobile, country_id, prefix_string);
-                
+
                 //  check if all relevant phone numbers for this export here are empty
                 if (CleanUpNumberHome == string.Empty && CleanUpNumberWork == string.Empty && CleanUpNumberMobile == string.Empty)
                 { continue; /* if yes, abort this foreach loop and contine to the next one */ }
@@ -3491,9 +3491,9 @@ namespace Contact_Conversion_Wizard
                 string name_home = contactData.combinedname.Replace(",", "");
                 string name_work = contactData.combinedname.Replace(",", "");
                 string name_mobile = contactData.combinedname.Replace(",", "");
-                
+
                 bool separate_entries = CheckIfSeparateEntries(CleanUpNumberHome, CleanUpNumberWork, CleanUpNumberMobile);
-                
+
                 // limit to 16 chars and append if necessary
                 name_home = LimitNameLength(name_home, 16, separate_entries, " H");
                 name_work = LimitNameLength(name_work, 16, separate_entries, " W");
@@ -3633,7 +3633,7 @@ namespace Contact_Conversion_Wizard
                 }
 
                 bool separate_entries = CheckIfSeparateEntries(CleanUpNumberHome, CleanUpNumberWork, CleanUpNumberMobile);
-                
+
                 // limit to 31 chars
                 string name_home = LimitNameLength(contactData.combinedname, 31, separate_entries, " H").Replace(";", " ");
                 string name_work = LimitNameLength(contactData.combinedname, 31, separate_entries, " W").Replace(";", " ");
@@ -3792,7 +3792,7 @@ namespace Contact_Conversion_Wizard
                 { continue; /* if yes, abort this foreach loop and contine to the next one */ }
 
                 bool separate_entries = CheckIfSeparateEntries(CleanUpNumberHome, CleanUpNumberWork, CleanUpNumberMobile);
-                
+
                 // add Home/Work/Mobile to name if separate entries for one name necessary and limit to 20 chars
                 string name_home = LimitNameLength(contactData.combinedname, 20, separate_entries, " H");
                 string name_work = LimitNameLength(contactData.combinedname, 20, separate_entries, " W");
@@ -3991,7 +3991,7 @@ namespace Contact_Conversion_Wizard
         }
 
         private static byte[] GooglePhotoGet(ContactEntry contactoGoogle, string AuthToken)
-        { 
+        {
             System.Net.HttpWebResponse myResponse;
             System.Net.HttpWebRequest MyRq;
 
@@ -4006,7 +4006,7 @@ namespace Contact_Conversion_Wizard
 
             return data;
         }
-    
+
         public static byte[] ReadFully (System.IO.Stream stream, long initialLength)
     {
     // If we've been passed an unhelpful initial length, just
@@ -4015,27 +4015,27 @@ namespace Contact_Conversion_Wizard
     {
         initialLength = 32768;
     }
-    
+
     byte[] buffer = new byte[initialLength];
     int read=0;
-    
+
     int chunk;
     while ( (chunk = stream.Read(buffer, read, buffer.Length-read)) > 0)
     {
         read += chunk;
-        
+
         // If we've reached the end of our buffer, check to see if there's
         // any more information
         if (read == buffer.Length)
         {
             int nextByte = stream.ReadByte();
-            
+
             // End of stream? If so, we're done
             if (nextByte==-1)
             {
                 return buffer;
             }
-            
+
             // Nope. Resize the buffer, put in the byte we've just
             // read, and continue
             byte[] newBuffer = new byte[buffer.Length*2];
@@ -4105,8 +4105,8 @@ namespace Contact_Conversion_Wizard
             {
                 e.Result = "FAIL:" + ce.Message;
             }
-            
-            
+
+
         }
 
         private void backgroundWorker_updateCheck_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -4138,7 +4138,7 @@ namespace Contact_Conversion_Wizard
                 return;
             }
 
-            
+
         }
 
         private string DoWebRequest(string url)
@@ -4246,13 +4246,13 @@ namespace Contact_Conversion_Wizard
         string[] data_received;
 
 
-        public string postofficebox;    // 0: 
-        public string extendedaddress;  // 1: google: street+ \n\ 
+        public string postofficebox;    // 0:
+        public string extendedaddress;  // 1: google: street+ \n\
         public string streetaddress;    // 2:
         public string locality;         // 3: (e.g., city);
         public string region;           // 4: (e.g., state or province);
-        public string postalcode;       // 5: 
-        public string country;          // 6: 
+        public string postalcode;       // 5:
+        public string country;          // 6:
 
         public string parsed_street;    // aus 2 holen, falls leer aus 1 ?
         public string parsed_zip;       // aus 5 holen, falls leer aus 1 ?
