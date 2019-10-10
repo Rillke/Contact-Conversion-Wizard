@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.852
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contact-Conversion-Wizard", "Contact-Conversion-Wizard.csproj", "{FED6E532-82B7-4A96-A9FB-8914230651C4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FED6E532-82B7-4A96-A9FB-8914230651C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FED6E532-82B7-4A96-A9FB-8914230651C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FED6E532-82B7-4A96-A9FB-8914230651C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FED6E532-82B7-4A96-A9FB-8914230651C4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		RESX_NeutralResourcesLanguage = de-DE
+		SolutionGuid = {B5D2E9A0-B3D7-4595-81AC-3A05AD60F51A}
+	EndGlobalSection
+EndGlobal
