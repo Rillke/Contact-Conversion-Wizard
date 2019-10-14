@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EditConfiguration));
             this.lbl_configtitle = new System.Windows.Forms.Label();
             this.OPT_adjustcol = new System.Windows.Forms.CheckBox();
             this.OPT_hidecol = new System.Windows.Forms.CheckBox();
@@ -305,6 +306,7 @@
             this.Controls.Add(this.OPT_adjustcol);
             this.Controls.Add(this.OPT_hidecol);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "EditConfiguration";
             this.Text = "EditConfiguration";
