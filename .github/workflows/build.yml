@@ -1,0 +1,16 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@master
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '4.0.0' # SDK Version to use.
+    - run: dotnet build source/Contact-Conversion-Wizard.sln --configuration Release
+    - run: cd source/bin/Release/ && dir
