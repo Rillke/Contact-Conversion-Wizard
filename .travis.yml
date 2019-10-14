@@ -1,0 +1,4 @@
+script:
+- cd source
+language: csharp
+solution: Contact-Conversion-Wizard.sln
