@@ -8,9 +8,6 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '4.5.1'
     - uses: actions/checkout@master
     - run: Update-Package -reinstall
     - run: dotnet build source/Contact-Conversion-Wizard.sln --configuration Release --framework net40
