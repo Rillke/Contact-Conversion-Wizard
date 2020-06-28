@@ -3753,7 +3753,7 @@ namespace Contact_Conversion_Wizard
             resultSB.Append("</AddressBook>");
 
             // actually write the file to disk
-            System.IO.File.WriteAllText(filename, resultSB.ToString(), Encoding.GetEncoding("UTF-8"));
+            System.IO.File.WriteAllText(filename, resultSB.ToString(), Encoding.UTF8);
 
             // tell the user this has been done
             string errorwarning = "";
@@ -3771,7 +3771,7 @@ namespace Contact_Conversion_Wizard
             StringBuilder resultSB = new StringBuilder();
 
             // write the header
-            resultSB.Append("<?xml version=\"1.0\"?>\n<AddressBook>\n");
+            resultSB.Append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<AddressBook>\n");
 
             // initialize hashtable to store generated data results
             System.Collections.Hashtable MySaveDataHash = new System.Collections.Hashtable();
@@ -3834,7 +3834,7 @@ namespace Contact_Conversion_Wizard
             resultSB.Append("</AddressBook>\n");
 
             // actually write the file to disk
-            System.IO.File.WriteAllText(filename, resultSB.ToString(), Encoding.GetEncoding("ISO-8859-1"));
+            System.IO.File.WriteAllText(filename, resultSB.ToString(), Encoding.UTF8);
 
             // tell the user this has been done
             MessageBox.Show(MySaveDataHash.Count + " contacts written to " + filename + " !");
