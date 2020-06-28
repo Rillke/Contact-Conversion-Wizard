@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\ILRepack.2.0.18\build\ILRepack.props" Condition="Exists('packages\ILRepack.2.0.18\build\ILRepack.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -11,6 +12,25 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <SupportUrl>https://github.com/Rillke/Contact-Conversion-Wizard</SupportUrl>
+    <ProductName>Contact Conversion Wizard</ProductName>
+    <ApplicationRevision>1</ApplicationRevision>
+    <ApplicationVersion>3.5.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -30,6 +50,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>CCW-Large.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Google.GData.Client, Version=2.2.0.0, Culture=neutral, PublicKeyToken=04a59ca9b0273830, processorArchitecture=MSIL">
@@ -123,5 +146,25 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="CCW-Large.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\ILRepack.2.0.18\build\ILRepack.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\ILRepack.2.0.18\build\ILRepack.props'))" />
+  </Target>
+  <PropertyGroup>
+    <PostBuildEvent>del Contact Conversion Wizard.exe
+..\..\packages\ILRepack.2.0.18\tools\ILRepack.exe /out:"Contact Conversion Wizard.exe" Contact-Conversion-Wizard.exe Google.GData.Client.dll Google.GData.Contacts.dll Google.GData.Extensions.dll LumenWorks.Framework.IO.dll Newtonsoft.Json.dll</PostBuildEvent>
+  </PropertyGroup>
 </Project>
