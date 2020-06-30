@@ -3752,8 +3752,11 @@ namespace Contact_Conversion_Wizard
             // write file footer.
             resultSB.Append("</AddressBook>");
 
+            // Set Encoding to UTF-8 without BOM
+            System.Text.Encoding encoding = new System.Text.UTF8Encoding(false);
+
             // actually write the file to disk
-            System.IO.File.WriteAllText(filename, resultSB.ToString(), Encoding.UTF8);
+            System.IO.File.WriteAllText(filename, resultSB.ToString(), encoding);
 
             // tell the user this has been done
             string errorwarning = "";
@@ -3833,8 +3836,11 @@ namespace Contact_Conversion_Wizard
             // write file footer.
             resultSB.Append("</AddressBook>\n");
 
+            // Set Encoding to UTF-8 without BOM
+            System.Text.Encoding encoding = new System.Text.UTF8Encoding(false);
+
             // actually write the file to disk
-            System.IO.File.WriteAllText(filename, resultSB.ToString(), Encoding.UTF8);
+            System.IO.File.WriteAllText(filename, resultSB.ToString(), encoding);
 
             // tell the user this has been done
             MessageBox.Show(MySaveDataHash.Count + " contacts written to " + filename + " !");
