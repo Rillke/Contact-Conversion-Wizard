@@ -1,8 +1,8 @@
-# Contact-Conversion-Wizard
+# Contact-Conversion-Wizard [![Build Status](https://travis-ci.com/Rillke/Contact-Conversion-Wizard.svg?branch=master)](https://travis-ci.com/github/Rillke/Contact-Conversion-Wizard) ![Downloads](https://img.shields.io/github/downloads/Rillke/Contact-Conversion-Wizard/total.svg?style=flat) [![Latest Release](https://img.shields.io/github/v/release/Rillke/Contact-Conversion-Wizard.svg?logo=github)](https://github.com/tryallthethings/DNS-Swapper/releases)
 
 Programm, welches auf einfache Weise Kontaktlisten zwischen verschiedenen Programmen/Geräten konvertiert.
 
-Dieses Programm sucht **Mitwirkende**. Auch gelegentliche Patches (Tests, CI, Weiterentwicklung, Build/Projekt-Datei) und Dokumentation sind willkommen.
+Dieses Programm sucht **Mitwirkende**. Auch gelegentliche Patches (Tests, CI, Weiterentwicklung) und Dokumentation sind willkommen.
 
 ## Einsatzzweck
 
