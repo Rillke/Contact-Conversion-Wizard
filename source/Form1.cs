@@ -35,6 +35,10 @@ namespace Contact_Conversion_Wizard
         public static bool clean_letters = true;
         public static bool clean_addzeroprefix = false;
 
+        public static bool outlook_empty_number = false;
+        public static bool outlook_empty_name = false;
+
+        public static bool nextcloud_vcf_fix = false;
 
         public static bool cfg_DUPren = false;
         public static bool cfg_checkVersion = true;
@@ -1150,10 +1154,41 @@ namespace Contact_Conversion_Wizard
                 myContact.preferred = CheckPREFERflag(NotesBody);
                 myContact.FRITZprefix = CheckPREFIXflag(NotesBody);
 
-                if (myContact.combinedname != "" && (myContact.home != string.Empty || myContact.work != string.Empty || myContact.mobile != string.Empty || myContact.homefax != string.Empty || myContact.workfax != string.Empty) && (NotesBody.Contains("CCW-IGNORE") == false))
+
+                if (NotesBody.Contains("CCW-IGNORE"))
                 {
-                    addDataHash(ref duplicates, myContact);
+                    // skip contact
                 }
+                else
+                {
+                    // Export contacts with empty names and empty numbers
+                    if (outlook_empty_name && outlook_empty_number)
+                    {
+                        addDataHash(ref duplicates, myContact);
+                    }
+                    // Export contact with a name and empty number
+                    else if (!outlook_empty_name && myContact.combinedname != "" && outlook_empty_number)
+                    {
+                        addDataHash(ref duplicates, myContact);
+                    }
+                    // Export contact with a empty name and at least one number
+                    else if (outlook_empty_name && (myContact.home != string.Empty || myContact.work != string.Empty || myContact.mobile != string.Empty || myContact.homefax != string.Empty || myContact.workfax != string.Empty) && !outlook_empty_number)
+                    {
+                        addDataHash(ref duplicates, myContact);
+                    }
+                    // Export contacts with a name and at least one number
+                    else if (!outlook_empty_name && !outlook_empty_number && myContact.combinedname != "" && (myContact.home != string.Empty || myContact.work != string.Empty || myContact.mobile != string.Empty || myContact.homefax != string.Empty || myContact.workfax != string.Empty))
+                    {
+                        addDataHash(ref duplicates, myContact);
+                    }
+                }
+
+
+                //if (myContact.combinedname != "" && (myContact.home != string.Empty || myContact.work != string.Empty || myContact.mobile != string.Empty || myContact.homefax != string.Empty || myContact.workfax != string.Empty) && (NotesBody.Contains("CCW-IGNORE") == false))
+                //{
+                    //addDataHash(ref duplicates, myContact);
+                //}
+
             }
 
             return (new ReadDataReturn(duplicates));
@@ -1415,6 +1450,10 @@ namespace Contact_Conversion_Wizard
                         string telnumber = vParseValue;
 
                         string types = vParseOptions.ToLower().Replace("type=", "");
+                        if (nextcloud_vcf_fix)
+                        {
+                            types = types.Replace("\"", "");
+                        }
                         string[] typearray = types.Split(new char[] { ';', ',' });
 
                         bool bit_preferred = false;
@@ -2921,7 +2960,7 @@ namespace Contact_Conversion_Wizard
                 if (export_only_phone == true && (CleanUpNumberHome == string.Empty && CleanUpNumberWork == string.Empty && CleanUpNumberMobile == string.Empty))
                 {
                     // MessageBox.Show("Contact |" + CleanUpCombined + "| ignored, due to missing numbers");
-                    // if yes, abort this foreach loop and contine to the next one
+                    // if yes, abort this foreach loop and continue to the next one
                     continue;
                 }
 
@@ -3011,8 +3050,11 @@ namespace Contact_Conversion_Wizard
                 resultstring.Append((string)saveDataHash.Value);
             }
 
+            // Set Encoding to UTF-8 without BOM
+            System.Text.Encoding encoding = new System.Text.UTF8Encoding(false);
+
             // actually write the file to disk
-            System.IO.File.WriteAllText(filename, resultstring.ToString(), Encoding.UTF8);
+            System.IO.File.WriteAllText(filename, resultstring.ToString(), encoding);
         }
 
         private void save_data_vCard_Gigaset(string filename, System.Collections.Hashtable workDataHash)
@@ -3920,6 +3962,12 @@ namespace Contact_Conversion_Wizard
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_prefixNONFB") { cfg_prefixNONFB = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_importOther") { cfg_importOther = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_DUPren") { cfg_DUPren = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
+
+                    if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "outlook_empty_number") { outlook_empty_number = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
+                    if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "outlook_empty_name") { outlook_empty_name = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
+
+                    if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "checkBox_nextcloud_vcf_fix ") { nextcloud_vcf_fix = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
+
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "cfg_checkVersion") { cfg_checkVersion = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "clean_brackets") { clean_brackets = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
                     if (ParseLine.Substring(0, ParseLine.IndexOf("\t")) == "clean_hashkey") { clean_hashkey = Convert.ToBoolean(ParseLine.Substring(ParseLine.IndexOf("\t") + 1)); continue; }
@@ -3956,6 +4004,12 @@ namespace Contact_Conversion_Wizard
             sb.AppendLine("cfg_prefixNONFB" + "\t" + cfg_prefixNONFB.ToString());
             sb.AppendLine("cfg_importOther" + "\t" + cfg_importOther.ToString());
             sb.AppendLine("cfg_DUPren" + "\t" + cfg_DUPren.ToString());
+
+            sb.AppendLine("outlook_empty_number" + "\t" + outlook_empty_number.ToString());
+            sb.AppendLine("outlook_empty_name" + "\t" + outlook_empty_name.ToString());
+
+            sb.AppendLine("nextcloud_vcf_fix" + "\t" + nextcloud_vcf_fix.ToString());
+
             sb.AppendLine("cfg_checkVersion" + "\t" + cfg_checkVersion.ToString());
             sb.AppendLine("clean_brackets" + "\t" + clean_brackets.ToString());
             sb.AppendLine("clean_hashkey" + "\t" + clean_hashkey.ToString());
@@ -4061,11 +4115,11 @@ namespace Contact_Conversion_Wizard
         {
             if (((Control.ModifierKeys & Keys.Shift) == Keys.Shift) || (this.button_website.ForeColor == System.Drawing.Color.Green))
             { // shift is pressed
-                System.Diagnostics.Process.Start("http://software.nv-systems.net/ccw/download");
+                System.Diagnostics.Process.Start("https://github.com/Rillke/Contact-Conversion-Wizard/releases/latest");
             }
             else
             { // no shift pressed
-                System.Diagnostics.Process.Start("http://software.nv-systems.net/ccw");
+                System.Diagnostics.Process.Start("https://github.com/Rillke/Contact-Conversion-Wizard");
             }
 
         }
@@ -4074,11 +4128,11 @@ namespace Contact_Conversion_Wizard
         {
             if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift)
             { // shift is pressed
-                System.Diagnostics.Process.Start("www.ip-phone-forum.de/showthread.php?t=209976&goto=newpost");
+                System.Diagnostics.Process.Start("https://github.com/Rillke/Contact-Conversion-Wizard");
             }
             else
             { // no shift pressed
-                System.Diagnostics.Process.Start("www.ip-phone-forum.de/showthread.php?t=209976");
+                System.Diagnostics.Process.Start("https://github.com/Rillke/Contact-Conversion-Wizard/issues");
             }
         }
 
