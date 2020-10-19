@@ -52,6 +52,11 @@
             this.checkBox_cleanLetters = new System.Windows.Forms.CheckBox();
             this.label_google_hint = new System.Windows.Forms.Label();
             this.checkBox_cleanaddzeroprefix = new System.Windows.Forms.CheckBox();
+            this.label_Outlook = new System.Windows.Forms.Label();
+            this.checkBox_OutlookEmptyNumber = new System.Windows.Forms.CheckBox();
+            this.checkBox_OutlookEmptyName = new System.Windows.Forms.CheckBox();
+            this.label_Nextcloud = new System.Windows.Forms.Label();
+            this.checkBox_nextcloud_vfc_fix = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // lbl_configtitle
@@ -86,8 +91,9 @@
             // 
             // checkBox_cleanXchar
             // 
+            this.checkBox_cleanXchar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox_cleanXchar.AutoSize = true;
-            this.checkBox_cleanXchar.Location = new System.Drawing.Point(16, 310);
+            this.checkBox_cleanXchar.Location = new System.Drawing.Point(16, 404);
             this.checkBox_cleanXchar.Name = "checkBox_cleanXchar";
             this.checkBox_cleanXchar.Size = new System.Drawing.Size(69, 17);
             this.checkBox_cleanXchar.TabIndex = 8;
@@ -96,8 +102,9 @@
             // 
             // checkBox_cleanHyphen
             // 
+            this.checkBox_cleanHyphen.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox_cleanHyphen.AutoSize = true;
-            this.checkBox_cleanHyphen.Location = new System.Drawing.Point(16, 287);
+            this.checkBox_cleanHyphen.Location = new System.Drawing.Point(16, 381);
             this.checkBox_cleanHyphen.Name = "checkBox_cleanHyphen";
             this.checkBox_cleanHyphen.Size = new System.Drawing.Size(67, 17);
             this.checkBox_cleanHyphen.TabIndex = 7;
@@ -106,8 +113,9 @@
             // 
             // checkBox_cleanHashKey
             // 
+            this.checkBox_cleanHashKey.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox_cleanHashKey.AutoSize = true;
-            this.checkBox_cleanHashKey.Location = new System.Drawing.Point(16, 264);
+            this.checkBox_cleanHashKey.Location = new System.Drawing.Point(16, 358);
             this.checkBox_cleanHashKey.Name = "checkBox_cleanHashKey";
             this.checkBox_cleanHashKey.Size = new System.Drawing.Size(71, 17);
             this.checkBox_cleanHashKey.TabIndex = 10;
@@ -116,8 +124,9 @@
             // 
             // checkBox_cleanBrackets
             // 
+            this.checkBox_cleanBrackets.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox_cleanBrackets.AutoSize = true;
-            this.checkBox_cleanBrackets.Location = new System.Drawing.Point(16, 241);
+            this.checkBox_cleanBrackets.Location = new System.Drawing.Point(16, 335);
             this.checkBox_cleanBrackets.Name = "checkBox_cleanBrackets";
             this.checkBox_cleanBrackets.Size = new System.Drawing.Size(104, 17);
             this.checkBox_cleanBrackets.TabIndex = 9;
@@ -126,9 +135,10 @@
             // 
             // label_cleanheader
             // 
+            this.label_cleanheader.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label_cleanheader.AutoSize = true;
             this.label_cleanheader.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label_cleanheader.Location = new System.Drawing.Point(13, 216);
+            this.label_cleanheader.Location = new System.Drawing.Point(12, 312);
             this.label_cleanheader.Name = "label_cleanheader";
             this.label_cleanheader.Size = new System.Drawing.Size(289, 20);
             this.label_cleanheader.TabIndex = 11;
@@ -146,8 +156,9 @@
             // 
             // checkBox_cleanSlash
             // 
+            this.checkBox_cleanSlash.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox_cleanSlash.AutoSize = true;
-            this.checkBox_cleanSlash.Location = new System.Drawing.Point(16, 333);
+            this.checkBox_cleanSlash.Location = new System.Drawing.Point(16, 427);
             this.checkBox_cleanSlash.Name = "checkBox_cleanSlash";
             this.checkBox_cleanSlash.Size = new System.Drawing.Size(69, 17);
             this.checkBox_cleanSlash.TabIndex = 13;
@@ -167,9 +178,10 @@
             // 
             // label1
             // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(12, 447);
+            this.label1.Location = new System.Drawing.Point(12, 539);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(323, 20);
             this.label1.TabIndex = 17;
@@ -177,8 +189,9 @@
             // 
             // lbl_gMail_login
             // 
+            this.lbl_gMail_login.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lbl_gMail_login.AutoSize = true;
-            this.lbl_gMail_login.Location = new System.Drawing.Point(17, 479);
+            this.lbl_gMail_login.Location = new System.Drawing.Point(17, 573);
             this.lbl_gMail_login.Name = "lbl_gMail_login";
             this.lbl_gMail_login.Size = new System.Drawing.Size(73, 13);
             this.lbl_gMail_login.TabIndex = 18;
@@ -186,8 +199,9 @@
             // 
             // lbl_gMail_pass
             // 
+            this.lbl_gMail_pass.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lbl_gMail_pass.AutoSize = true;
-            this.lbl_gMail_pass.Location = new System.Drawing.Point(17, 505);
+            this.lbl_gMail_pass.Location = new System.Drawing.Point(17, 599);
             this.lbl_gMail_pass.Name = "lbl_gMail_pass";
             this.lbl_gMail_pass.Size = new System.Drawing.Size(93, 13);
             this.lbl_gMail_pass.TabIndex = 19;
@@ -195,14 +209,16 @@
             // 
             // textBox_gLogin
             // 
-            this.textBox_gLogin.Location = new System.Drawing.Point(125, 476);
+            this.textBox_gLogin.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.textBox_gLogin.Location = new System.Drawing.Point(125, 570);
             this.textBox_gLogin.Name = "textBox_gLogin";
             this.textBox_gLogin.Size = new System.Drawing.Size(180, 20);
             this.textBox_gLogin.TabIndex = 20;
             // 
             // textBox_gPass
             // 
-            this.textBox_gPass.Location = new System.Drawing.Point(125, 503);
+            this.textBox_gPass.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.textBox_gPass.Location = new System.Drawing.Point(125, 597);
             this.textBox_gPass.Name = "textBox_gPass";
             this.textBox_gPass.Size = new System.Drawing.Size(180, 20);
             this.textBox_gPass.TabIndex = 21;
@@ -230,8 +246,9 @@
             // 
             // checkBox_cleanSpace
             // 
+            this.checkBox_cleanSpace.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox_cleanSpace.AutoSize = true;
-            this.checkBox_cleanSpace.Location = new System.Drawing.Point(16, 356);
+            this.checkBox_cleanSpace.Location = new System.Drawing.Point(16, 450);
             this.checkBox_cleanSpace.Name = "checkBox_cleanSpace";
             this.checkBox_cleanSpace.Size = new System.Drawing.Size(158, 17);
             this.checkBox_cleanSpace.TabIndex = 26;
@@ -240,8 +257,9 @@
             // 
             // checkBox_cleanSquareBrackets
             // 
+            this.checkBox_cleanSquareBrackets.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox_cleanSquareBrackets.AutoSize = true;
-            this.checkBox_cleanSquareBrackets.Location = new System.Drawing.Point(16, 379);
+            this.checkBox_cleanSquareBrackets.Location = new System.Drawing.Point(16, 473);
             this.checkBox_cleanSquareBrackets.Name = "checkBox_cleanSquareBrackets";
             this.checkBox_cleanSquareBrackets.Size = new System.Drawing.Size(104, 17);
             this.checkBox_cleanSquareBrackets.TabIndex = 27;
@@ -250,8 +268,9 @@
             // 
             // checkBox_cleanLetters
             // 
+            this.checkBox_cleanLetters.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox_cleanLetters.AutoSize = true;
-            this.checkBox_cleanLetters.Location = new System.Drawing.Point(16, 402);
+            this.checkBox_cleanLetters.Location = new System.Drawing.Point(16, 496);
             this.checkBox_cleanLetters.Name = "checkBox_cleanLetters";
             this.checkBox_cleanLetters.Size = new System.Drawing.Size(129, 17);
             this.checkBox_cleanLetters.TabIndex = 28;
@@ -260,8 +279,9 @@
             // 
             // label_google_hint
             // 
+            this.label_google_hint.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label_google_hint.AutoSize = true;
-            this.label_google_hint.Location = new System.Drawing.Point(17, 526);
+            this.label_google_hint.Location = new System.Drawing.Point(17, 620);
             this.label_google_hint.Name = "label_google_hint";
             this.label_google_hint.Size = new System.Drawing.Size(320, 13);
             this.label_google_hint.TabIndex = 29;
@@ -269,19 +289,77 @@
             // 
             // checkBox_cleanaddzeroprefix
             // 
+            this.checkBox_cleanaddzeroprefix.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox_cleanaddzeroprefix.AutoSize = true;
-            this.checkBox_cleanaddzeroprefix.Location = new System.Drawing.Point(16, 425);
+            this.checkBox_cleanaddzeroprefix.Location = new System.Drawing.Point(16, 519);
             this.checkBox_cleanaddzeroprefix.Name = "checkBox_cleanaddzeroprefix";
             this.checkBox_cleanaddzeroprefix.Size = new System.Drawing.Size(232, 17);
             this.checkBox_cleanaddzeroprefix.TabIndex = 30;
             this.checkBox_cleanaddzeroprefix.Text = "Alway add \"0\" prefix to access outside lines";
             this.checkBox_cleanaddzeroprefix.UseVisualStyleBackColor = true;
             // 
+            // label_Outlook
+            // 
+            this.label_Outlook.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.label_Outlook.AutoSize = true;
+            this.label_Outlook.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label_Outlook.Location = new System.Drawing.Point(12, 192);
+            this.label_Outlook.Name = "label_Outlook";
+            this.label_Outlook.Size = new System.Drawing.Size(242, 20);
+            this.label_Outlook.TabIndex = 31;
+            this.label_Outlook.Text = "Outlook related configuration";
+            // 
+            // checkBox_OutlookEmptyNumber
+            // 
+            this.checkBox_OutlookEmptyNumber.AutoSize = true;
+            this.checkBox_OutlookEmptyNumber.Location = new System.Drawing.Point(16, 215);
+            this.checkBox_OutlookEmptyNumber.Name = "checkBox_OutlookEmptyNumber";
+            this.checkBox_OutlookEmptyNumber.Size = new System.Drawing.Size(213, 17);
+            this.checkBox_OutlookEmptyNumber.TabIndex = 32;
+            this.checkBox_OutlookEmptyNumber.Text = "Allow contact export with empty number";
+            this.checkBox_OutlookEmptyNumber.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_OutlookEmptyName
+            // 
+            this.checkBox_OutlookEmptyName.AutoSize = true;
+            this.checkBox_OutlookEmptyName.Location = new System.Drawing.Point(16, 238);
+            this.checkBox_OutlookEmptyName.Name = "checkBox_OutlookEmptyName";
+            this.checkBox_OutlookEmptyName.Size = new System.Drawing.Size(204, 17);
+            this.checkBox_OutlookEmptyName.TabIndex = 33;
+            this.checkBox_OutlookEmptyName.Text = "Allow contact export with empty name";
+            this.checkBox_OutlookEmptyName.UseVisualStyleBackColor = true;
+            // 
+            // label_Nextcloud
+            // 
+            this.label_Nextcloud.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.label_Nextcloud.AutoSize = true;
+            this.label_Nextcloud.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label_Nextcloud.Location = new System.Drawing.Point(12, 263);
+            this.label_Nextcloud.Name = "label_Nextcloud";
+            this.label_Nextcloud.Size = new System.Drawing.Size(242, 20);
+            this.label_Nextcloud.TabIndex = 34;
+            this.label_Nextcloud.Text = "Outlook related configuration";
+            // 
+            // checkBox_nextcloud_vfc_fix
+            // 
+            this.checkBox_nextcloud_vfc_fix.AutoSize = true;
+            this.checkBox_nextcloud_vfc_fix.Location = new System.Drawing.Point(16, 286);
+            this.checkBox_nextcloud_vfc_fix.Name = "checkBox_nextcloud_vfc_fix";
+            this.checkBox_nextcloud_vfc_fix.Size = new System.Drawing.Size(208, 17);
+            this.checkBox_nextcloud_vfc_fix.TabIndex = 35;
+            this.checkBox_nextcloud_vfc_fix.Text = "Apply fix for malformatted .vcf contacts";
+            this.checkBox_nextcloud_vfc_fix.UseVisualStyleBackColor = true;
+            // 
             // EditConfiguration
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(362, 549);
+            this.ClientSize = new System.Drawing.Size(362, 643);
+            this.Controls.Add(this.checkBox_nextcloud_vfc_fix);
+            this.Controls.Add(this.label_Nextcloud);
+            this.Controls.Add(this.checkBox_OutlookEmptyName);
+            this.Controls.Add(this.checkBox_OutlookEmptyNumber);
+            this.Controls.Add(this.label_Outlook);
             this.Controls.Add(this.checkBox_cleanaddzeroprefix);
             this.Controls.Add(this.label_google_hint);
             this.Controls.Add(this.checkBox_cleanLetters);
@@ -341,5 +419,10 @@
         private System.Windows.Forms.CheckBox checkBox_cleanLetters;
         private System.Windows.Forms.Label label_google_hint;
         private System.Windows.Forms.CheckBox checkBox_cleanaddzeroprefix;
+        private System.Windows.Forms.Label label_Outlook;
+        private System.Windows.Forms.CheckBox checkBox_OutlookEmptyNumber;
+        private System.Windows.Forms.CheckBox checkBox_OutlookEmptyName;
+        private System.Windows.Forms.Label label_Nextcloud;
+        private System.Windows.Forms.CheckBox checkBox_nextcloud_vfc_fix;
     }
 }
