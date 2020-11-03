@@ -336,9 +336,9 @@
             this.label_Nextcloud.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label_Nextcloud.Location = new System.Drawing.Point(12, 263);
             this.label_Nextcloud.Name = "label_Nextcloud";
-            this.label_Nextcloud.Size = new System.Drawing.Size(242, 20);
+            this.label_Nextcloud.Size = new System.Drawing.Size(259, 20);
             this.label_Nextcloud.TabIndex = 34;
-            this.label_Nextcloud.Text = "Outlook related configuration";
+            this.label_Nextcloud.Text = "Nextcloud related configuration";
             // 
             // checkBox_nextcloud_vfc_fix
             // 
