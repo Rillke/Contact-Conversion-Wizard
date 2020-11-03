@@ -16,7 +16,9 @@ Das Programm ist in C# geschrieben (Lizenz GPLv3). Binaries (`.exe`) zum Herunte
 
 ## Screenshot
 
-![Windows 7 Screenshot, das den Contact Conversion Wizard v3.0.0.4 zeigt: Ein GUI Fenster mit 3 Bereichen: Links: Daten laden; Mitte: Daten ansehen; Rechts: Daten abspeichern](img/Contact%20Conversion%20Wizard%20v3.0.0.4%20-%20Windows.jpg)
+Windows 8.1 Screenshot, das den Contact Conversion Wizard v3.5.0.2 zeigt: Ein GUI Fenster mit 3 Bereichen: Links: Daten laden; Mitte: Daten ansehen; Rechts: Daten abspeichern
+
+<img src="img/Contact Conversion Wizard v3.5.0.2 - Windows.png" alt="GUI" width="625"/>
 
 ## Abhängigkeiten
 
