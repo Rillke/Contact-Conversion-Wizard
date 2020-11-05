@@ -101,9 +101,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.MyDataGridView)).BeginInit();
             this.panel_left.SuspendLayout();
             this.SuspendLayout();
-            //
+            // 
             // btn_read_Outlook
-            //
+            // 
             this.btn_read_Outlook.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn_read_Outlook.Location = new System.Drawing.Point(4, 32);
             this.btn_read_Outlook.Name = "btn_read_Outlook";
@@ -114,9 +114,9 @@
         "o import only Contacts matching a category!\r\n");
             this.btn_read_Outlook.UseVisualStyleBackColor = true;
             this.btn_read_Outlook.Click += new System.EventHandler(this.btn_read_Outlook_Click);
-            //
+            // 
             // btn_read_vCard
-            //
+            // 
             this.btn_read_vCard.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn_read_vCard.Location = new System.Drawing.Point(4, 108);
             this.btn_read_vCard.Name = "btn_read_vCard";
@@ -126,9 +126,9 @@
             this.toolTip1.SetToolTip(this.btn_read_vCard, resources.GetString("btn_read_vCard.ToolTip"));
             this.btn_read_vCard.UseVisualStyleBackColor = true;
             this.btn_read_vCard.Click += new System.EventHandler(this.btn_read_VC_Click);
-            //
+            // 
             // btn_save_FritzXML
-            //
+            // 
             this.btn_save_FritzXML.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_save_FritzXML.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn_save_FritzXML.Location = new System.Drawing.Point(836, 70);
@@ -141,9 +141,9 @@
         " exported to the XML file.");
             this.btn_save_FritzXML.UseVisualStyleBackColor = true;
             this.btn_save_FritzXML.Click += new System.EventHandler(this.btn_save_FritzXML_Click);
-            //
+            // 
             // btn_save_FritzAdress
-            //
+            // 
             this.btn_save_FritzAdress.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_save_FritzAdress.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn_save_FritzAdress.Location = new System.Drawing.Point(836, 146);
@@ -155,14 +155,14 @@
         "export only contacts that have a fax number.");
             this.btn_save_FritzAdress.UseVisualStyleBackColor = true;
             this.btn_save_FritzAdress.Click += new System.EventHandler(this.btn_save_FritzAdr_Click);
-            //
+            // 
             // openFileDialog1
-            //
+            // 
             this.openFileDialog1.FileName = "openFileDialog1";
-            //
+            // 
             // button_clear
-            //
-            this.button_clear.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+            // 
+            this.button_clear.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.button_clear.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button_clear.Location = new System.Drawing.Point(378, 476);
@@ -172,9 +172,9 @@
             this.button_clear.Text = "Clear List (0)";
             this.button_clear.UseVisualStyleBackColor = true;
             this.button_clear.Click += new System.EventHandler(this.btn_clear_Click);
-            //
+            // 
             // panel_right
-            //
+            // 
             this.panel_right.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.panel_right.Controls.Add(this.button_7270);
             this.panel_right.Controls.Add(this.button_7390);
@@ -188,9 +188,9 @@
             this.panel_right.Name = "panel_right";
             this.panel_right.Size = new System.Drawing.Size(367, 104);
             this.panel_right.TabIndex = 7;
-            //
+            // 
             // button_7270
-            //
+            // 
             this.button_7270.Location = new System.Drawing.Point(198, 54);
             this.button_7270.Name = "button_7270";
             this.button_7270.Size = new System.Drawing.Size(66, 19);
@@ -198,9 +198,9 @@
             this.button_7270.Text = "USB Stick";
             this.button_7270.UseVisualStyleBackColor = true;
             this.button_7270.Click += new System.EventHandler(this.button_7270_Click);
-            //
+            // 
             // button_7390
-            //
+            // 
             this.button_7390.Location = new System.Drawing.Point(267, 54);
             this.button_7390.Name = "button_7390";
             this.button_7390.Size = new System.Drawing.Size(93, 19);
@@ -208,35 +208,35 @@
             this.button_7390.Text = "Internal Memory";
             this.button_7390.UseVisualStyleBackColor = true;
             this.button_7390.Click += new System.EventHandler(this.button_7390_Click);
-            //
+            // 
             // label10
-            //
+            // 
             this.label10.AutoSize = true;
             this.label10.Location = new System.Drawing.Point(14, 56);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(175, 13);
             this.label10.TabIndex = 6;
             this.label10.Text = "Fritz!Box path to embedded images:";
-            //
+            // 
             // textBox_PicPath
-            //
+            // 
             this.textBox_PicPath.Location = new System.Drawing.Point(15, 73);
             this.textBox_PicPath.Name = "textBox_PicPath";
             this.textBox_PicPath.Size = new System.Drawing.Size(344, 20);
             this.textBox_PicPath.TabIndex = 5;
             this.textBox_PicPath.Text = "file:///var/InternerSpeicher/FRITZ/fonpix-custom/";
-            //
+            // 
             // label9
-            //
+            // 
             this.label9.AutoSize = true;
             this.label9.Location = new System.Drawing.Point(12, 31);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(118, 13);
             this.label9.TabIndex = 4;
             this.label9.Text = "Export Contact Pictures";
-            //
+            // 
             // combo_picexport
-            //
+            // 
             this.combo_picexport.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.combo_picexport.FormattingEnabled = true;
             this.combo_picexport.Items.AddRange(new object[] {
@@ -247,18 +247,18 @@
             this.combo_picexport.Size = new System.Drawing.Size(221, 21);
             this.combo_picexport.TabIndex = 3;
             this.toolTip1.SetToolTip(this.combo_picexport, "Please select whether you want to export contact pictures or ignore them\r\n");
-            //
+            // 
             // label2
-            //
+            // 
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(12, 6);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(113, 13);
             this.label2.TabIndex = 2;
             this.label2.Text = "Output Prefix Removal";
-            //
+            // 
             // combo_prefix
-            //
+            // 
             this.combo_prefix.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.combo_prefix.FormattingEnabled = true;
             this.combo_prefix.Items.AddRange(new object[] {
@@ -277,18 +277,18 @@
             this.combo_prefix.Size = new System.Drawing.Size(221, 21);
             this.combo_prefix.TabIndex = 0;
             this.toolTip1.SetToolTip(this.combo_prefix, resources.GetString("combo_prefix.ToolTip"));
-            //
+            // 
             // label5
-            //
+            // 
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(6, 81);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(110, 13);
             this.label5.TabIndex = 4;
             this.label5.Text = "Treat contacts as VIP";
-            //
+            // 
             // combo_VIP
-            //
+            // 
             this.combo_VIP.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.combo_VIP.FormattingEnabled = true;
             this.combo_VIP.Items.AddRange(new object[] {
@@ -301,9 +301,9 @@
             this.combo_VIP.TabIndex = 3;
             this.toolTip1.SetToolTip(this.combo_VIP, "Allows you to select how the missing VIP functionality in the address \r\nbooks can" +
         " be mapped to the VIP setting in AVM/Snom Phones\r\n");
-            //
+            // 
             // btn_save_SnomCSV7
-            //
+            // 
             this.btn_save_SnomCSV7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_save_SnomCSV7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
             this.btn_save_SnomCSV7.Location = new System.Drawing.Point(836, 184);
@@ -315,9 +315,9 @@
         "\r\n\r\nFile Format is UTF8 without BOM.\r\n");
             this.btn_save_SnomCSV7.UseVisualStyleBackColor = true;
             this.btn_save_SnomCSV7.Click += new System.EventHandler(this.btn_save_SnomXMLv7_Click);
-            //
+            // 
             // btn_read_FritzAdress
-            //
+            // 
             this.btn_read_FritzAdress.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn_read_FritzAdress.Location = new System.Drawing.Point(4, 146);
             this.btn_read_FritzAdress.Name = "btn_read_FritzAdress";
@@ -327,9 +327,9 @@
             this.toolTip1.SetToolTip(this.btn_read_FritzAdress, resources.GetString("btn_read_FritzAdress.ToolTip"));
             this.btn_read_FritzAdress.UseVisualStyleBackColor = true;
             this.btn_read_FritzAdress.Click += new System.EventHandler(this.btn_read_FritzAdr_Click);
-            //
+            // 
             // btn_read_FritzXML
-            //
+            // 
             this.btn_read_FritzXML.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn_read_FritzXML.Location = new System.Drawing.Point(4, 70);
             this.btn_read_FritzXML.Name = "btn_read_FritzXML";
@@ -340,9 +340,9 @@
         "book.");
             this.btn_read_FritzXML.UseVisualStyleBackColor = true;
             this.btn_read_FritzXML.Click += new System.EventHandler(this.btn_read_FritzXML_Click);
-            //
+            // 
             // btn_save_vCard
-            //
+            // 
             this.btn_save_vCard.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_save_vCard.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn_save_vCard.Location = new System.Drawing.Point(836, 108);
@@ -353,9 +353,9 @@
             this.toolTip1.SetToolTip(this.btn_save_vCard, resources.GetString("btn_save_vCard.ToolTip"));
             this.btn_save_vCard.UseVisualStyleBackColor = true;
             this.btn_save_vCard.Click += new System.EventHandler(this.btn_save_vCard_Click);
-            //
+            // 
             // btn_save_Outlook
-            //
+            // 
             this.btn_save_Outlook.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_save_Outlook.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn_save_Outlook.Location = new System.Drawing.Point(836, 32);
@@ -366,14 +366,14 @@
             this.toolTip1.SetToolTip(this.btn_save_Outlook, "Save contacts to an Outlook folder of your choice!");
             this.btn_save_Outlook.UseVisualStyleBackColor = true;
             this.btn_save_Outlook.Click += new System.EventHandler(this.btn_save_Outlook_Click);
-            //
+            // 
             // MyDataGridView
-            //
+            // 
             this.MyDataGridView.AllowUserToAddRows = false;
             this.MyDataGridView.AllowUserToDeleteRows = false;
             this.MyDataGridView.AllowUserToResizeRows = false;
-            this.MyDataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.MyDataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.MyDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.MyDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -401,145 +401,145 @@
             this.MyDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.MyDataGridView.Size = new System.Drawing.Size(653, 438);
             this.MyDataGridView.TabIndex = 17;
-            //
+            // 
             // Fullname
-            //
+            // 
             this.Fullname.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
             this.Fullname.HeaderText = "Combined Name";
             this.Fullname.Name = "Fullname";
             this.Fullname.ReadOnly = true;
             this.Fullname.Width = 101;
-            //
+            // 
             // MyColLastname
-            //
+            // 
             this.MyColLastname.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
             this.MyColLastname.HeaderText = "Lastname";
             this.MyColLastname.Name = "MyColLastname";
             this.MyColLastname.ReadOnly = true;
             this.MyColLastname.Width = 78;
-            //
+            // 
             // MyColFirstname
-            //
+            // 
             this.MyColFirstname.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
             this.MyColFirstname.HeaderText = "Firstname";
             this.MyColFirstname.Name = "MyColFirstname";
             this.MyColFirstname.ReadOnly = true;
             this.MyColFirstname.Width = 77;
-            //
+            // 
             // MyColCompany
-            //
+            // 
             this.MyColCompany.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
             this.MyColCompany.HeaderText = "Company";
             this.MyColCompany.Name = "MyColCompany";
             this.MyColCompany.ReadOnly = true;
             this.MyColCompany.Width = 76;
-            //
+            // 
             // MyColHome
-            //
+            // 
             this.MyColHome.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
             this.MyColHome.HeaderText = "Home";
             this.MyColHome.Name = "MyColHome";
             this.MyColHome.ReadOnly = true;
             this.MyColHome.Width = 60;
-            //
+            // 
             // MyColWork
-            //
+            // 
             this.MyColWork.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
             this.MyColWork.HeaderText = "Work";
             this.MyColWork.Name = "MyColWork";
             this.MyColWork.ReadOnly = true;
             this.MyColWork.Width = 58;
-            //
+            // 
             // MyColMobile
-            //
+            // 
             this.MyColMobile.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
             this.MyColMobile.HeaderText = "Mobile";
             this.MyColMobile.Name = "MyColMobile";
             this.MyColMobile.ReadOnly = true;
             this.MyColMobile.Width = 63;
-            //
+            // 
             // MyColPreferred
-            //
+            // 
             this.MyColPreferred.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
             this.MyColPreferred.HeaderText = "Preferred";
             this.MyColPreferred.Name = "MyColPreferred";
             this.MyColPreferred.ReadOnly = true;
             this.MyColPreferred.Width = 75;
-            //
+            // 
             // MyColHomeFax
-            //
+            // 
             this.MyColHomeFax.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
             this.MyColHomeFax.HeaderText = "HomeFax";
             this.MyColHomeFax.Name = "MyColHomeFax";
             this.MyColHomeFax.ReadOnly = true;
             this.MyColHomeFax.Width = 77;
-            //
+            // 
             // MyColWorkFax
-            //
+            // 
             this.MyColWorkFax.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
             this.MyColWorkFax.HeaderText = "WorkFax";
             this.MyColWorkFax.Name = "MyColWorkFax";
             this.MyColWorkFax.ReadOnly = true;
             this.MyColWorkFax.Width = 75;
-            //
+            // 
             // Street
-            //
+            // 
             this.Street.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
             this.Street.HeaderText = "Street";
             this.Street.Name = "Street";
             this.Street.ReadOnly = true;
             this.Street.Width = 60;
-            //
+            // 
             // ZIP
-            //
+            // 
             this.ZIP.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
             this.ZIP.HeaderText = "ZIP Code";
             this.ZIP.Name = "ZIP";
             this.ZIP.ReadOnly = true;
             this.ZIP.Width = 71;
-            //
+            // 
             // City
-            //
+            // 
             this.City.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
             this.City.HeaderText = "City";
             this.City.Name = "City";
             this.City.ReadOnly = true;
             this.City.Width = 49;
-            //
+            // 
             // eMail
-            //
+            // 
             this.eMail.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
             this.eMail.HeaderText = "eMail";
             this.eMail.Name = "eMail";
             this.eMail.ReadOnly = true;
             this.eMail.Width = 57;
-            //
+            // 
             // VIP
-            //
+            // 
             this.VIP.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
             this.VIP.HeaderText = "VIP";
             this.VIP.Name = "VIP";
             this.VIP.ReadOnly = true;
             this.VIP.Width = 49;
-            //
+            // 
             // Speeddial
-            //
+            // 
             this.Speeddial.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
             this.Speeddial.HeaderText = "Speeddial";
             this.Speeddial.Name = "Speeddial";
             this.Speeddial.ReadOnly = true;
             this.Speeddial.Width = 79;
-            //
+            // 
             // Photo
-            //
+            // 
             this.Photo.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
             this.Photo.HeaderText = "Photo";
             this.Photo.Name = "Photo";
             this.Photo.ReadOnly = true;
             this.Photo.Width = 60;
-            //
+            // 
             // label6
-            //
+            // 
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label6.Location = new System.Drawing.Point(21, 10);
@@ -547,9 +547,9 @@
             this.label6.Size = new System.Drawing.Size(136, 20);
             this.label6.TabIndex = 18;
             this.label6.Text = "Load data from:";
-            //
+            // 
             // label_save
-            //
+            // 
             this.label_save.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label_save.AutoSize = true;
             this.label_save.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -558,9 +558,9 @@
             this.label_save.Size = new System.Drawing.Size(116, 20);
             this.label_save.TabIndex = 19;
             this.label_save.Text = "Save data to:";
-            //
+            // 
             // btn_save_SnomCSV8
-            //
+            // 
             this.btn_save_SnomCSV8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_save_SnomCSV8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
             this.btn_save_SnomCSV8.Location = new System.Drawing.Point(920, 184);
@@ -571,9 +571,9 @@
             this.toolTip1.SetToolTip(this.btn_save_SnomCSV8, resources.GetString("btn_save_SnomCSV8.ToolTip"));
             this.btn_save_SnomCSV8.UseVisualStyleBackColor = true;
             this.btn_save_SnomCSV8.Click += new System.EventHandler(this.btn_save_SnomXMLv8_Click);
-            //
+            // 
             // btn_save_TalkSurfCSV
-            //
+            // 
             this.btn_save_TalkSurfCSV.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_save_TalkSurfCSV.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn_save_TalkSurfCSV.Location = new System.Drawing.Point(836, 222);
@@ -585,9 +585,9 @@
         "ortened name and the phone numbers.\r\n");
             this.btn_save_TalkSurfCSV.UseVisualStyleBackColor = true;
             this.btn_save_TalkSurfCSV.Click += new System.EventHandler(this.btn_save_TalkSurfCSV_Click);
-            //
+            // 
             // btn_read_genericCSV
-            //
+            // 
             this.btn_read_genericCSV.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn_read_genericCSV.Location = new System.Drawing.Point(4, 184);
             this.btn_read_genericCSV.Name = "btn_read_genericCSV";
@@ -597,9 +597,9 @@
             this.toolTip1.SetToolTip(this.btn_read_genericCSV, "Imports contacts from a generic CSV file with comma separated values.\r\n");
             this.btn_read_genericCSV.UseVisualStyleBackColor = true;
             this.btn_read_genericCSV.Click += new System.EventHandler(this.btn_read_genericCSV_Click);
-            //
+            // 
             // btn_save_AastraCSV
-            //
+            // 
             this.btn_save_AastraCSV.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_save_AastraCSV.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn_save_AastraCSV.Location = new System.Drawing.Point(836, 260);
@@ -611,9 +611,9 @@
         "efeeds.\r\n");
             this.btn_save_AastraCSV.UseVisualStyleBackColor = true;
             this.btn_save_AastraCSV.Click += new System.EventHandler(this.btn_save_AastraCSV_Click);
-            //
+            // 
             // btn_save_GrandstreamGXV
-            //
+            // 
             this.btn_save_GrandstreamGXV.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_save_GrandstreamGXV.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn_save_GrandstreamGXV.Location = new System.Drawing.Point(920, 298);
@@ -625,9 +625,9 @@
         "x Linefeeds.\r\n");
             this.btn_save_GrandstreamGXV.UseVisualStyleBackColor = true;
             this.btn_save_GrandstreamGXV.Click += new System.EventHandler(this.btn_save_GrandstreamGXV_Click);
-            //
+            // 
             // btn_read_googleContacts
-            //
+            // 
             this.btn_read_googleContacts.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn_read_googleContacts.Location = new System.Drawing.Point(4, 222);
             this.btn_read_googleContacts.Name = "btn_read_googleContacts";
@@ -638,9 +638,9 @@
         "groups you want to import from!\r\n");
             this.btn_read_googleContacts.UseVisualStyleBackColor = true;
             this.btn_read_googleContacts.Click += new System.EventHandler(this.btn_read_googleContacts_Click);
-            //
+            // 
             // btn_save_GrandstreamGXP
-            //
+            // 
             this.btn_save_GrandstreamGXP.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_save_GrandstreamGXP.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn_save_GrandstreamGXP.Location = new System.Drawing.Point(836, 298);
@@ -652,9 +652,9 @@
         "feeds.\r\n");
             this.btn_save_GrandstreamGXP.UseVisualStyleBackColor = true;
             this.btn_save_GrandstreamGXP.Click += new System.EventHandler(this.btn_save_GrandstreamGXP_Click);
-            //
+            // 
             // btn_save_Auerswald
-            //
+            // 
             this.btn_save_Auerswald.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_save_Auerswald.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn_save_Auerswald.Location = new System.Drawing.Point(836, 336);
@@ -665,9 +665,9 @@
             this.toolTip1.SetToolTip(this.btn_save_Auerswald, "CSV Export for Auerswald\r\n\r\nFile Format is Non-Unicode with Unix Linefeeds.\r\n");
             this.btn_save_Auerswald.UseVisualStyleBackColor = true;
             this.btn_save_Auerswald.Click += new System.EventHandler(this.btn_save_Auerswald_Click);
-            //
+            // 
             // btn_save_googleContacts
-            //
+            // 
             this.btn_save_googleContacts.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_save_googleContacts.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn_save_googleContacts.Location = new System.Drawing.Point(836, 374);
@@ -678,9 +678,9 @@
             this.toolTip1.SetToolTip(this.btn_save_googleContacts, "Export for Google Contacts");
             this.btn_save_googleContacts.UseVisualStyleBackColor = true;
             this.btn_save_googleContacts.Click += new System.EventHandler(this.btn_save_googleContacts_Click);
-            //
+            // 
             // btn_save_panasonicCSV
-            //
+            // 
             this.btn_save_panasonicCSV.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_save_panasonicCSV.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn_save_panasonicCSV.Location = new System.Drawing.Point(836, 412);
@@ -691,9 +691,9 @@
             this.toolTip1.SetToolTip(this.btn_save_panasonicCSV, resources.GetString("btn_save_panasonicCSV.ToolTip"));
             this.btn_save_panasonicCSV.UseVisualStyleBackColor = true;
             this.btn_save_panasonicCSV.Click += new System.EventHandler(this.btn_save_panasonicCSV_Click);
-            //
+            // 
             // btn_save_vCard_Gigaset
-            //
+            // 
             this.btn_save_vCard_Gigaset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_save_vCard_Gigaset.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn_save_vCard_Gigaset.Location = new System.Drawing.Point(920, 108);
@@ -704,9 +704,9 @@
             this.toolTip1.SetToolTip(this.btn_save_vCard_Gigaset, resources.GetString("btn_save_vCard_Gigaset.ToolTip"));
             this.btn_save_vCard_Gigaset.UseVisualStyleBackColor = true;
             this.btn_save_vCard_Gigaset.Click += new System.EventHandler(this.btn_save_vCard_Gigaset_Click);
-            //
+            // 
             // combo_typeprefer
-            //
+            // 
             this.combo_typeprefer.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.combo_typeprefer.FormattingEnabled = true;
             this.combo_typeprefer.Items.AddRange(new object[] {
@@ -717,9 +717,9 @@
             this.combo_typeprefer.Size = new System.Drawing.Size(221, 21);
             this.combo_typeprefer.TabIndex = 4;
             this.toolTip1.SetToolTip(this.combo_typeprefer, resources.GetString("combo_typeprefer.ToolTip"));
-            //
+            // 
             // combo_namestyle
-            //
+            // 
             this.combo_namestyle.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.combo_namestyle.FormattingEnabled = true;
             this.combo_namestyle.Items.AddRange(new object[] {
@@ -744,9 +744,9 @@
             this.combo_namestyle.Size = new System.Drawing.Size(221, 21);
             this.combo_namestyle.TabIndex = 1;
             this.toolTip1.SetToolTip(this.combo_namestyle, resources.GetString("combo_namestyle.ToolTip"));
-            //
+            // 
             // combo_outlookimport
-            //
+            // 
             this.combo_outlookimport.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.combo_outlookimport.FormattingEnabled = true;
             this.combo_outlookimport.Items.AddRange(new object[] {
@@ -757,9 +757,9 @@
             this.combo_outlookimport.Size = new System.Drawing.Size(221, 21);
             this.combo_outlookimport.TabIndex = 6;
             this.toolTip1.SetToolTip(this.combo_outlookimport, resources.GetString("combo_outlookimport.ToolTip"));
-            //
+            // 
             // panel_left
-            //
+            // 
             this.panel_left.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.panel_left.Controls.Add(this.label5);
             this.panel_left.Controls.Add(this.label4);
@@ -773,36 +773,36 @@
             this.panel_left.Name = "panel_left";
             this.panel_left.Size = new System.Drawing.Size(367, 104);
             this.panel_left.TabIndex = 8;
-            //
+            // 
             // label4
-            //
+            // 
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(7, 56);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(92, 13);
             this.label4.TabIndex = 7;
             this.label4.Text = "On Outlook import";
-            //
+            // 
             // label3
-            //
+            // 
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(7, 31);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(116, 13);
             this.label3.TabIndex = 5;
             this.label3.Text = "If in doubt use/store as";
-            //
+            // 
             // label1
-            //
+            // 
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(6, 6);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(111, 13);
             this.label1.TabIndex = 3;
             this.label1.Text = "Combined Name Style";
-            //
+            // 
             // label7
-            //
+            // 
             this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -811,9 +811,9 @@
             this.label7.Size = new System.Drawing.Size(146, 15);
             this.label7.TabIndex = 22;
             this.label7.Text = "Options Import/Export";
-            //
+            // 
             // label8
-            //
+            // 
             this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -822,10 +822,10 @@
             this.label8.Size = new System.Drawing.Size(160, 15);
             this.label8.TabIndex = 23;
             this.label8.Text = "Options affecting Export";
-            //
+            // 
             // button_config
-            //
-            this.button_config.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+            // 
+            this.button_config.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.button_config.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button_config.Location = new System.Drawing.Point(378, 529);
@@ -835,9 +835,9 @@
             this.button_config.Text = "Configuration";
             this.button_config.UseVisualStyleBackColor = true;
             this.button_config.Click += new System.EventHandler(this.button_config_Click);
-            //
+            // 
             // button_website
-            //
+            // 
             this.button_website.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button_website.Location = new System.Drawing.Point(519, 530);
             this.button_website.Name = "button_website";
@@ -846,25 +846,25 @@
             this.button_website.Text = "CCW Homepage";
             this.button_website.UseVisualStyleBackColor = true;
             this.button_website.Click += new System.EventHandler(this.button_website_Click);
-            //
+            // 
             // button_forum
-            //
+            // 
             this.button_forum.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button_forum.Location = new System.Drawing.Point(519, 555);
             this.button_forum.Name = "button_forum";
             this.button_forum.Size = new System.Drawing.Size(108, 23);
             this.button_forum.TabIndex = 31;
-            this.button_forum.Text = "Support Forum";
+            this.button_forum.Text = "Report issue";
             this.button_forum.UseVisualStyleBackColor = true;
             this.button_forum.Click += new System.EventHandler(this.button_forum_Click);
-            //
+            // 
             // backgroundWorker_updateCheck
-            //
+            // 
             this.backgroundWorker_updateCheck.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker_updateCheck_DoWork);
             this.backgroundWorker_updateCheck.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker_updateCheck_RunWorkerCompleted);
-            //
+            // 
             // Form1
-            //
+            // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1004, 582);

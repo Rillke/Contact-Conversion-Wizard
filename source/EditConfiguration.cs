@@ -18,6 +18,8 @@ namespace Contact_Conversion_Wizard
             OPT_importOther.Checked = Form1.cfg_importOther;
             OPT_DUPren.Checked = Form1.cfg_DUPren;
 
+            checkBox_OutlookEmptyNumber.Checked = Form1.outlook_empty_number;
+            checkBox_OutlookEmptyName.Checked = Form1.outlook_empty_name;
 
             checkBox_cleanBrackets.Checked = !Form1.clean_brackets;
             checkBox_cleanHashKey.Checked = !Form1.clean_hashkey;
@@ -45,6 +47,11 @@ namespace Contact_Conversion_Wizard
             Form1.cfg_prefixNONFB = OPT_prefixNONFB.Checked;
             Form1.cfg_importOther = OPT_importOther.Checked;
             Form1.cfg_DUPren = OPT_DUPren.Checked;
+
+            Form1.outlook_empty_number = checkBox_OutlookEmptyNumber.Checked;
+            Form1.outlook_empty_name= checkBox_OutlookEmptyName.Checked;
+
+            Form1.nextcloud_vcf_fix = checkBox_nextcloud_vfc_fix.Checked;
 
             Form1.clean_brackets = !checkBox_cleanBrackets.Checked;
             Form1.clean_hashkey = !checkBox_cleanHashKey.Checked;
