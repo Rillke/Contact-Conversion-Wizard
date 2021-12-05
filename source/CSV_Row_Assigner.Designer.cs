@@ -125,7 +125,7 @@
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(878, 25);
             this.label5.TabIndex = 7;
-            this.label5.Text = "Please assign the CSV coloumns to the correct data fields, then close the window!" +
+            this.label5.Text = "Please assign the CSV columns to the correct data fields, then close the window!" +
     "";
             // 
             // label_error
