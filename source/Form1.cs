@@ -827,11 +827,13 @@ namespace Contact_Conversion_Wizard
             // check whether the user had the shift key pressed while calling this function and store this in a variable for further use
             bool shiftpressed_for_custom_folder = false;
             bool ctrlpressed_for_category_filter = false;
+            bool altpressed_for_category_exclusion_filter = false;
 
             if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift) { shiftpressed_for_custom_folder = true; }
             if ((Control.ModifierKeys & Keys.Control) == Keys.Control) { ctrlpressed_for_category_filter = true; }
+            if ((Control.ModifierKeys & Keys.Alt) == Keys.Alt) { altpressed_for_category_exclusion_filter = true; }
 
-            ReadDataReturn myReadDataReturn = read_data_Outlook(shiftpressed_for_custom_folder, ctrlpressed_for_category_filter);
+            ReadDataReturn myReadDataReturn = read_data_Outlook(shiftpressed_for_custom_folder, ctrlpressed_for_category_filter, altpressed_for_category_exclusion_filter);
 
             if (myReadDataReturn.duplicates != "") MessageBox.Show(myReadDataReturn.duplicates, "The following duplicate entries could not be imported");
             update_datagrid();
@@ -1005,7 +1007,8 @@ namespace Contact_Conversion_Wizard
 
         }
 
-        private ReadDataReturn read_data_Outlook(bool customfolder, bool categoryfilter)
+        private ReadDataReturn read_data_Outlook(bool customfolder, bool categoryfilter,
+            bool categoryExclusionFilter)
         {
             // read all information from Outlook and save all contacts that have at least one phone or fax number
 
@@ -1047,10 +1050,21 @@ namespace Contact_Conversion_Wizard
             string my_category_filter = "";
             if (categoryfilter == true)
             {
-                SimpleInputDialog MySimpleInputDialog = new SimpleInputDialog("Please enter the string that must be present in the category field:", "Category Filter", false, false);
-                MySimpleInputDialog.ShowDialog();
-                my_category_filter = MySimpleInputDialog.resultstring;
-                MySimpleInputDialog.Dispose();
+                using (SimpleInputDialog mySimpleInputDialog = new SimpleInputDialog("Please enter the string that must be present in the category field:", "Category Filter", false, false))
+                {
+                    mySimpleInputDialog.ShowDialog();
+                    my_category_filter = mySimpleInputDialog.resultstring;
+                }
+            }
+
+            string my_category_exclusion_filter = "";
+            if (categoryExclusionFilter == true)
+            {
+                using (SimpleInputDialog mySimpleInputDialog = new SimpleInputDialog("Please enter the string that must *not* be present in the category field:", "Category Filter", false, false))
+                {
+                    mySimpleInputDialog.ShowDialog();
+                    my_category_exclusion_filter = mySimpleInputDialog.resultstring;
+                }
             }
 
             Microsoft.Office.Interop.Outlook.Items oContactItems = outlookFolder.Items;
@@ -1086,6 +1100,12 @@ namespace Contact_Conversion_Wizard
                 if (my_category_filter != "" && categories.Contains(my_category_filter) == false)
                 {
                     continue;   // abort this foreach loop and switch to the next contact
+                }
+
+                // if a category exclusion filter has been selected, we now check this first in order to save time (we can skip the contact data transfer if the excluded category is present)
+                if (my_category_exclusion_filter != "" && categories.Contains(my_category_exclusion_filter))
+                {
+                    continue;
                 }
 
                 GroupDataContact myContact = new GroupDataContact();
