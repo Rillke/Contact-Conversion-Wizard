@@ -4,6 +4,8 @@ name: Release
 # Tags with a suffix ("-alpha.1", "-beta.2", "-rc.1") are published as pre-releases.
 # The release text is taken from .github/release-notes/<tag>.md if that file exists.
 # Releases created by hand in the GitHub UI also get the executable attached.
+# Alternatively run the workflow by hand ("Run workflow") with the tag name: the tag is then created on the
+# selected commit together with the release.
 
 on:
   push:
@@ -12,6 +14,12 @@ on:
       - "v[0-9]*"
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Version tag to create and release, e.g. 3.6.0.0 or 3.6.0.0-alpha.1"
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -27,7 +35,7 @@ jobs:
     permissions:
       contents: write
     env:
-      TAG: ${{ github.event_name == 'release' && github.event.release.tag_name || github.ref_name }}
+      TAG: ${{ github.event_name == 'release' && github.event.release.tag_name || github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -59,7 +67,7 @@ jobs:
         run: msbuild src/ContactConversionWizard/ContactConversionWizard.csproj -restore -p:Configuration=Release -m "-p:VersionPrefix=${{ steps.version.outputs.prefix }}" "-p:VersionSuffix=${{ steps.version.outputs.suffix }}"
 
       - name: Create release if missing
-        if: github.event_name == 'push'
+        if: github.event_name != 'release'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
@@ -70,7 +78,9 @@ jobs:
           gh release view "$env:TAG" --repo "$env:GITHUB_REPOSITORY" 2>$null
           if ($LASTEXITCODE -eq 0) { Write-Host "Release $env:TAG already exists"; exit 0 }
 
-          $arguments = @("release", "create", $env:TAG, "--repo", $env:GITHUB_REPOSITORY, "--verify-tag")
+          $arguments = @("release", "create", $env:TAG, "--repo", $env:GITHUB_REPOSITORY)
+          # a pushed tag must exist; a run started by hand creates the tag on the commit it runs on
+          if ($env:GITHUB_EVENT_NAME -eq 'workflow_dispatch') { $arguments += @("--target", $env:GITHUB_SHA) } else { $arguments += "--verify-tag" }
           $notes = ".github/release-notes/$env:TAG.md"
           if (Test-Path $notes) { $arguments += @("--notes-file", $notes) } else { $arguments += "--generate-notes" }
           if ($env:PRERELEASE -eq 'true') {
