@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>ContactConversionWizard.Core</RootNamespace>
+    <AssemblyName>ContactConversionWizard.Core</AssemblyName>
+    <Description>Import, clean-up and export logic of the Contact Conversion Wizard, independent of the user interface.</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ContactConversionWizard.Core.Tests" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,41 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and attach the executable
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: 10.0.x
+
+      - uses: microsoft/setup-msbuild@30375c66a4eea26614e0d39710365f22f8b0af57 # v3.0.0
+
+      - name: Test
+        run: dotnet test tests/ContactConversionWizard.Core.Tests/ContactConversionWizard.Core.Tests.csproj --configuration Release
+
+      - name: Build
+        run: msbuild src/ContactConversionWizard/ContactConversionWizard.csproj -restore -p:Configuration=Release -m
+
+      - name: Attach to release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          $name = "Contact.Conversion.Wizard_$($env:TAG.TrimStart('v')).exe"
+          Copy-Item src/ContactConversionWizard/bin/Release/net48/Contact-Conversion-Wizard.exe $name
+          gh release upload "$env:TAG" $name --clobber --repo "$env:GITHUB_REPOSITORY"

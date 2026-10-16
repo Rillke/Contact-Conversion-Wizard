@@ -1,4 +1,4 @@
-# Contact-Conversion-Wizard [![Build Status](https://travis-ci.com/Rillke/Contact-Conversion-Wizard.svg?branch=master)](https://travis-ci.com/github/Rillke/Contact-Conversion-Wizard) ![Downloads](https://img.shields.io/github/downloads/Rillke/Contact-Conversion-Wizard/total.svg?style=flat) [![Latest Release](https://img.shields.io/github/v/release/Rillke/Contact-Conversion-Wizard.svg?logo=github)](https://github.com/Rillke/Contact-Conversion-Wizard/releases)
+# Contact-Conversion-Wizard [![CI](https://github.com/Rillke/Contact-Conversion-Wizard/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/Rillke/Contact-Conversion-Wizard/actions/workflows/ci.yml) ![Downloads](https://img.shields.io/github/downloads/Rillke/Contact-Conversion-Wizard/total.svg?style=flat) [![Latest Release](https://img.shields.io/github/v/release/Rillke/Contact-Conversion-Wizard.svg?logo=github)](https://github.com/Rillke/Contact-Conversion-Wizard/releases)
 
 Programm, welches auf einfache Weise Kontaktlisten zwischen verschiedenen Programmen/Geräten konvertiert.
 
@@ -14,6 +14,24 @@ Aus dem dem hierfür geschriebenen Programm (ursprünglich ein reines Outlook-zu
 
 Das Programm ist in C# geschrieben (Lizenz GPLv3). Binaries (`.exe`) zum Herunterladen gibt es in den [Releases](https://github.com/Rillke/Contact-Conversion-Wizard/releases). Wie bei C#/.NET Programmen üblich, ist es auch unter [Linux](/docs/LINUX.md) lauffähig, sofern man eine aktuelle Mono Runtime installiert hat (natürlich ohne Outlook Support).
 
+### Projektstruktur und Bauen
+
+| Verzeichnis | Inhalt |
+|---|---|
+| `src/ContactConversionWizard.Core` | Bibliothek (.NET Standard 2.0) mit dem Kontaktmodell, Rufnummernbereinigung sowie allen Datei-Importen und -Exporten. Ohne Abhängigkeit zur Oberfläche und damit testbar. |
+| `src/ContactConversionWizard` | Windows-Forms-Anwendung (.NET Framework 4.8) inkl. Outlook-Anbindung. |
+| `tests/ContactConversionWizard.Core.Tests` | xUnit-Tests der Bibliothek. |
+
+Voraussetzung ist das [.NET SDK 10](https://dotnet.microsoft.com/download).
+
+```sh
+dotnet test                                   # Tests ausführen (Windows, Linux, macOS)
+msbuild src/ContactConversionWizard -restore -p:Configuration=Release   # Windows: einzelne .exe erzeugen
+```
+
+Release-Builds unter Windows fassen alle Bibliotheken mit [ILRepack](https://github.com/gluck/il-repack) zu einer einzigen `.exe` zusammen.
+Jeder Pull Request wird per [GitHub Actions](.github/workflows/ci.yml) gebaut und getestet. Beim Veröffentlichen eines Releases wird die `.exe` automatisch gebaut und angehängt.
+
 ## Screenshot
 
 Windows 8.1 Screenshot, das den Contact Conversion Wizard v3.5.0.2 zeigt: Ein GUI Fenster mit 3 Bereichen: Links: Daten laden; Mitte: Daten ansehen; Rechts: Daten abspeichern
@@ -22,7 +40,7 @@ Windows 8.1 Screenshot, das den Contact Conversion Wizard v3.5.0.2 zeigt: Ein GU
 
 ## Abhängigkeiten
 
-Windows: [.NET Runtime v4](https://www.microsoft.com/de-de/download/details.aspx?id=17718)
+Windows: [.NET Framework 4.8](https://dotnet.microsoft.com/download/dotnet-framework/net48) (in Windows 10 und 11 enthalten)
 Andere: Siehe [Linux](/docs/LINUX.md)
 
 ## Autor, Contributing, Mitmachen
