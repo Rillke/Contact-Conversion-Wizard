@@ -21,6 +21,7 @@ namespace ContactConversionWizard.Core.Model
         private string zip = "";
         private string city = "";
         private string email = "";
+        private string birthday = "";
 
         public string FirstName { get => firstName; set => firstName = value ?? ""; }
         public string LastName { get => lastName; set => lastName = value ?? ""; }
@@ -44,6 +45,9 @@ namespace ContactConversionWizard.Core.Model
         public string Zip { get => zip; set => zip = value ?? ""; }
         public string City { get => city; set => city = value ?? ""; }
         public string Email { get => email; set => email = value ?? ""; }
+
+        /// <summary>Birthday as <c>YYYY-MM-DD</c>, or <c>--MM-DD</c> if the year is unknown, or empty.</summary>
+        public string Birthday { get => birthday; set => birthday = value ?? ""; }
 
         public bool IsVip { get; set; }
 

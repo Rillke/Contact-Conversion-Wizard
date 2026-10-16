@@ -41,7 +41,7 @@ namespace ContactConversionWizard.Core.Import
                 if (columns[Designation] == "BEZCHNG") { continue; } // header line
 
                 Contact contact = ParseColumns(columns);
-                if (contact.CombinedName != "" && contact.HasAnyNumber && !NoteFlags.IsIgnored(columns[CommentColumn]))
+                if (options.Accept(contact, columns[CommentColumn]))
                 {
                     result.Contacts.Add(contact);
                 }

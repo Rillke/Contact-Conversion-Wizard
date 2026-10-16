@@ -26,17 +26,10 @@ namespace ContactConversionWizard.Core.Export
                 if (!numbers.HasVoiceNumber) { continue; }
 
                 string name = Escaping.Xml(NameFormatter.LimitLength(contact.CombinedName, MaxNameLength));
+                GrandstreamNames.Split(contact, combinedNameWithCompany, out string firstName, out string lastName);
                 var sb = new StringBuilder("    <Contact>\n");
-                if (combinedNameWithCompany && contact.Company != "")
-                {
-                    sb.Append("        <FirstName></FirstName>\n");
-                    sb.Append("        <LastName>").Append(name).Append("</LastName>\n");
-                }
-                else
-                {
-                    sb.Append("        <FirstName>").Append(Escaping.Xml(NameFormatter.LimitLength(contact.FirstName, MaxNameLength))).Append("</FirstName>\n");
-                    sb.Append("        <LastName>").Append(Escaping.Xml(NameFormatter.LimitLength(contact.LastName, MaxNameLength))).Append("</LastName>\n");
-                }
+                sb.Append("        <FirstName>").Append(Escaping.Xml(NameFormatter.LimitLength(firstName, MaxNameLength))).Append("</FirstName>\n");
+                sb.Append("        <LastName>").Append(Escaping.Xml(NameFormatter.LimitLength(lastName, MaxNameLength))).Append("</LastName>\n");
 
                 AppendPhone(sb, "Home", numbers.Home);
                 AppendPhone(sb, "Work", numbers.Work);
@@ -68,9 +61,29 @@ namespace ContactConversionWizard.Core.Export
         }
     }
 
-    /// <summary>Grandstream GXP phones (XML address book, one entry per number, UTF-8 without BOM).</summary>
+    /// <summary>How the separate first and last name fields of Grandstream phones are filled.</summary>
+    internal static class GrandstreamNames
+    {
+        /// <summary>
+        /// The combined name goes into the last name if the selected name style includes the company and the contact has
+        /// one (or if the contact has no first and last name); otherwise first and last name are used.
+        /// </summary>
+        public static void Split(Contact contact, bool combinedNameWithCompany, out string firstName, out string lastName)
+        {
+            bool useCombined = (combinedNameWithCompany && contact.Company != "") || (contact.FirstName == "" && contact.LastName == "");
+            firstName = useCombined ? "" : contact.FirstName;
+            lastName = useCombined ? contact.CombinedName : contact.LastName;
+        }
+    }
+
+    /// <summary>
+    /// Grandstream GXP phones (XML address book, one entry per number, UTF-8 without BOM). First and last name are written
+    /// to separate fields like for GXV phones; if a contact has more than one number, the last name gets the suffixes
+    /// " H", " W" and " M".
+    /// </summary>
     public sealed class GrandstreamGxpExporter : PerNumberCsvExporter
     {
+        private bool combinedNameWithCompany;
         public override string FormatName => "Grandstream GXP XML";
         public override string DefaultFileName => "gs_phonebook";
         public override string FileExtension => "xml";
@@ -80,19 +93,32 @@ namespace ContactConversionWizard.Core.Export
 
         protected override ExportResult Export(IReadOnlyList<Contact> contacts, ExportContext context)
         {
+            combinedNameWithCompany = NameFormatter.IncludesCompany(context.Options.NameStyle);
             ExportResult body = base.Export(contacts, context);
             var result = new ExportResult(body.Content + "</AddressBook>\n", body.Encoding, body.EntryCount);
             result.Warnings.AddRange(body.Warnings);
             return result;
         }
 
-        protected override string AdjustName(string name) => Escaping.Xml(name);
+        // contacts with the same last name are different entries
+        protected override string GetKey(string name, PhoneType type, Contact contact)
+        {
+            GrandstreamNames.Split(contact, combinedNameWithCompany, out string firstName, out _);
+            return name + "\u0001" + firstName;
+        }
+
+        protected override string GetNameBase(Contact contact)
+        {
+            GrandstreamNames.Split(contact, combinedNameWithCompany, out _, out string lastName);
+            return lastName;
+        }
 
         protected override string FormatLine(string name, string number, PhoneType type, Contact contact, string speedDialNumber)
         {
+            GrandstreamNames.Split(contact, combinedNameWithCompany, out string firstName, out _);
             return "    <Contact>\n"
-                 + "        <LastName>" + name + "</LastName>\n"
-                 + "        <FirstName></FirstName>\n"
+                 + "        <LastName>" + Escaping.Xml(name) + "</LastName>\n"
+                 + "        <FirstName>" + Escaping.Xml(NameFormatter.LimitLength(firstName, MaxNameLength)) + "</FirstName>\n"
                  + "        <Phone>\n"
                  + "            <phonenumber>" + Escaping.Xml(number) + "</phonenumber>\n"
                  + "            <accountindex>0</accountindex>\n"

@@ -17,8 +17,10 @@ namespace Contact_Conversion_Wizard
             OPT_importOther.Checked = settings.ImportOtherNumbers;
             OPT_DUPren.Checked = settings.RenameDuplicates;
 
-            checkBox_OutlookEmptyNumber.Checked = settings.OutlookImportEmptyNumber;
-            checkBox_OutlookEmptyName.Checked = settings.OutlookImportEmptyName;
+            checkBox_OutlookEmptyNumber.Checked = settings.ImportWithoutNumber;
+            checkBox_OutlookEmptyName.Checked = settings.ImportWithoutName;
+
+            checkBox_nextcloud_vfc_fix.Checked = settings.NextcloudVCardFix;
 
             checkBox_cleanBrackets.Checked = !settings.Cleanup.RemoveBrackets;
             checkBox_cleanHashKey.Checked = !settings.Cleanup.RemoveHashKey;
@@ -41,8 +43,8 @@ namespace Contact_Conversion_Wizard
             settings.ImportOtherNumbers = OPT_importOther.Checked;
             settings.RenameDuplicates = OPT_DUPren.Checked;
 
-            settings.OutlookImportEmptyNumber = checkBox_OutlookEmptyNumber.Checked;
-            settings.OutlookImportEmptyName = checkBox_OutlookEmptyName.Checked;
+            settings.ImportWithoutNumber = checkBox_OutlookEmptyNumber.Checked;
+            settings.ImportWithoutName = checkBox_OutlookEmptyName.Checked;
 
             settings.NextcloudVCardFix = checkBox_nextcloud_vfc_fix.Checked;
 

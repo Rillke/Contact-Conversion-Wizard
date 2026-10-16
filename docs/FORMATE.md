@@ -22,6 +22,8 @@
 * Aastra: CSV Dateien für Aastra Telefone
 * Grandstream: XML Dateien für Grandstream Telefone (in 2 Varianten: 1 Telefonnummer pro Kontakteintrag für GXP Telefone, mehrere Telefonnummern pro Kontakteintrag für GXV Telefone)
 * Auerswald: CSV Dateien für Auerswald Telefonanlagen
+* Panasonic: Telefonbuch für Panasonic DECT Telefone
+* Generic CSV: alle Felder mit Kopfzeile (UTF-8, Komma-getrennt), z.B. für Tabellenkalkulationen oder als Zwischenformat
 * Google Contacts: bitte als vCard exportieren und diese Datei in Google Contacts importieren
 
 ## Hinweise

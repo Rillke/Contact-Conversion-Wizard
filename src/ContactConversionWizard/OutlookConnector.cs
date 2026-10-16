@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Runtime.InteropServices;
 using ContactConversionWizard.Core.Import;
 using ContactConversionWizard.Core.Model;
 using ContactConversionWizard.Core.Text;
-using Outlook = Microsoft.Office.Interop.Outlook;
 
 namespace Contact_Conversion_Wizard
 {
@@ -16,7 +17,7 @@ namespace Contact_Conversion_Wizard
         /// <summary>Let the user pick the folder instead of using the default contacts folder.</summary>
         public bool PickFolder { get; set; }
 
-        /// <summary>Only import contacts whose categories contain this text (if not empty).</summary>
+        /// <summary>Only import contacts whose categories match this filter, see <see cref="CategoryFilter"/>.</summary>
         public string CategoryFilter { get; set; } = "";
 
         /// <summary>Use the "File As" field as combined name instead of generating it.</summary>
@@ -24,28 +25,51 @@ namespace Contact_Conversion_Wizard
 
         /// <summary>Put the "Other" phone number into an empty home or work field.</summary>
         public bool ImportOtherNumber { get; set; }
-
-        public bool ImportWithoutName { get; set; }
-
-        public bool ImportWithoutNumber { get; set; }
     }
 
-    /// <summary>Reads contacts from and writes contacts to Microsoft Outlook using COM automation.</summary>
+    /// <summary>
+    /// Reads contacts from and writes contacts to Microsoft Outlook using COM automation.
+    /// </summary>
+    /// <remarks>
+    /// Outlook is accessed late bound (<c>dynamic</c>/IDispatch) instead of through the Outlook interop assembly. Early
+    /// binding needs the Outlook type library to be registered correctly; on many Office installations (click-to-run,
+    /// leftovers of older versions, 32/64 bit mix) it is not, which made the import crash with
+    /// "Unable to cast COM object ... TYPE_E_ELEMENTNOTFOUND". Late binding also works with every Outlook version.
+    /// </remarks>
     public sealed class OutlookConnector
     {
         private const string ContactPhotoProperty = "http://schemas.microsoft.com/mapi/proptag/0x7FFF000B";
+        private const int OlFolderContacts = 10;
+        private const int OlContactItem = 2;
+        private const int OlContactClass = 40;
 
-        private readonly Outlook.Application outlook;
+        // Outlook stores "no date" as 1 January 4501
+        private static readonly DateTime NoDate = new DateTime(4501, 1, 1);
 
-        private OutlookConnector(Outlook.Application outlook)
+        private readonly dynamic outlook;
+
+        private OutlookConnector(object outlook)
         {
             this.outlook = outlook;
         }
 
-        /// <summary>Connects to Outlook. Throws if Outlook is not installed or cannot be started.</summary>
+        /// <summary>Connects to a running Outlook or starts it. Throws if Outlook is not installed or cannot be started.</summary>
         public static OutlookConnector Connect()
         {
-            return new OutlookConnector(new Outlook.Application());
+            Type type = Type.GetTypeFromProgID("Outlook.Application", false);
+            if (type == null)
+            {
+                throw new OutlookNotAvailableException("Outlook is not installed (the COM class \"Outlook.Application\" is not registered).");
+            }
+
+            try
+            {
+                return new OutlookConnector(Activator.CreateInstance(type));
+            }
+            catch (COMException ex)
+            {
+                throw new OutlookNotAvailableException("Outlook could not be started: " + ex.Message, ex);
+            }
         }
 
         /// <summary>Contact pictures are only supported from Outlook 2007 (version 12) on.</summary>
@@ -53,7 +77,7 @@ namespace Contact_Conversion_Wizard
         {
             get
             {
-                string version = outlook.Version ?? "";
+                string version = Convert.ToString(outlook.Version, CultureInfo.InvariantCulture) ?? "";
                 int dot = version.IndexOf('.');
                 return dot > 0 && int.TryParse(version.Substring(0, dot), out int major) && major >= 12;
             }
@@ -62,101 +86,102 @@ namespace Contact_Conversion_Wizard
         public ImportResult Import(OutlookImportOptions options)
         {
             var result = new ImportResult();
-            Outlook.NameSpace session = outlook.GetNamespace("MAPI");
-            Outlook.MAPIFolder folder = options.PickFolder
-                ? session.PickFolder()
-                : session.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderContacts);
+            dynamic session = outlook.GetNamespace("MAPI");
+            dynamic folder = options.PickFolder ? session.PickFolder() : session.GetDefaultFolder(OlFolderContacts);
             if (folder == null) { return result; } // the user cancelled the folder selection
 
+            var categoryFilter = new CategoryFilter(options.CategoryFilter);
             bool pictures = SupportsPictures;
-            Outlook.Items items = folder.Items;
-            for (int i = 1; i <= items.Count; i++)
+            dynamic items = folder.Items;
+            int count = items.Count;
+
+            for (int i = 1; i <= count; i++)
             {
-                if (!(items[i] is Outlook.ContactItem item)) { continue; } // distribution lists etc.
-
-                if (!(item.MessageClass ?? "").StartsWith("IPM.Contact", StringComparison.Ordinal))
+                dynamic item = items.Item(i);
+                try
                 {
-                    result.Warnings.Add("Not a valid contact class " + item.MessageClass);
-                    continue;
+                    if ((int)item.Class != OlContactClass) { continue; } // distribution lists etc.
+
+                    string messageClass = Text(item.MessageClass);
+                    if (!messageClass.StartsWith("IPM.Contact", StringComparison.Ordinal))
+                    {
+                        result.Warnings.Add("Not a valid contact class " + messageClass);
+                        continue;
+                    }
+
+                    if (!categoryFilter.IsEmpty && !categoryFilter.Matches(Text(item.Categories))) { continue; }
+
+                    string notes = Text(item.Body);
+                    Contact contact = ReadContact(item, options, pictures, result);
+                    NoteFlags.Apply(contact, Text(item.NickName), notes, options.Import.VipMode);
+
+                    if (options.Import.Accept(contact, notes))
+                    {
+                        result.Contacts.Add(contact);
+                    }
                 }
-
-                string categories = item.Categories ?? "";
-                if (options.CategoryFilter != "" && !categories.Contains(options.CategoryFilter)) { continue; }
-
-                string notes = item.Body ?? "";
-                if (NoteFlags.IsIgnored(notes)) { continue; }
-
-                Contact contact = ReadContact(item, options, pictures);
-                NoteFlags.Apply(contact, item.NickName ?? "", notes, options.Import.VipMode);
-
-                bool hasName = contact.CombinedName != "";
-                bool hasNumber = contact.HasAnyNumber;
-                if ((hasName || options.ImportWithoutName) && (hasNumber || options.ImportWithoutNumber))
+                catch (Exception ex) when (ex is COMException || ex is Microsoft.CSharp.RuntimeBinder.RuntimeBinderException || ex is InvalidCastException)
                 {
-                    result.Contacts.Add(contact);
+                    result.Warnings.Add("Outlook item #" + i + " could not be read: " + ex.Message);
                 }
             }
 
             return result;
         }
 
-        private Contact ReadContact(Outlook.ContactItem item, OutlookImportOptions options, bool pictures)
+        private static string Text(object value) => value == null ? "" : Convert.ToString(value, CultureInfo.InvariantCulture);
+
+        private static Contact ReadContact(dynamic item, OutlookImportOptions options, bool pictures, ImportResult result)
         {
             var contact = new Contact
             {
-                LastName = item.LastName,
-                FirstName = item.FirstName,
-                Company = item.CompanyName,
-                Home = item.HomeTelephoneNumber,
-                Work = item.BusinessTelephoneNumber,
-                HomeFax = item.HomeFaxNumber,
-                WorkFax = item.BusinessFaxNumber,
-                Mobile = item.MobileTelephoneNumber,
-                Street = (item.MailingAddressStreet ?? "").Replace(Environment.NewLine, " - "),
-                Zip = item.MailingAddressPostalCode,
-                City = item.MailingAddressCity,
-                Email = item.Email1Address,
+                LastName = Text(item.LastName),
+                FirstName = Text(item.FirstName),
+                Company = Text(item.CompanyName),
+                Home = Text(item.HomeTelephoneNumber),
+                Work = Text(item.BusinessTelephoneNumber),
+                HomeFax = Text(item.HomeFaxNumber),
+                WorkFax = Text(item.BusinessFaxNumber),
+                Mobile = Text(item.MobileTelephoneNumber),
+                Street = Text(item.MailingAddressStreet).Replace("\r\n", " - ").Replace("\n", " - "),
+                Zip = Text(item.MailingAddressPostalCode),
+                City = Text(item.MailingAddressCity),
+                Email = Text(item.Email1Address),
             };
 
-            string other = item.OtherTelephoneNumber;
-            if (options.ImportOtherNumber && !string.IsNullOrEmpty(other))
+            object birthday = item.Birthday;
+            if (birthday is DateTime date && date.Year > 1 && date.Date != NoDate)
             {
-                PutIntoFreeSlot(contact, other, options.Import.TypePreference);
+                contact.Birthday = date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             }
 
-            if (pictures && item.HasPicture)
+            string other = Text(item.OtherTelephoneNumber);
+            if (options.ImportOtherNumber && other != "")
+            {
+                ContactSlots.PutIntoFreeSlot(contact, other, options.Import.TypePreference);
+            }
+
+            if (pictures && (bool)item.HasPicture)
             {
                 contact.Photo = ReadPhoto(item);
             }
 
             contact.CombinedName = options.UseFileAs
-                ? item.FileAs
+                ? Text(item.FileAs)
                 : NameFormatter.GenerateFullName(contact.FirstName, contact.LastName, contact.Company, options.Import.NameStyle);
 
             return contact;
         }
 
-        /// <summary>Stores a number in the empty home or work field, starting with the preferred one.</summary>
-        internal static void PutIntoFreeSlot(Contact contact, string number, TypePreference preference)
+        private static byte[] ReadPhoto(dynamic item)
         {
-            if (preference == TypePreference.Home)
-            {
-                if (contact.Home == "") { contact.Home = number; }
-                else if (contact.Work == "") { contact.Work = number; }
-            }
-            else
-            {
-                if (contact.Work == "") { contact.Work = number; }
-                else if (contact.Home == "") { contact.Home = number; }
-            }
-        }
-
-        private static byte[] ReadPhoto(Outlook.ContactItem item)
-        {
-            foreach (Outlook.Attachment attachment in item.Attachments)
+            dynamic attachments = item.Attachments;
+            int count = attachments.Count;
+            for (int i = 1; i <= count; i++)
             {
                 try
                 {
+                    dynamic attachment = attachments.Item(i);
                     if (!(bool)attachment.PropertyAccessor.GetProperty(ContactPhotoProperty)) { continue; }
 
                     string tempFile = Path.GetTempFileName();
@@ -170,7 +195,7 @@ namespace Contact_Conversion_Wizard
                         File.Delete(tempFile);
                     }
                 }
-                catch (Exception)
+                catch (Exception ex) when (ex is COMException || ex is IOException || ex is Microsoft.CSharp.RuntimeBinder.RuntimeBinderException || ex is InvalidCastException)
                 {
                     // attachment processing fails for some items (mostly Outlook 2003); ignore the picture then
                 }
@@ -184,7 +209,7 @@ namespace Contact_Conversion_Wizard
         /// </summary>
         public int Export(IEnumerable<Contact> contacts, PhoneNumberCleaner cleaner, bool applyPrefix, bool exportPictures)
         {
-            Outlook.MAPIFolder folder = outlook.GetNamespace("MAPI").PickFolder();
+            dynamic folder = outlook.GetNamespace("MAPI").PickFolder();
             if (folder == null) { return -1; }
 
             bool pictures = exportPictures && SupportsPictures;
@@ -192,7 +217,7 @@ namespace Contact_Conversion_Wizard
             foreach (Contact contact in contacts)
             {
                 string prefix = applyPrefix ? contact.FritzPrefix : "";
-                var item = (Outlook.ContactItem)folder.Items.Add(Outlook.OlItemType.olContactItem);
+                dynamic item = folder.Items.Add(OlContactItem);
 
                 item.FirstName = contact.FirstName;
                 item.LastName = contact.LastName;
@@ -208,9 +233,15 @@ namespace Contact_Conversion_Wizard
                 item.FileAs = contact.CombinedName;
                 item.CompanyName = contact.Company;
 
+                // Outlook needs a year; birthdays without year are not exported
+                if (BirthdayParser.TryGetDate(contact.Birthday, out DateTime birthday, out bool hasYear) && hasYear)
+                {
+                    item.Birthday = birthday;
+                }
+
                 string body = (contact.IsVip ? "VIP" + Environment.NewLine : "")
                     + (contact.SpeedDial != "" ? "SPEEDDIAL(" + contact.SpeedDial + ")" : "");
-                if (body != "") { item.Body += body; }
+                if (body != "") { item.Body = Text(item.Body) + body; }
 
                 if (pictures && contact.Photo != null)
                 {
@@ -231,6 +262,15 @@ namespace Contact_Conversion_Wizard
             }
 
             return count;
+        }
+    }
+
+    /// <summary>Outlook is not installed or cannot be started.</summary>
+    public sealed class OutlookNotAvailableException : Exception
+    {
+        public OutlookNotAvailableException(string message, Exception innerException = null)
+            : base(message, innerException)
+        {
         }
     }
 }

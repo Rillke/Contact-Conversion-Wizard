@@ -127,7 +127,7 @@ namespace ContactConversionWizard.Core.Tests
         public void Import_NextcloudQuotedTypes()
         {
             const string vcard = "BEGIN:VCARD\nN:Doe;J\nTEL;TYPE=\"cell\":0170\nEND:VCARD\n";
-            Assert.Empty(Import(vcard).Contacts);
+            Assert.Equal("0170", Import(vcard).Contacts.Single().Home); // unknown type: stored as "other" number
             Assert.Equal("0170", Import(vcard, new ImportOptions { NextcloudVCardFix = true }).Contacts.Single().Mobile);
         }
 
@@ -226,7 +226,8 @@ namespace ContactConversionWizard.Core.Tests
 
             Assert.False(result.Contacts[1].IsVip);
             Assert.Equal("040", result.Contacts[1].Work);
-            Assert.Equal("Unknown XML Attribute: intern=**1", Assert.Single(result.Warnings));
+            Assert.Equal("**1", result.Contacts[1].Home); // internal numbers are treated like "other"
+            Assert.Empty(result.Warnings);
         }
 
         [Fact]
@@ -295,7 +296,8 @@ namespace ContactConversionWizard.Core.Tests
         [Fact]
         public void FieldNames_MatchEnum()
         {
-            Assert.Equal(14, CsvContactMapper.FieldNames.Count);
+            Assert.Equal(15, CsvContactMapper.FieldNames.Count);
+            Assert.Equal("Birthday", CsvContactMapper.FieldNames[(int)CsvField.Birthday + 1]);
             Assert.Equal("Notes", CsvContactMapper.FieldNames[(int)CsvField.Notes + 1]);
         }
     }

@@ -24,7 +24,6 @@ namespace ContactConversionWizard.Core.Import
             if (input == null) { throw new ArgumentNullException(nameof(input)); }
 
             var result = new ImportResult();
-            var unknownTypes = new SortedSet<string>(StringComparer.Ordinal);
 
             try
             {
@@ -37,7 +36,8 @@ namespace ContactConversionWizard.Core.Import
                         {
                             // ReadFrom positions the reader on the node following the contact
                             var element = (XElement)XNode.ReadFrom(reader);
-                            result.Contacts.Add(ParseContact(element, unknownTypes));
+                            Contact contact = ParseContact(element, result);
+                            if (options.Accept(contact)) { result.Contacts.Add(contact); }
                         }
                         else
                         {
@@ -51,15 +51,10 @@ namespace ContactConversionWizard.Core.Import
                 result.Warnings.Add("error occured: " + ex.Message);
             }
 
-            foreach (string unknown in unknownTypes)
-            {
-                result.Warnings.Add("Unknown XML Attribute: " + unknown);
-            }
-
             return result;
         }
 
-        private Contact ParseContact(XElement element, ISet<string> unknownTypes)
+        private Contact ParseContact(XElement element, ImportResult result)
         {
             var contact = new Contact();
 
@@ -68,9 +63,15 @@ namespace ContactConversionWizard.Core.Import
             contact.CombinedName = contact.LastName;
             contact.Email = ((string)element.Element("services")?.Elements("email").FirstOrDefault(e => !string.IsNullOrWhiteSpace(e.Value)) ?? "").Trim();
 
+            // numbers that do not fit into the field of their type are kept until all typed numbers are known
+            var otherNumbers = new List<string>();
+
             IEnumerable<XElement> numbers = element.Element("telephony")?.Elements("number") ?? Enumerable.Empty<XElement>();
             foreach (XElement number in numbers)
             {
+                string value = number.Value.Trim();
+                if (value == "") { continue; }
+
                 string quickDial = (string)number.Attribute("quickdial");
                 string vanity = (string)number.Attribute("vanity");
                 if (!string.IsNullOrEmpty(quickDial))
@@ -80,33 +81,65 @@ namespace ContactConversionWizard.Core.Import
 
                 string type = (string)number.Attribute("type") ?? "";
                 bool preferred = (string)number.Attribute("prio") == "1";
-                string value = number.Value.Trim();
 
                 switch (type)
                 {
                     case "home":
-                        contact.Home = value;
-                        if (preferred) { contact.ExplicitPreferred = PhoneType.Home; }
+                        SetNumber(contact, PhoneType.Home, value, preferred, otherNumbers);
                         break;
                     case "work":
-                        contact.Work = value;
-                        if (preferred) { contact.ExplicitPreferred = PhoneType.Work; }
+                        SetNumber(contact, PhoneType.Work, value, preferred, otherNumbers);
                         break;
                     case "mobile":
-                        contact.Mobile = value;
-                        if (preferred) { contact.ExplicitPreferred = PhoneType.Mobile; }
+                        SetNumber(contact, PhoneType.Mobile, value, preferred, otherNumbers);
                         break;
                     case "fax_work":
-                        if (options.TypePreference == TypePreference.Home) { contact.HomeFax = value; }
-                        else { contact.WorkFax = value; }
+                        if (options.TypePreference == TypePreference.Home && contact.HomeFax == "") { contact.HomeFax = value; }
+                        else if (contact.WorkFax == "") { contact.WorkFax = value; }
+                        else if (contact.HomeFax == "") { contact.HomeFax = value; }
+                        else { Dropped(result, contact, value, type); }
                         break;
+                    case "other":   // "Sonstige"
+                    case "intern":
+                    case "memo":
                     default:
-                        unknownTypes.Add(type + "=" + value);
+                        otherNumbers.Add(value);
+                        if (type != "other" && type != "intern" && type != "memo")
+                        {
+                            result.Warnings.Add("Unknown number type \"" + type + "\" of " + contact.CombinedName + " was imported like \"other\": " + value);
+                        }
                         break;
                 }
             }
 
+            foreach (string other in otherNumbers)
+            {
+                if (!ContactSlots.PutIntoFreeSlot(contact, other, options.TypePreference, includeMobile: true))
+                {
+                    Dropped(result, contact, other, "other");
+                }
+            }
+
             return contact;
+        }
+
+        private static void SetNumber(Contact contact, PhoneType type, string value, bool preferred, List<string> overflow)
+        {
+            string current = ContactSlots.Get(contact, type);
+            if (current != "" && current != value)
+            {
+                // only one number per type is supported, the additional one is treated like "other"
+                overflow.Add(value);
+                return;
+            }
+
+            ContactSlots.Set(contact, type, value);
+            if (preferred) { contact.ExplicitPreferred = type; }
+        }
+
+        private static void Dropped(ImportResult result, Contact contact, string number, string type)
+        {
+            result.Warnings.Add(contact.CombinedName + ": the number " + number + " (" + type + ") was not imported, all number fields are in use.");
         }
     }
 }
