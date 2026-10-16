@@ -70,6 +70,7 @@
             this.VIP = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Speeddial = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Photo = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Birthday = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.label6 = new System.Windows.Forms.Label();
             this.label_save = new System.Windows.Forms.Label();
             this.btn_save_SnomCSV8 = new System.Windows.Forms.Button();
@@ -81,6 +82,7 @@
             this.btn_save_GrandstreamGXP = new System.Windows.Forms.Button();
             this.btn_save_Auerswald = new System.Windows.Forms.Button();
             this.btn_save_panasonicCSV = new System.Windows.Forms.Button();
+            this.btn_save_genericCSV = new System.Windows.Forms.Button();
             this.btn_save_vCard_Gigaset = new System.Windows.Forms.Button();
             this.combo_typeprefer = new System.Windows.Forms.ComboBox();
             this.combo_namestyle = new System.Windows.Forms.ComboBox();
@@ -108,8 +110,7 @@
             this.btn_read_Outlook.Size = new System.Drawing.Size(167, 35);
             this.btn_read_Outlook.TabIndex = 0;
             this.btn_read_Outlook.Text = "Outlook";
-            this.toolTip1.SetToolTip(this.btn_read_Outlook, "Import Contacts from Outlook.\r\n\r\nHold SHIFT to select custom folder!\r\nHold CTRL t" +
-        "o import only Contacts matching a category!\r\n");
+            this.toolTip1.SetToolTip(this.btn_read_Outlook, "Import Contacts from Outlook.\r\n\r\nHold SHIFT to select custom folder!\r\nHold CTRL to import only Contacts matching a category!\r\n  Several categories can be separated by \";\", categories to exclude are prefixed with \"!\",\r\n  e.g. \"Family; Friends; !Business\".\r\n");
             this.btn_read_Outlook.UseVisualStyleBackColor = true;
             this.btn_read_Outlook.Click += new System.EventHandler(this.btn_read_Outlook_Click);
             // 
@@ -389,6 +390,7 @@
             this.ZIP,
             this.City,
             this.eMail,
+            this.Birthday,
             this.VIP,
             this.Speeddial,
             this.Photo});
@@ -511,6 +513,14 @@
             this.eMail.Name = "eMail";
             this.eMail.ReadOnly = true;
             this.eMail.Width = 57;
+            // 
+            // Birthday
+            // 
+            this.Birthday.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.Birthday.HeaderText = "Birthday";
+            this.Birthday.Name = "Birthday";
+            this.Birthday.ReadOnly = true;
+            this.Birthday.Width = 70;
             // 
             // VIP
             // 
@@ -663,6 +673,19 @@
             this.toolTip1.SetToolTip(this.btn_save_panasonicCSV, resources.GetString("btn_save_panasonicCSV.ToolTip"));
             this.btn_save_panasonicCSV.UseVisualStyleBackColor = true;
             this.btn_save_panasonicCSV.Click += new System.EventHandler(this.btn_save_panasonicCSV_Click);
+            // 
+            // btn_save_genericCSV
+            // 
+            this.btn_save_genericCSV.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_save_genericCSV.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_save_genericCSV.Location = new System.Drawing.Point(836, 374);
+            this.btn_save_genericCSV.Name = "btn_save_genericCSV";
+            this.btn_save_genericCSV.Size = new System.Drawing.Size(167, 35);
+            this.btn_save_genericCSV.TabIndex = 34;
+            this.btn_save_genericCSV.Text = "Generic CSV";
+            this.toolTip1.SetToolTip(this.btn_save_genericCSV, "Export all fields as CSV file with a header row (UTF-8, comma separated),\r\ne.g. for spreadsheets. The file can be read again with \"Generic CSV\" import.\r\n\r\nKeep SHIFT pressed to export only contacts that have a home/work/mobile number.\r\n");
+            this.btn_save_genericCSV.UseVisualStyleBackColor = true;
+            this.btn_save_genericCSV.Click += new System.EventHandler(this.btn_save_genericCSV_Click);
             // 
             // btn_save_vCard_Gigaset
             // 
@@ -842,6 +865,7 @@
             this.ClientSize = new System.Drawing.Size(1004, 582);
             this.Controls.Add(this.btn_save_vCard_Gigaset);
             this.Controls.Add(this.btn_save_panasonicCSV);
+            this.Controls.Add(this.btn_save_genericCSV);
             this.Controls.Add(this.btn_save_Auerswald);
             this.Controls.Add(this.btn_save_GrandstreamGXP);
             this.Controls.Add(this.button_forum);
@@ -944,12 +968,14 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn VIP;
         private System.Windows.Forms.DataGridViewTextBoxColumn Speeddial;
         private System.Windows.Forms.DataGridViewTextBoxColumn Photo;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Birthday;
         private System.Windows.Forms.Button button_website;
         private System.Windows.Forms.Button button_forum;
         private System.ComponentModel.BackgroundWorker backgroundWorker_updateCheck;
         private System.Windows.Forms.Button btn_save_GrandstreamGXP;
         private System.Windows.Forms.Button btn_save_Auerswald;
         private System.Windows.Forms.Button btn_save_panasonicCSV;
+        private System.Windows.Forms.Button btn_save_genericCSV;
         private System.Windows.Forms.Button btn_save_vCard_Gigaset;
     }
 }

@@ -79,7 +79,7 @@ namespace Contact_Conversion_Wizard
                 case "DE": return 0;
                 case "AT": return 1;
                 case "CH": return 2;
-                case "UK": return 3;
+                case "GB": return 3;
                 case "IT": return 4;
                 case "NL": return 5;
                 case "BE": return 6;
@@ -130,6 +130,8 @@ namespace Contact_Conversion_Wizard
                 TypePreference = SelectedTypePreference,
                 VipMode = (VipMode)combo_VIP.SelectedIndex,
                 NextcloudVCardFix = settings.NextcloudVCardFix,
+                ImportWithoutNumber = settings.ImportWithoutNumber,
+                ImportWithoutName = settings.ImportWithoutName,
             };
         }
 
@@ -217,7 +219,7 @@ namespace Contact_Conversion_Wizard
                 btn_read_Outlook, btn_read_FritzXML, btn_read_vCard, btn_read_FritzAdress, btn_read_genericCSV,
                 btn_save_Outlook, btn_save_FritzXML, btn_save_vCard, btn_save_vCard_Gigaset, btn_save_FritzAdress, btn_save_SnomCSV7,
                 btn_save_SnomCSV8, btn_save_TalkSurfCSV, btn_save_AastraCSV, btn_save_GrandstreamGXV, btn_save_GrandstreamGXP,
-                btn_save_Auerswald, btn_save_panasonicCSV, button_clear, button_config,
+                btn_save_Auerswald, btn_save_panasonicCSV, btn_save_genericCSV, button_clear, button_config,
             };
             foreach (Control control in controls) { control.Enabled = !busy; }
             Cursor.Current = busy ? Cursors.WaitCursor : Cursors.Default;
@@ -229,7 +231,7 @@ namespace Contact_Conversion_Wizard
             {
                 contact.CombinedName, contact.LastName, contact.FirstName, contact.Company, contact.Home, contact.Work, contact.Mobile,
                 PreferredText(contact.Preferred), contact.HomeFax, contact.WorkFax, contact.Street, contact.Zip, contact.City, contact.Email,
-                contact.IsVip ? "Yes" : "No", contact.SpeedDial, contact.Photo != null ? "Yes" : "No",
+                contact.Birthday, contact.IsVip ? "Yes" : "No", contact.SpeedDial, contact.Photo != null ? "Yes" : "No",
             };
         }
 
@@ -328,7 +330,7 @@ namespace Contact_Conversion_Wizard
         {
             return ex is IOException || ex is UnauthorizedAccessException || ex is FormatException
                 || ex is System.Runtime.InteropServices.COMException || ex is InvalidCastException || ex is WebException
-                || ex is System.Xml.XmlException || ex is ArgumentException;
+                || ex is System.Xml.XmlException || ex is ArgumentException || ex is Microsoft.CSharp.RuntimeBinder.RuntimeBinderException;
         }
 
         private static string AskForFile(string title, string filter)
@@ -357,9 +359,9 @@ namespace Contact_Conversion_Wizard
             {
                 outlook = OutlookConnector.Connect();
             }
-            catch (Exception ex) when (IsReportable(ex) || ex is TypeLoadException || ex is FileNotFoundException)
+            catch (OutlookNotAvailableException ex)
             {
-                MessageBox.Show("Unable to access Outlook!" + Environment.NewLine + Environment.NewLine + "This program needs Outlook to continue, are you sure it's installed and working?" + Environment.NewLine + Environment.NewLine + "Error returned was: " + ex);
+                MessageBox.Show("Unable to access Outlook!" + Environment.NewLine + Environment.NewLine + "This program needs Outlook to continue, are you sure it's installed and working?" + Environment.NewLine + Environment.NewLine + "Error returned was: " + ex.Message);
                 return;
             }
 
@@ -369,12 +371,13 @@ namespace Contact_Conversion_Wizard
                 PickFolder = pickFolder,
                 UseFileAs = combo_outlookimport.SelectedIndex == 1,
                 ImportOtherNumber = settings.ImportOtherNumbers,
-                ImportWithoutName = settings.OutlookImportEmptyName,
-                ImportWithoutNumber = settings.OutlookImportEmptyNumber,
             };
             if (filterCategories)
             {
-                options.CategoryFilter = AskUser("Please enter the string that must be present in the category field:", "Category Filter", false, false) ?? "";
+                options.CategoryFilter = AskUser(
+                    "Please enter the categories to import, separated by \";\"." + Environment.NewLine
+                    + "Prefix categories to exclude with \"!\", e.g.: Family; Friends; !Business",
+                    "Category Filter", false, false) ?? "";
             }
 
             RunImport(() => outlook.Import(options));
@@ -396,12 +399,12 @@ namespace Contact_Conversion_Wizard
 
         private void btn_read_VC_Click(object sender, EventArgs e)
         {
-            // SHIFT: the file is not Unicode but ISO-8859-1
+            // SHIFT: read the file as ISO-8859-1 instead of detecting UTF-8 / Windows-1252
             bool latin1 = ShiftPressed;
             string file = AskForFile("Select the vCard file you wish to load", "vCard Files|*.vcf");
             if (file == null) { return; }
 
-            RunImport(() => new VCardImporter(CreateImportOptions()).Import(File.ReadAllBytes(file), latin1 ? TextEncodings.Latin1 : Encoding.UTF8));
+            RunImport(() => new VCardImporter(CreateImportOptions()).Import(File.ReadAllBytes(file), latin1 ? TextEncodings.Latin1 : null));
         }
 
         private void btn_read_FritzAdr_Click(object sender, EventArgs e)
@@ -565,6 +568,12 @@ namespace Contact_Conversion_Wizard
 
         private void btn_save_panasonicCSV_Click(object sender, EventArgs e) => ExportToFile(new PanasonicCsvExporter());
 
+        private void btn_save_genericCSV_Click(object sender, EventArgs e)
+        {
+            bool onlyWithPhone = ShiftPressed;
+            ExportToFile(new GenericCsvExporter(), o => o.OnlyWithPhoneNumber = onlyWithPhone);
+        }
+
         private void btn_save_Outlook_Click(object sender, EventArgs e)
         {
             ExportOptions options = CreateExportOptions();
@@ -581,9 +590,9 @@ namespace Contact_Conversion_Wizard
                     MessageBox.Show(count + " contacts have been written to the selected Outlook folder!");
                 }
             }
-            catch (Exception ex) when (IsReportable(ex) || ex is TypeLoadException || ex is FileNotFoundException)
+            catch (Exception ex) when (IsReportable(ex) || ex is OutlookNotAvailableException || ex is Microsoft.CSharp.RuntimeBinder.RuntimeBinderException)
             {
-                MessageBox.Show("Unable to access Outlook!" + Environment.NewLine + Environment.NewLine + "Error returned was: " + ex);
+                MessageBox.Show("Writing to Outlook failed!" + Environment.NewLine + Environment.NewLine + "Error returned was: " + ex.Message);
             }
             finally
             {

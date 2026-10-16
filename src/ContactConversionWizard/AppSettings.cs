@@ -19,8 +19,12 @@ namespace Contact_Conversion_Wizard
         public bool RenameDuplicates { get; set; }
         public bool CheckForUpdates { get; set; } = true;
 
-        public bool OutlookImportEmptyNumber { get; set; }
-        public bool OutlookImportEmptyName { get; set; }
+        /// <summary>Import contacts without phone number (all sources; stored under the old Outlook specific key).</summary>
+        public bool ImportWithoutNumber { get; set; }
+
+        /// <summary>Import contacts without name (all sources; stored under the old Outlook specific key).</summary>
+        public bool ImportWithoutName { get; set; }
+
         public bool NextcloudVCardFix { get; set; }
 
         public NumberCleanupOptions Cleanup { get; } = new NumberCleanupOptions();
@@ -47,9 +51,9 @@ namespace Contact_Conversion_Wizard
             settings.ApplyPrefixToAllFormats = config.GetBool("cfg_prefixNONFB", settings.ApplyPrefixToAllFormats);
             settings.ImportOtherNumbers = config.GetBool("cfg_importOther", settings.ImportOtherNumbers);
             settings.RenameDuplicates = config.GetBool("cfg_DUPren", settings.RenameDuplicates);
-            settings.OutlookImportEmptyNumber = config.GetBool("outlook_empty_number", settings.OutlookImportEmptyNumber);
-            settings.OutlookImportEmptyName = config.GetBool("outlook_empty_name", settings.OutlookImportEmptyName);
-            settings.NextcloudVCardFix = config.GetBool("checkBox_nextcloud_vcf_fix ", settings.NextcloudVCardFix);
+            settings.ImportWithoutNumber = config.GetBool("outlook_empty_number", settings.ImportWithoutNumber);
+            settings.ImportWithoutName = config.GetBool("outlook_empty_name", settings.ImportWithoutName);
+            settings.NextcloudVCardFix = config.GetBool("nextcloud_vcf_fix", settings.NextcloudVCardFix);
             settings.CheckForUpdates = config.GetBool("cfg_checkVersion", settings.CheckForUpdates);
 
             NumberCleanupOptions c = settings.Cleanup;
@@ -83,8 +87,8 @@ namespace Contact_Conversion_Wizard
             config.Set("cfg_prefixNONFB", ApplyPrefixToAllFormats);
             config.Set("cfg_importOther", ImportOtherNumbers);
             config.Set("cfg_DUPren", RenameDuplicates);
-            config.Set("outlook_empty_number", OutlookImportEmptyNumber);
-            config.Set("outlook_empty_name", OutlookImportEmptyName);
+            config.Set("outlook_empty_number", ImportWithoutNumber);
+            config.Set("outlook_empty_name", ImportWithoutName);
             config.Set("nextcloud_vcf_fix", NextcloudVCardFix);
             config.Set("cfg_checkVersion", CheckForUpdates);
 

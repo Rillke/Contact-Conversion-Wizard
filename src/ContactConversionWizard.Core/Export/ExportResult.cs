@@ -43,6 +43,15 @@ namespace ContactConversionWizard.Core.Export
         /// <summary>Files that belong to the export, such as pictures.</summary>
         public List<ExportedFile> AdditionalFiles { get; } = new List<ExportedFile>();
 
-        public byte[] GetBytes() => Encoding.GetBytes(Content);
+        /// <summary>The file content including the byte order mark if the encoding has one.</summary>
+        public byte[] GetBytes()
+        {
+            byte[] preamble = Encoding.GetPreamble();
+            byte[] content = Encoding.GetBytes(Content);
+            var bytes = new byte[preamble.Length + content.Length];
+            preamble.CopyTo(bytes, 0);
+            content.CopyTo(bytes, preamble.Length);
+            return bytes;
+        }
     }
 }

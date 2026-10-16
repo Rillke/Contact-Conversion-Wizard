@@ -2,6 +2,26 @@
 
 ## Änderungshistorie
 
+### v3.6.0.0 [unveröffentlicht]
+
+* neu: Export "Generic CSV" mit allen Feldern und Kopfzeile (UTF-8), z.B. für Tabellenkalkulationen; die Datei kann über den Generic CSV Import wieder eingelesen werden (#18)
+* neu: Geburtstage werden aus vCards (BDAY, auch ohne Jahr), Outlook und CSV importiert und nach vCard, Outlook und Generic CSV exportiert; ohne Jahr wird beim vCard-Export 1900 verwendet (#28)
+* neu: Alle Exporte sind alphabetisch nach Namen sortiert (#20)
+* neu: Kontakte ohne Telefonnummer und/oder ohne Namen können jetzt aus allen Quellen importiert werden, nicht nur aus Outlook (#30)
+* neu: Outlook-Kategoriefilter (STRG beim Import) unterstützt mehrere Kategorien und Ausschlüsse, z.B. "Familie; Freunde; !Arbeit" (#34)
+* neu: Grandstream GXP Export nutzt getrennte Felder für Vor- und Nachname (#22)
+* bugfix: vCard Import dekodiert QUOTED-PRINTABLE (z.B. Android/Samsung) und berücksichtigt den Zeichensatz jeder Zeile (CHARSET=..., z.B. MACINTOSH aus dem macOS Adressbuch); die Kodierung der Datei (UTF-8/Windows-1252/UTF-16) wird automatisch erkannt (#17, #21)
+* bugfix: vCard Import übernimmt Nummern ohne Typ (TEL, TEL;VOICE, TYPE=OTHER) sowie vCard 4.0 (PREF=1, tel:/mailto: URIs)
+* bugfix: Fritz!Box XML Import bricht bei Nummern vom Typ "other" (Sonstige) nicht mehr ab; zusätzliche Nummern gleichen Typs werden in freie Felder übernommen statt verworfen (#23, #1)
+* bugfix: Snom v8 CSV Export entspricht dem dokumentierten Format (Master-Eintrag vom Typ "sip" mit der ersten Nummer als Schlüssel, Typ "business" statt "work") (#32)
+* bugfix: Outlook Import/Export nutzt späte Bindung und funktioniert dadurch auch bei fehlerhaft registrierter Outlook-Typbibliothek (Absturz "TYPE_E_ELEMENTNOTFOUND") (#35, #25)
+* bugfix: Die Einstellung "Nextcloud .vcf Fix" wird wieder korrekt angezeigt und gespeichert (#16)
+* bugfix: Der CSV Row Assigner ist bei vielen Spalten scroll- und vergrößerbar (#33)
+* bugfix: Gigaset vCard Export für Kontakte ohne Vor-/Nachname
+* entfernt: Direkter Google Contacts Import/Export (von Google abgeschaltete API, Kennwort wurde im Klartext gespeichert) - bitte vCard verwenden (#8)
+* sicherheit: Update-Prüfung nur noch per HTTPS über GitHub, Exporte gegen eingeschleuste XML/CSV Strukturen gehärtet
+* intern: Logik in testbare Bibliothek ausgelagert, automatische Tests, GitHub Actions statt Travis CI
+
 ### v3.5.0.0 [22.11.2013]
 
 * neu: Compilierungs-Profil geändert auf .NET 4.0 Client

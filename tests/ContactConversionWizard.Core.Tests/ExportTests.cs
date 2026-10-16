@@ -90,7 +90,7 @@ namespace ContactConversionWizard.Core.Tests
             Assert.Equal("Berlin", john.City);
             Assert.True(john.IsVip);
             Assert.Equal("05", john.SpeedDial);
-            Assert.Equal("0302", imported[2].HomeFax);
+            Assert.Equal("0302", imported.Single(c => c.CombinedName == "OnlyFax").HomeFax);
         }
 
         [Fact]
@@ -122,7 +122,8 @@ namespace ContactConversionWizard.Core.Tests
             Assert.Contains("\tVIP SPEEDDIAL(05)\t0170999\tjohn@example.com\t", lines[1]);
             Assert.StartsWith("Doe John [A&B] W\t", lines[2]);
             Assert.Contains("\t0405678\t0401\t", lines[2]);
-            Assert.StartsWith("OnlyFax\t", lines[4]);
+            Assert.StartsWith("OnlyFax\t", lines[3]);
+            Assert.StartsWith("Roe Jane\t", lines[4]);
 
             var options = Options();
             options.OnlyWithFaxNumber = true;
@@ -141,10 +142,10 @@ namespace ContactConversionWizard.Core.Tests
         public void SnomV8()
         {
             Assert.Equal(
-                "\"Doe John [A&B]\",\"00100001\",\"MASTER\",\"\",\"John\",\"Doe\",\"\",\"\",\"john@example.com\",\"\",\"\",\"\",\"false\",\"\",\"home\",\"\"\r\n" +
-                "\"\",\"0301234\",\"vip\",\"\",\"Member_Alias\",\"00100001\",\"\",\"\",\"\",\"\",\"\",\"\",\"false\",\"\",\"home\",\"\"\r\n" +
-                "\"\",\"0405678\",\"vip\",\"\",\"Member_Alias\",\"00100001\",\"\",\"\",\"\",\"\",\"\",\"\",\"false\",\"\",\"work\",\"\"\r\n" +
-                "\"\",\"0170999\",\"vip\",\"\",\"Member_Alias\",\"00100001\",\"\",\"\",\"\",\"\",\"\",\"\",\"false\",\"\",\"mobile\",\"\"\r\n" +
+                "\"Doe John [A&B]\",\"0301234\",\"MASTER\",\"\",\"John\",\"Doe\",\"\",\"\",\"john@example.com\",\"\",\"\",\"\",\"false\",\"\",\"sip\",\"\"\r\n" +
+                "\"\",\"0301234\",\"vip\",\"\",\"Member_Alias\",\"0301234\",\"\",\"\",\"\",\"\",\"\",\"\",\"false\",\"\",\"home\",\"\"\r\n" +
+                "\"\",\"0405678\",\"vip\",\"\",\"Member_Alias\",\"0301234\",\"\",\"\",\"\",\"\",\"\",\"\",\"false\",\"\",\"business\",\"\"\r\n" +
+                "\"\",\"0170999\",\"vip\",\"\",\"Member_Alias\",\"0301234\",\"\",\"\",\"\",\"\",\"\",\"\",\"false\",\"\",\"mobile\",\"\"\r\n" +
                 "\"Roe Jane\",\"01711\",\"\",\"\",\"Jane\",\"Roe\",\"\",\"\",\"\",\"\",\"\",\"\",\"false\",\"\",\"mobile\",\"\"\r\n",
                 Run(new SnomV8CsvExporter()).Content);
         }

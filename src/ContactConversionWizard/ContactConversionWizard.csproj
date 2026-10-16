@@ -31,7 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Office.Interop.Outlook" Version="15.0.4797.1004" />
     <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.48" PrivateAssets="all" />
   </ItemGroup>
 
@@ -50,15 +49,4 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-
-  <!-- the Outlook interop types are embedded, so the interop assembly does not need to be shipped -->
-  <Target Name="EmbedOutlookInteropTypes" AfterTargets="ResolveAssemblyReferences">
-    <ItemGroup>
-      <ReferencePath Condition="'%(FileName)' == 'Microsoft.Office.Interop.Outlook'">
-        <EmbedInteropTypes>true</EmbedInteropTypes>
-      </ReferencePath>
-      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(FileName)' == 'Microsoft.Office.Interop.Outlook'" />
-    </ItemGroup>
-  </Target>
-
 </Project>

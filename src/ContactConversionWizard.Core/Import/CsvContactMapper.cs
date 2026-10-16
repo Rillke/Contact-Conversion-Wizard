@@ -22,6 +22,7 @@ namespace ContactConversionWizard.Core.Import
         City = 10,
         Email = 11,
         Notes = 12,
+        Birthday = 13,
     }
 
     /// <summary>Turns the rows of a generic CSV file into contacts using a user defined column assignment.</summary>
@@ -30,7 +31,7 @@ namespace ContactConversionWizard.Core.Import
         /// <summary>Display names of the assignable fields, index = <see cref="CsvField"/> + 1.</summary>
         public static readonly IReadOnlyList<string> FieldNames = new[]
         {
-            "(ignore)", "Lastname", "Firstname", "Company", "Home", "Work", "Mobile", "HomeFax", "WorkFax", "Street", "ZIP Code", "City", "eMail", "Notes",
+            "(ignore)", "Lastname", "Firstname", "Company", "Home", "Work", "Mobile", "HomeFax", "WorkFax", "Street", "ZIP Code", "City", "eMail", "Notes", "Birthday",
         };
 
         private readonly ImportOptions options;
@@ -49,13 +50,15 @@ namespace ContactConversionWizard.Core.Import
             foreach (string[] row in rows)
             {
                 var contact = new Contact();
+                string notes = "";
                 for (int column = 0; column < assignment.Count && column < row.Length; column++)
                 {
-                    Assign(contact, assignment[column], row[column]);
+                    if (assignment[column] == CsvField.Notes) { notes = row[column]; }
+                    Assign(contact, assignment[column], row[column], result);
                 }
 
                 contact.CombinedName = NameFormatter.GenerateFullName(contact.FirstName, contact.LastName, contact.Company, options.NameStyle);
-                if (contact.CombinedName != "" && contact.HasAnyNumber)
+                if (options.Accept(contact, notes))
                 {
                     result.Contacts.Add(contact);
                 }
@@ -63,7 +66,7 @@ namespace ContactConversionWizard.Core.Import
             return result;
         }
 
-        private void Assign(Contact contact, CsvField field, string value)
+        private void Assign(Contact contact, CsvField field, string value, ImportResult result)
         {
             switch (field)
             {
@@ -81,6 +84,11 @@ namespace ContactConversionWizard.Core.Import
                 case CsvField.City: contact.City = value; break;
                 case CsvField.Email: contact.Email = value; break;
                 case CsvField.Notes: NoteFlags.Apply(contact, "", value, options.VipMode); break;
+                case CsvField.Birthday:
+                    string birthday = BirthdayParser.Normalize(value);
+                    if (birthday == null) { result.Warnings.Add("Unknown birthday format: " + value); }
+                    else { contact.Birthday = birthday; }
+                    break;
                 default: throw new ArgumentOutOfRangeException(nameof(field), field, "Unsupported CSV field.");
             }
         }

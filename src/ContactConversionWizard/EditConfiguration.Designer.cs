@@ -242,7 +242,7 @@
             this.label_Outlook.Name = "label_Outlook";
             this.label_Outlook.Size = new System.Drawing.Size(242, 20);
             this.label_Outlook.TabIndex = 31;
-            this.label_Outlook.Text = "Outlook related configuration";
+            this.label_Outlook.Text = "Import (all sources)";
             // 
             // checkBox_OutlookEmptyNumber
             // 
@@ -251,7 +251,7 @@
             this.checkBox_OutlookEmptyNumber.Name = "checkBox_OutlookEmptyNumber";
             this.checkBox_OutlookEmptyNumber.Size = new System.Drawing.Size(213, 17);
             this.checkBox_OutlookEmptyNumber.TabIndex = 32;
-            this.checkBox_OutlookEmptyNumber.Text = "Allow contact export with empty number";
+            this.checkBox_OutlookEmptyNumber.Text = "Import contacts without phone number";
             this.checkBox_OutlookEmptyNumber.UseVisualStyleBackColor = true;
             // 
             // checkBox_OutlookEmptyName
@@ -261,7 +261,7 @@
             this.checkBox_OutlookEmptyName.Name = "checkBox_OutlookEmptyName";
             this.checkBox_OutlookEmptyName.Size = new System.Drawing.Size(204, 17);
             this.checkBox_OutlookEmptyName.TabIndex = 33;
-            this.checkBox_OutlookEmptyName.Text = "Allow contact export with empty name";
+            this.checkBox_OutlookEmptyName.Text = "Import contacts without name";
             this.checkBox_OutlookEmptyName.UseVisualStyleBackColor = true;
             // 
             // label_Nextcloud

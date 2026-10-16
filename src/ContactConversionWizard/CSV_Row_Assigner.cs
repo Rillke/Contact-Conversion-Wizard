@@ -37,6 +37,11 @@ namespace Contact_Conversion_Wizard
             my_filename = the_filename;
 
             InitializeComponent();
+
+            // files with many columns need more space than small screens offer (issue #33)
+            AutoScroll = true;
+            FormBorderStyle = FormBorderStyle.Sizable;
+            MaximizeBox = true;
             combo_Separator.SelectedIndex = 0;
             combo_Headers.SelectedIndex = 0;
             combo_Encoding.SelectedIndex = 0;
@@ -143,6 +148,9 @@ namespace Contact_Conversion_Wizard
             int coloumns = my_LineList[0].GetLength(0);
             this.Text = "CSV Row Assigner" +  " (" + my_LineList.Count + " x " + coloumns + ")";
 
+            // the dynamic controls are positioned relative to the unscrolled form
+            this.AutoScrollPosition = new System.Drawing.Point(0, 0);
+
             combo_array = new ComboBox[coloumns];
             label_array = new Label[5, coloumns];
             label_header_array = new Label[5];
@@ -203,7 +211,11 @@ namespace Contact_Conversion_Wizard
 
             already_drawn = true;
             
-            this.Size = new System.Drawing.Size(this.Size.Width, (110 + row_distance * coloumns) + top_free);
+            // as high as needed, but not higher than the screen; the rest can be scrolled
+            int wantedHeight = 110 + row_distance * coloumns + top_free;
+            int screenHeight = Screen.FromControl(this).WorkingArea.Height;
+            this.Size = new System.Drawing.Size(this.Size.Width, Math.Min(wantedHeight, screenHeight));
+            if (wantedHeight > screenHeight) { this.Location = new System.Drawing.Point(this.Location.X, Screen.FromControl(this).WorkingArea.Top); }
 
             foreach (ComboBox my_cb in combo_array)
             { my_cb.SelectedIndex = 0; }

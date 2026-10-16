@@ -93,7 +93,7 @@ namespace ContactConversionWizard.Core.Export
         protected sealed class EntryCollector
         {
             private readonly Dictionary<string, string> entries = new Dictionary<string, string>(StringComparer.Ordinal);
-            private readonly List<string> order = new List<string>();
+            private readonly List<KeyValuePair<string, string>> order = new List<KeyValuePair<string, string>>(); // (sort name, key)
             private readonly ExportContext context;
 
             public EntryCollector(ExportContext context)
@@ -111,13 +111,21 @@ namespace ContactConversionWizard.Core.Export
                     return false;
                 }
                 entries.Add(key, entry);
-                order.Add(key);
+                order.Add(new KeyValuePair<string, string>(sourceName ?? key, key));
                 return true;
             }
 
+            /// <summary>
+            /// Appends the entries sorted alphabetically by the name of their contact; entries of the same contact
+            /// (e.g. home, work and mobile lines) keep their order.
+            /// </summary>
             public void AppendTo(StringBuilder sb)
             {
-                foreach (string key in order) { sb.Append(entries[key]); }
+                IEnumerable<string> sorted = order
+                    .OrderBy(e => e.Key, StringComparer.InvariantCultureIgnoreCase)
+                    .ThenBy(e => e.Key, StringComparer.Ordinal)
+                    .Select(e => e.Value);
+                foreach (string key in sorted) { sb.Append(entries[key]); }
             }
         }
     }

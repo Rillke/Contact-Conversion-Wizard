@@ -23,8 +23,11 @@ namespace ContactConversionWizard.Core.Export
         /// <summary>Removes characters before shortening the name.</summary>
         protected virtual string PrepareName(string combinedName) => combinedName;
 
+        /// <summary>The name that is shortened and suffixed for the lines of a contact, by default the combined name.</summary>
+        protected virtual string GetNameBase(Contact contact) => contact.CombinedName;
+
         /// <summary>The key used to detect duplicate lines.</summary>
-        protected virtual string GetKey(string name, PhoneType type) => name;
+        protected virtual string GetKey(string name, PhoneType type, Contact contact) => name;
 
         protected abstract string FormatLine(string name, string number, PhoneType type, Contact contact, string speedDialNumber);
 
@@ -41,7 +44,7 @@ namespace ContactConversionWizard.Core.Export
                 if (!numbers.HasVoiceNumber) { continue; }
 
                 bool separate = numbers.NeedsSeparateEntries;
-                string baseName = PrepareName(contact.CombinedName);
+                string baseName = PrepareName(GetNameBase(contact));
                 string speedDial = GetSpeedDialNumber(contact);
                 PhoneType preferred = contact.Preferred;
 
@@ -59,7 +62,7 @@ namespace ContactConversionWizard.Core.Export
         {
             if (number == "") { return; }
             string name = AdjustName(NameFormatter.LimitLength(baseName, MaxNameLength, separate, suffix));
-            entries.Add(GetKey(name, type), FormatLine(name, number, type, contact, speedDial), contact.CombinedName);
+            entries.Add(GetKey(name, type, contact), FormatLine(name, number, type, contact, speedDial), contact.CombinedName);
         }
     }
 
@@ -106,7 +109,7 @@ namespace ContactConversionWizard.Core.Export
 
         protected override string AdjustName(string name) => Escaping.SingleLine(name).Replace(",", " ").Replace("\"", " ");
 
-        protected override string GetKey(string name, PhoneType type) => name + "#" + type;
+        protected override string GetKey(string name, PhoneType type, Contact contact) => name + "#" + type;
 
         protected override string FormatLine(string name, string number, PhoneType type, Contact contact, string speedDialNumber)
             => name + "," + number + ",1," + type + ",public\n";

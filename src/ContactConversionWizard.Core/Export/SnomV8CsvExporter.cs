@@ -6,7 +6,14 @@ using ContactConversionWizard.Core.Text;
 
 namespace ContactConversionWizard.Core.Export
 {
-    /// <summary>Snom phones with v8 firmware: CSV with master contacts and member numbers (UTF-8 without BOM).</summary>
+    /// <summary>
+    /// Snom phones with v8 or newer firmware: CSV with master contacts and member numbers (UTF-8 without BOM).
+    /// </summary>
+    /// <remarks>
+    /// See https://service.snom.com/display/wiki/Local+Directory#LocalDirectory-Import: a contact with several numbers is
+    /// written as a <c>MASTER</c> line of type <c>sip</c> whose number is the first (preferred) number of the contact,
+    /// followed by one <c>Member_Alias</c> line per number that refers to the master by that number.
+    /// </remarks>
     public sealed class SnomV8CsvExporter : ContactExporter
     {
         public const int MaxNameLength = 31;
@@ -18,7 +25,8 @@ namespace ContactConversionWizard.Core.Export
         protected override ExportResult Export(IReadOnlyList<Contact> contacts, ExportContext context)
         {
             var entries = new EntryCollector(context);
-            int masterId = 100000;
+            var masterKeys = new HashSet<string>();
+            int fallbackMasterId = 100000;
 
             foreach (Contact contact in contacts)
             {
@@ -27,22 +35,30 @@ namespace ContactConversionWizard.Core.Export
 
                 string name = NameFormatter.LimitLength(contact.CombinedName, MaxNameLength);
                 List<KeyValuePair<string, string>> phones = OrderNumbers(contact, numbers);
-                string vip = contact.IsVip ? "vip" : "";
                 var sb = new StringBuilder();
 
                 if (phones.Count > 1)
                 {
-                    masterId++;
-                    string master = masterId.ToString("D8");
-                    sb.Append(Line(name, master, "MASTER", contact.FirstName, contact.LastName, contact.Email, phones[0].Key));
+                    // the master is referenced by its number, which must therefore be unique
+                    string master = phones.Select(p => p.Value).FirstOrDefault(n => !masterKeys.Contains(n));
+                    if (master == null)
+                    {
+                        do { fallbackMasterId++; } while (masterKeys.Contains(fallbackMasterId.ToString("D8")));
+                        master = fallbackMasterId.ToString("D8");
+                        context.Warnings.Add(contact.CombinedName + ": all numbers are already used by other contacts, the contact gets the internal key " + master + ".");
+                    }
+                    masterKeys.Add(master);
+
+                    sb.Append(Line(name, master, "MASTER", contact.FirstName, contact.LastName, contact.Email, "sip"));
+                    string relation = contact.IsVip ? "vip" : "none";
                     foreach (KeyValuePair<string, string> phone in phones)
                     {
-                        sb.Append(Line("", phone.Value, vip, "Member_Alias", master, "", phone.Key));
+                        sb.Append(Line("", phone.Value, relation, "Member_Alias", master, "", phone.Key));
                     }
                 }
                 else
                 {
-                    sb.Append(Line(name, phones[0].Value, vip, contact.FirstName, contact.LastName, contact.Email, phones[0].Key));
+                    sb.Append(Line(name, phones[0].Value, contact.IsVip ? "vip" : "", contact.FirstName, contact.LastName, contact.Email, phones[0].Key));
                 }
 
                 entries.Add(name, sb.ToString(), contact.CombinedName);
@@ -53,7 +69,7 @@ namespace ContactConversionWizard.Core.Export
             return new ExportResult(document.ToString(), TextEncodings.Utf8NoBom, entries.Count);
         }
 
-        /// <summary>The non-empty numbers as (type, number), the preferred one first, then home, work, mobile.</summary>
+        /// <summary>The non-empty numbers as (Snom type, number), the preferred one first, then home, work, mobile.</summary>
         private static List<KeyValuePair<string, string>> OrderNumbers(Contact contact, CleanNumbers numbers)
         {
             var all = new List<KeyValuePair<PhoneType, string>>
@@ -63,21 +79,22 @@ namespace ContactConversionWizard.Core.Export
                 new KeyValuePair<PhoneType, string>(PhoneType.Mobile, numbers.Mobile),
             };
 
-            var result = new List<KeyValuePair<string, string>>();
             PhoneType preferred = contact.Preferred;
-            foreach (KeyValuePair<PhoneType, string> entry in all)
-            {
-                if (entry.Key == preferred && entry.Value != "") { result.Add(Pair(entry)); }
-            }
-            foreach (KeyValuePair<PhoneType, string> entry in all)
-            {
-                if (entry.Key != preferred && entry.Value != "") { result.Add(Pair(entry)); }
-            }
-            return result;
+            return all.Where(e => e.Key == preferred && e.Value != "")
+                .Concat(all.Where(e => e.Key != preferred && e.Value != ""))
+                .Select(e => new KeyValuePair<string, string>(SnomType(e.Key), e.Value))
+                .ToList();
         }
 
-        private static KeyValuePair<string, string> Pair(KeyValuePair<PhoneType, string> entry)
-            => new KeyValuePair<string, string>(entry.Key.ToString().ToLowerInvariant(), entry.Value);
+        private static string SnomType(PhoneType type)
+        {
+            switch (type)
+            {
+                case PhoneType.Work: return "business";
+                case PhoneType.Mobile: return "mobile";
+                default: return "home";
+            }
+        }
 
         private static string Line(string name, string number, string relation, string firstName, string lastName, string email, string type)
         {

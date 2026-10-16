@@ -1,5 +1,8 @@
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
+using ContactConversionWizard.Core.Import;
 using ContactConversionWizard.Core.Model;
 using ContactConversionWizard.Core.Text;
 
@@ -48,6 +51,12 @@ namespace ContactConversionWizard.Core.Export
                 }
 
                 if (email != "") { sb.Append("EMAIL;type=INTERNET;type=pref:").Append(email).Append("\r\n"); }
+
+                // vCard 3.0 requires a year, so birthdays without year get the placeholder year 1900
+                if (BirthdayParser.TryGetDate(contact.Birthday, out DateTime birthday, out _))
+                {
+                    sb.Append("BDAY:").Append(birthday.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)).Append("\r\n");
+                }
 
                 string notes = (contact.IsVip ? "VIP " : "") + (contact.SpeedDial != "" ? "SPEEDDIAL(" + contact.SpeedDial + ")" : "");
                 if (notes != "") { sb.Append("NOTE:").Append(notes).Append("\r\n"); }

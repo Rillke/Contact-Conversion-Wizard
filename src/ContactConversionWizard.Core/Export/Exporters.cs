@@ -19,6 +19,7 @@ namespace ContactConversionWizard.Core.Export
             new GrandstreamGxpExporter(),
             new AuerswaldCsvExporter(),
             new PanasonicCsvExporter(),
+            new GenericCsvExporter(),
         };
     }
 }

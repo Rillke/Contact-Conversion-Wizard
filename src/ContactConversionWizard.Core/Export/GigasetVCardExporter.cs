@@ -28,7 +28,7 @@ namespace ContactConversionWizard.Core.Export
                 sb.Append("BEGIN:VCARD\r\n");
                 sb.Append("VERSION:2.1\r\n");
 
-                if (combinedNameWithCompany && contact.Company != "")
+                if ((combinedNameWithCompany && contact.Company != "") || (contact.LastName == "" && contact.FirstName == ""))
                 {
                     sb.Append("N:").Append(Limit(contact.CombinedName)).Append(";\r\n");
                 }
