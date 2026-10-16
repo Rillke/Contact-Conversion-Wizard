@@ -71,6 +71,7 @@
             this.Speeddial = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Photo = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Birthday = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.FurtherNumbers = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.label6 = new System.Windows.Forms.Label();
             this.label_save = new System.Windows.Forms.Label();
             this.btn_save_SnomCSV8 = new System.Windows.Forms.Button();
@@ -393,7 +394,8 @@
             this.Birthday,
             this.VIP,
             this.Speeddial,
-            this.Photo});
+            this.Photo,
+            this.FurtherNumbers});
             this.MyDataGridView.Location = new System.Drawing.Point(177, 32);
             this.MyDataGridView.MultiSelect = false;
             this.MyDataGridView.Name = "MyDataGridView";
@@ -521,6 +523,15 @@
             this.Birthday.Name = "Birthday";
             this.Birthday.ReadOnly = true;
             this.Birthday.Width = 70;
+            // 
+            // FurtherNumbers
+            // 
+            this.FurtherNumbers.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.FurtherNumbers.HeaderText = "Further numbers";
+            this.FurtherNumbers.Name = "FurtherNumbers";
+            this.FurtherNumbers.ReadOnly = true;
+            this.FurtherNumbers.ToolTipText = "Numbers that do not fit into the columns above. They are only exported to vCard and Fritz!Box XML, and only if \"Export several numbers of the same type\" is enabled in the configuration.";
+            this.FurtherNumbers.Width = 90;
             // 
             // VIP
             // 
@@ -969,6 +980,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Speeddial;
         private System.Windows.Forms.DataGridViewTextBoxColumn Photo;
         private System.Windows.Forms.DataGridViewTextBoxColumn Birthday;
+        private System.Windows.Forms.DataGridViewTextBoxColumn FurtherNumbers;
         private System.Windows.Forms.Button button_website;
         private System.Windows.Forms.Button button_forum;
         private System.ComponentModel.BackgroundWorker backgroundWorker_updateCheck;

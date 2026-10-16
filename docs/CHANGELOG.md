@@ -2,7 +2,11 @@
 
 ## Änderungshistorie
 
-### v3.6.0.0 [unveröffentlicht]
+### v3.6.1.0 [unveröffentlicht]
+
+* neu: Kontakte können mehrere Nummern gleichen Typs enthalten (z.B. zwei Handynummern aus Fritz!Box XML oder vCard). Mit der neuen, standardmäßig ausgeschalteten Option "Export several numbers of the same type" werden sie in vCard und Fritz!Box XML vollständig exportiert; alle anderen Formate und die Ausgabe bei ausgeschalteter Option bleiben unverändert. Die Tabelle zeigt sie in der Spalte "Further numbers" (#1)
+
+### v3.6.0.0 [unveröffentlicht, Vorabversion 3.6.0.0-alpha.1 vom 16.10.2026]
 
 * neu: Export "Generic CSV" mit allen Feldern und Kopfzeile (UTF-8), z.B. für Tabellenkalkulationen; die Datei kann über den Generic CSV Import wieder eingelesen werden (#18)
 * neu: Geburtstage werden aus vCards (BDAY, auch ohne Jahr), Outlook und CSV importiert und nach vCard, Outlook und Generic CSV exportiert; ohne Jahr wird beim vCard-Export 1900 verwendet (#28)

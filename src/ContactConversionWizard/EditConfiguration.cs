@@ -21,6 +21,7 @@ namespace Contact_Conversion_Wizard
             checkBox_OutlookEmptyName.Checked = settings.ImportWithoutName;
 
             checkBox_nextcloud_vfc_fix.Checked = settings.NextcloudVCardFix;
+            checkBox_multiNumbers.Checked = settings.ExportMultipleNumbers;
 
             checkBox_cleanBrackets.Checked = !settings.Cleanup.RemoveBrackets;
             checkBox_cleanHashKey.Checked = !settings.Cleanup.RemoveHashKey;
@@ -47,6 +48,7 @@ namespace Contact_Conversion_Wizard
             settings.ImportWithoutName = checkBox_OutlookEmptyName.Checked;
 
             settings.NextcloudVCardFix = checkBox_nextcloud_vfc_fix.Checked;
+            settings.ExportMultipleNumbers = checkBox_multiNumbers.Checked;
 
             settings.Cleanup.RemoveBrackets = !checkBox_cleanBrackets.Checked;
             settings.Cleanup.RemoveHashKey = !checkBox_cleanHashKey.Checked;

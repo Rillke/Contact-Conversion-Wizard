@@ -28,6 +28,8 @@
 
 ## Hinweise
 
+Mehrere Nummern gleichen Typs: Fritz!Box XML und vCard können z.B. mehrere Handynummern pro Kontakt enthalten. Diese werden immer vollständig eingelesen. Beim Export werden zusätzliche Nummern standardmäßig wie bisher in freie Felder (Privat/Geschäftlich/Mobil) einsortiert. Mit der Option "Export several numbers of the same type" in der Konfiguration schreiben die Exporte für vCard und Fritz!Box XML stattdessen alle Nummern mit ihrem echten Typ; alle anderen Formate bleiben unverändert, da sie nur eine Nummer pro Typ kennen.
+
 Namensgenerierung: Beim Export in Zielformate (Fritz!Box XML, Fritz!Adr, Snom v7) die keine getrennten Felder für Vor und Nachnahmen vorsehen, stehen viele Möglichkeiten zur Auswahl auf welche Weise der nötige Gesamtname aus den vorhanden Einzelteilen (Vorname, Nachname, Firma) zusammengesetzt werden soll.
 
 Spezialoptionen: Desweiteren gibt es Spezialoptionen für Outlook (Feld "Speichern Unter" nutzen für den Gesamtnamen) sowie Möglichkeiten Kontake in den Quelldaten als VIP zu definieren und Kurzwahlnummern festzulegen.

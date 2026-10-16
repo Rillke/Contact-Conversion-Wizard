@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace ContactConversionWizard.Core.Model
 {
     /// <summary>
@@ -75,10 +77,30 @@ namespace ContactConversionWizard.Core.Model
         /// <summary>True if at least one phone or fax number is set.</summary>
         public bool HasAnyNumber => Home != "" || Work != "" || Mobile != "" || HomeFax != "" || WorkFax != "";
 
+        /// <summary>
+        /// All numbers of the contact with their real type, in the order of the source, as far as the source provides
+        /// several numbers per type (FRITZ!Box XML, vCard). Empty for other sources.
+        /// </summary>
+        /// <remarks>
+        /// The single number fields (<see cref="Home"/>, <see cref="Work"/>, ...) are filled as before: additional numbers
+        /// are put into free fields of another type. Formats that can hold several numbers of one type use this list
+        /// instead when <c>ExportOptions.MultipleNumbersPerType</c> is set.
+        /// </remarks>
+        public List<TypedNumber> Numbers { get; private set; } = new List<TypedNumber>();
+
+        /// <summary>Adds a number to <see cref="Numbers"/> unless the same number of the same kind is already there.</summary>
+        public void AddNumber(NumberKind kind, string number, bool preferred = false, string sourceType = "")
+        {
+            if (string.IsNullOrEmpty(number)) { return; }
+            if (Numbers.Exists(n => n.Kind == kind && n.Number == number)) { return; }
+            Numbers.Add(new TypedNumber(kind, number, preferred, sourceType));
+        }
+
         public Contact Clone()
         {
             var copy = (Contact)MemberwiseClone();
             copy.Photo = Photo == null ? null : (byte[])Photo.Clone();
+            copy.Numbers = new List<TypedNumber>(Numbers);
             return copy;
         }
 

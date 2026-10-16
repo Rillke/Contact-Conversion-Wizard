@@ -65,6 +65,50 @@ namespace ContactConversionWizard.Core.Export
             }
         }
 
+        /// <summary>
+        /// All numbers of a contact (see <see cref="TypedNumber.AllOf"/>) cleaned like <see cref="ExportContext.Clean"/>;
+        /// numbers that are empty after cleaning are left out.
+        /// </summary>
+        protected static List<TypedNumber> CleanAll(ExportContext context, Contact contact, bool alwaysUsePrefix = false)
+        {
+            string prefix = alwaysUsePrefix || context.Options.ApplyPrefixToAllFormats ? contact.FritzPrefix : "";
+            return TypedNumber.AllOf(contact)
+                .Select(n => new TypedNumber(n.Kind, context.Cleaner.Clean(n.Number, prefix), n.Preferred, n.SourceType))
+                .Where(n => n.Number != "")
+                .ToList();
+        }
+
+        /// <summary>
+        /// The index of the number to mark as preferred: if no type is set explicitly (by the source or <c>PREFER()</c>),
+        /// the voice number the source marked as preferred (e.g. the second of two mobile numbers); otherwise the first
+        /// number of the contact's preferred type that the source marked as preferred, or else the first number of that
+        /// type; -1 if there is none.
+        /// </summary>
+        protected static int PreferredIndex(IReadOnlyList<TypedNumber> numbers, Contact contact)
+        {
+            if (contact.ExplicitPreferred == PhoneType.None)
+            {
+                for (int i = 0; i < numbers.Count; i++)
+                {
+                    bool voice = numbers[i].Kind == NumberKind.Home || numbers[i].Kind == NumberKind.Work || numbers[i].Kind == NumberKind.Mobile;
+                    if (voice && numbers[i].Preferred) { return i; }
+                }
+            }
+
+            if (contact.Preferred == PhoneType.None) { return -1; }
+            NumberKind kind = TypedNumber.FromPhoneType(contact.Preferred);
+
+            for (int i = 0; i < numbers.Count; i++)
+            {
+                if (numbers[i].Kind == kind && numbers[i].Preferred) { return i; }
+            }
+            for (int i = 0; i < numbers.Count; i++)
+            {
+                if (numbers[i].Kind == kind) { return i; }
+            }
+            return -1;
+        }
+
         /// <summary>The cleaned numbers of one contact.</summary>
         protected sealed class CleanNumbers
         {

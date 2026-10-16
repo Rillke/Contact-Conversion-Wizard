@@ -46,6 +46,8 @@
             this.checkBox_cleanSquareBrackets = new System.Windows.Forms.CheckBox();
             this.checkBox_cleanLetters = new System.Windows.Forms.CheckBox();
             this.checkBox_cleanaddzeroprefix = new System.Windows.Forms.CheckBox();
+            this.label_export = new System.Windows.Forms.Label();
+            this.checkBox_multiNumbers = new System.Windows.Forms.CheckBox();
             this.label_Outlook = new System.Windows.Forms.Label();
             this.checkBox_OutlookEmptyNumber = new System.Windows.Forms.CheckBox();
             this.checkBox_OutlookEmptyName = new System.Windows.Forms.CheckBox();
@@ -233,6 +235,28 @@
             this.checkBox_cleanaddzeroprefix.Text = "Alway add \"0\" prefix to access outside lines";
             this.checkBox_cleanaddzeroprefix.UseVisualStyleBackColor = true;
             // 
+            // label_export
+            // 
+            this.label_export.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label_export.AutoSize = true;
+            this.label_export.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label_export.Location = new System.Drawing.Point(12, 546);
+            this.label_export.Name = "label_export";
+            this.label_export.Size = new System.Drawing.Size(65, 20);
+            this.label_export.TabIndex = 36;
+            this.label_export.Text = "Export:";
+            // 
+            // checkBox_multiNumbers
+            // 
+            this.checkBox_multiNumbers.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.checkBox_multiNumbers.AutoSize = true;
+            this.checkBox_multiNumbers.Location = new System.Drawing.Point(16, 569);
+            this.checkBox_multiNumbers.Name = "checkBox_multiNumbers";
+            this.checkBox_multiNumbers.Size = new System.Drawing.Size(320, 30);
+            this.checkBox_multiNumbers.TabIndex = 37;
+            this.checkBox_multiNumbers.Text = "Export several numbers of the same type (e.g. 2 mobile\r\nnumbers) where supported: vCard, Fritz!Box XML";
+            this.checkBox_multiNumbers.UseVisualStyleBackColor = true;
+            // 
             // label_Outlook
             // 
             this.label_Outlook.Anchor = System.Windows.Forms.AnchorStyles.Top;
@@ -289,12 +313,14 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(362, 548);
+            this.ClientSize = new System.Drawing.Size(362, 610);
             this.Controls.Add(this.checkBox_nextcloud_vfc_fix);
             this.Controls.Add(this.label_Nextcloud);
             this.Controls.Add(this.checkBox_OutlookEmptyName);
             this.Controls.Add(this.checkBox_OutlookEmptyNumber);
             this.Controls.Add(this.label_Outlook);
+            this.Controls.Add(this.checkBox_multiNumbers);
+            this.Controls.Add(this.label_export);
             this.Controls.Add(this.checkBox_cleanaddzeroprefix);
             this.Controls.Add(this.checkBox_cleanLetters);
             this.Controls.Add(this.checkBox_cleanSquareBrackets);
@@ -342,6 +368,8 @@
         private System.Windows.Forms.CheckBox checkBox_cleanSquareBrackets;
         private System.Windows.Forms.CheckBox checkBox_cleanLetters;
         private System.Windows.Forms.CheckBox checkBox_cleanaddzeroprefix;
+        private System.Windows.Forms.Label label_export;
+        private System.Windows.Forms.CheckBox checkBox_multiNumbers;
         private System.Windows.Forms.Label label_Outlook;
         private System.Windows.Forms.CheckBox checkBox_OutlookEmptyNumber;
         private System.Windows.Forms.CheckBox checkBox_OutlookEmptyName;

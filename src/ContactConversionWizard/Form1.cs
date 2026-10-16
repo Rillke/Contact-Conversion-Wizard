@@ -155,6 +155,7 @@ namespace Contact_Conversion_Wizard
                 NameStyle = SelectedNameStyle,
                 ExportPictures = ExportPictures,
                 PicturePath = textBox_PicPath.Text,
+                MultipleNumbersPerType = settings.ExportMultipleNumbers,
             };
         }
 
@@ -237,7 +238,17 @@ namespace Contact_Conversion_Wizard
                 contact.CombinedName, contact.LastName, contact.FirstName, contact.Company, contact.Home, contact.Work, contact.Mobile,
                 PreferredText(contact.Preferred), contact.HomeFax, contact.WorkFax, contact.Street, contact.Zip, contact.City, contact.Email,
                 contact.Birthday, contact.IsVip ? "Yes" : "No", contact.SpeedDial, contact.Photo != null ? "Yes" : "No",
+                FurtherNumbersText(contact),
             };
+        }
+
+        /// <summary>Numbers of the contact that are not shown in the single number columns (issue #1).</summary>
+        private static string FurtherNumbersText(Contact contact)
+        {
+            var shown = new[] { contact.Home, contact.Work, contact.Mobile, contact.HomeFax, contact.WorkFax };
+            return string.Join("; ", contact.Numbers
+                .Where(n => !shown.Contains(n.Number))
+                .Select(n => n.Kind.ToString().ToLowerInvariant() + ": " + n.Number));
         }
 
         private static string PreferredText(PhoneType type) => type == PhoneType.None ? "" : type.ToString().ToLowerInvariant();
