@@ -3,7 +3,7 @@
     <LangVersion>latest</LangVersion>
     <Nullable>disable</Nullable>
     <!-- the release workflow sets VersionSuffix (e.g. "alpha.1") for pre-releases -->
-    <VersionPrefix>3.6.0.0</VersionPrefix>
+    <VersionPrefix>3.6.1.0</VersionPrefix>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <Company>Contact Conversion Wizard contributors</Company>
     <Product>Contact Conversion Wizard</Product>
