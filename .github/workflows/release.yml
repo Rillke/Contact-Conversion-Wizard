@@ -1,18 +1,33 @@
 name: Release
 
+# Push a tag like "3.6.0.0" or "3.6.0.0-alpha.1" to build the executable and publish a GitHub release.
+# Tags with a suffix ("-alpha.1", "-beta.2", "-rc.1") are published as pre-releases.
+# The release text is taken from .github/release-notes/<tag>.md if that file exists.
+# Releases created by hand in the GitHub UI also get the executable attached.
+
 on:
+  push:
+    tags:
+      - "[0-9]*"
+      - "v[0-9]*"
   release:
     types: [published]
 
 permissions:
   contents: read
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build:
-    name: Build and attach the executable
+    name: Build and publish the executable
     runs-on: windows-latest
     permissions:
       contents: write
+    env:
+      TAG: ${{ github.event_name == 'release' && github.event.release.tag_name || github.ref_name }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -24,18 +39,56 @@ jobs:
 
       - uses: microsoft/setup-msbuild@30375c66a4eea26614e0d39710365f22f8b0af57 # v3.0.0
 
+      - name: Determine version
+        id: version
+        shell: pwsh
+        run: |
+          $version = $env:TAG -replace '^v', ''
+          if ($version -notmatch '^(\d+\.\d+\.\d+\.\d+)(-([0-9A-Za-z.]+))?$') {
+            throw "Tag '$env:TAG' is not a version like 3.6.0.0 or 3.6.0.0-alpha.1"
+          }
+          "prefix=$($Matches[1])" >> $env:GITHUB_OUTPUT
+          "suffix=$($Matches[3])" >> $env:GITHUB_OUTPUT
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "prerelease=$(if ($Matches[3]) { 'true' } else { 'false' })" >> $env:GITHUB_OUTPUT
+
       - name: Test
         run: dotnet test tests/ContactConversionWizard.Core.Tests/ContactConversionWizard.Core.Tests.csproj --configuration Release
 
       - name: Build
-        run: msbuild src/ContactConversionWizard/ContactConversionWizard.csproj -restore -p:Configuration=Release -m
+        run: msbuild src/ContactConversionWizard/ContactConversionWizard.csproj -restore -p:Configuration=Release -m "-p:VersionPrefix=${{ steps.version.outputs.prefix }}" "-p:VersionSuffix=${{ steps.version.outputs.suffix }}"
 
-      - name: Attach to release
+      - name: Create release if missing
+        if: github.event_name == 'push'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ github.event.release.tag_name }}
+          VERSION: ${{ steps.version.outputs.version }}
+          PRERELEASE: ${{ steps.version.outputs.prerelease }}
         run: |
-          $name = "Contact.Conversion.Wizard_$($env:TAG.TrimStart('v')).exe"
+          $PSNativeCommandUseErrorActionPreference = $false
+          gh release view "$env:TAG" --repo "$env:GITHUB_REPOSITORY" 2>$null
+          if ($LASTEXITCODE -eq 0) { Write-Host "Release $env:TAG already exists"; exit 0 }
+
+          $arguments = @("release", "create", $env:TAG, "--repo", $env:GITHUB_REPOSITORY, "--verify-tag")
+          $notes = ".github/release-notes/$env:TAG.md"
+          if (Test-Path $notes) { $arguments += @("--notes-file", $notes) } else { $arguments += "--generate-notes" }
+          if ($env:PRERELEASE -eq 'true') {
+            $arguments += @("--prerelease", "--latest=false", "--title", "$env:VERSION (EXPERIMENTAL pre-release)")
+          } else {
+            $arguments += @("--title", $env:VERSION)
+          }
+          & gh @arguments
+          if ($LASTEXITCODE -ne 0) { throw "gh release create failed" }
+
+      - name: Attach executable
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          $name = "Contact.Conversion.Wizard_$($env:VERSION).exe"
           Copy-Item src/ContactConversionWizard/bin/Release/net48/Contact-Conversion-Wizard.exe $name
-          gh release upload "$env:TAG" $name --clobber --repo "$env:GITHUB_REPOSITORY"
+          (Get-FileHash $name -Algorithm SHA256).Hash.ToLowerInvariant() + "  " + $name | Out-File -Encoding ascii "$name.sha256"
+          gh release upload "$env:TAG" $name "$name.sha256" --clobber --repo "$env:GITHUB_REPOSITORY"
+          if ($LASTEXITCODE -ne 0) { throw "gh release upload failed" }

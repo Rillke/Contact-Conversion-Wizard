@@ -26,6 +26,11 @@ namespace Contact_Conversion_Wizard
         {
             InitializeComponent();
             Text = ProductName + " v" + Application.ProductVersion;
+            if (Application.ProductVersion.Contains("-"))
+            {
+                // pre-release versions such as 3.6.0.0-alpha.1
+                Text += " - EXPERIMENTAL TEST VERSION, keep a backup of your contacts";
+            }
 
             Directory.CreateDirectory(AppSettings.SettingsFolder);
 
