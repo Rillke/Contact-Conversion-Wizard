@@ -280,10 +280,13 @@ namespace ContactConversionWizard.Core.Import
             {
                 // a fax without home/work type is treated according to the type preference
                 bool home = type == PhoneType.Home || (type == PhoneType.None && options.TypePreference == TypePreference.Home);
+                contact.AddNumber(home ? NumberKind.HomeFax : NumberKind.WorkFax, number, preferred);
                 if (home && (preferred || contact.HomeFax == "")) { contact.HomeFax = number; }
                 else if (!home && (preferred || contact.WorkFax == "")) { contact.WorkFax = number; }
                 return;
             }
+
+            contact.AddNumber(TypedNumber.FromPhoneType(type), number, preferred);
 
             if (type == PhoneType.None)
             {

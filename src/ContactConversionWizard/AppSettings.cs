@@ -27,6 +27,9 @@ namespace Contact_Conversion_Wizard
 
         public bool NextcloudVCardFix { get; set; }
 
+        /// <summary>Export several numbers of the same type where the format supports it (off by default).</summary>
+        public bool ExportMultipleNumbers { get; set; }
+
         public NumberCleanupOptions Cleanup { get; } = new NumberCleanupOptions();
 
         /// <summary>Selections of the combo boxes of the main window, stored as their display text.</summary>
@@ -55,6 +58,7 @@ namespace Contact_Conversion_Wizard
             settings.ImportWithoutName = config.GetBool("outlook_empty_name", settings.ImportWithoutName);
             settings.NextcloudVCardFix = config.GetBool("nextcloud_vcf_fix", settings.NextcloudVCardFix);
             settings.CheckForUpdates = config.GetBool("cfg_checkVersion", settings.CheckForUpdates);
+            settings.ExportMultipleNumbers = config.GetBool("cfg_multiNumbers", settings.ExportMultipleNumbers);
 
             NumberCleanupOptions c = settings.Cleanup;
             c.RemoveBrackets = config.GetBool("clean_brackets", c.RemoveBrackets);
@@ -91,6 +95,7 @@ namespace Contact_Conversion_Wizard
             config.Set("outlook_empty_name", ImportWithoutName);
             config.Set("nextcloud_vcf_fix", NextcloudVCardFix);
             config.Set("cfg_checkVersion", CheckForUpdates);
+            config.Set("cfg_multiNumbers", ExportMultipleNumbers);
 
             config.Set("clean_brackets", Cleanup.RemoveBrackets);
             config.Set("clean_hashkey", Cleanup.RemoveHashKey);

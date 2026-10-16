@@ -32,6 +32,12 @@ namespace ContactConversionWizard.Core.Export
         /// <summary>vCard: only export contacts with a home, work or mobile number.</summary>
         public bool OnlyWithPhoneNumber { get; set; }
 
+        /// <summary>
+        /// Write all numbers of a contact, also several of the same type (e.g. two mobile numbers), in formats that
+        /// support this (vCard, FRITZ!Box XML). Off by default; other formats are not affected.
+        /// </summary>
+        public bool MultipleNumbersPerType { get; set; }
+
         /// <summary>FRITZ!Adr: only export contacts with a fax number.</summary>
         public bool OnlyWithFaxNumber { get; set; }
 

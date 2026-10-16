@@ -45,16 +45,23 @@ namespace ContactConversionWizard.Core.Export
                 string preferredAttributes = "prio=\"1\"" + speedDials.GetAttributes(contact.SpeedDial);
                 PhoneType preferred = contact.Preferred;
 
-                string home = NumberElement("home", numbers.Home, preferred == PhoneType.Home ? preferredAttributes : null);
-                string work = NumberElement("work", numbers.Work, preferred == PhoneType.Work ? preferredAttributes : null);
-                if (options.TypePreference == TypePreference.Home) { sb.Append(home).Append(work); }
-                else { sb.Append(work).Append(home); }
-                sb.Append(NumberElement("mobile", numbers.Mobile, preferred == PhoneType.Mobile ? preferredAttributes : null));
-
-                if (options.IncludeFax)
+                if (options.MultipleNumbersPerType)
                 {
-                    if (numbers.HomeFax != "") { sb.Append("<number type=\"fax_work\">").Append(Escaping.Xml(numbers.HomeFax)).Append("</number>\n"); }
-                    if (numbers.WorkFax != "") { sb.Append("<number type=\"fax_work\">").Append(Escaping.Xml(numbers.WorkFax)).Append("</number>\n"); }
+                    AppendAllNumbers(sb, CleanAll(context, contact, alwaysUsePrefix: true), contact, preferredAttributes, options);
+                }
+                else
+                {
+                    string home = NumberElement("home", numbers.Home, preferred == PhoneType.Home ? preferredAttributes : null);
+                    string work = NumberElement("work", numbers.Work, preferred == PhoneType.Work ? preferredAttributes : null);
+                    if (options.TypePreference == TypePreference.Home) { sb.Append(home).Append(work); }
+                    else { sb.Append(work).Append(home); }
+                    sb.Append(NumberElement("mobile", numbers.Mobile, preferred == PhoneType.Mobile ? preferredAttributes : null));
+
+                    if (options.IncludeFax)
+                    {
+                        if (numbers.HomeFax != "") { sb.Append("<number type=\"fax_work\">").Append(Escaping.Xml(numbers.HomeFax)).Append("</number>\n"); }
+                        if (numbers.WorkFax != "") { sb.Append("<number type=\"fax_work\">").Append(Escaping.Xml(numbers.WorkFax)).Append("</number>\n"); }
+                    }
                 }
 
                 sb.Append("</telephony>\n<services>\n");
@@ -79,6 +86,55 @@ namespace ContactConversionWizard.Core.Export
                 result.Notices.Add("Warning: Over 300 contacts have been exported! This might or might not be officially supported by AVM's Fritz!Box and may cause problems.");
             }
             return result;
+        }
+
+        /// <summary>
+        /// Writes every number with its own type (several per type are allowed in FRITZ!Box phone books):
+        /// home and work (in the order of the type preference), mobile, other and, if enabled, fax numbers.
+        /// Types without number get an empty element as in the single number export.
+        /// </summary>
+        private static void AppendAllNumbers(StringBuilder sb, List<TypedNumber> numbers, Contact contact, string preferredAttributes, ExportOptions options)
+        {
+            int preferredIndex = PreferredIndex(numbers, contact);
+
+            void AppendKind(NumberKind kind, string type, bool placeholder)
+            {
+                bool any = false;
+                for (int i = 0; i < numbers.Count; i++)
+                {
+                    TypedNumber number = numbers[i];
+                    if (number.Kind != kind) { continue; }
+                    any = true;
+                    string elementType = kind == NumberKind.Other ? FritzOtherType(number.SourceType) : type;
+                    sb.Append(NumberElement(elementType, number.Number, i == preferredIndex ? preferredAttributes : null));
+                }
+                if (!any && placeholder) { sb.Append(NumberElement(type, "", null)); }
+            }
+
+            if (options.TypePreference == TypePreference.Home)
+            {
+                AppendKind(NumberKind.Home, "home", true);
+                AppendKind(NumberKind.Work, "work", true);
+            }
+            else
+            {
+                AppendKind(NumberKind.Work, "work", true);
+                AppendKind(NumberKind.Home, "home", true);
+            }
+            AppendKind(NumberKind.Mobile, "mobile", true);
+            AppendKind(NumberKind.Other, "other", false);
+
+            if (options.IncludeFax)
+            {
+                AppendKind(NumberKind.HomeFax, "fax_work", false);
+                AppendKind(NumberKind.WorkFax, "fax_work", false);
+            }
+        }
+
+        /// <summary>Keeps the FRITZ!Box types "intern" and "memo"; everything else without known type becomes "other".</summary>
+        private static string FritzOtherType(string sourceType)
+        {
+            return sourceType == "intern" || sourceType == "memo" ? sourceType : "other";
         }
 
         private static string NumberElement(string type, string number, string preferredAttributes)

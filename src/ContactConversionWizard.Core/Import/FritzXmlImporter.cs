@@ -81,6 +81,7 @@ namespace ContactConversionWizard.Core.Import
 
                 string type = (string)number.Attribute("type") ?? "";
                 bool preferred = (string)number.Attribute("prio") == "1";
+                contact.AddNumber(KindOf(type), value, preferred, type);
 
                 switch (type)
                 {
@@ -121,6 +122,18 @@ namespace ContactConversionWizard.Core.Import
             }
 
             return contact;
+        }
+
+        private NumberKind KindOf(string type)
+        {
+            switch (type)
+            {
+                case "home": return NumberKind.Home;
+                case "work": return NumberKind.Work;
+                case "mobile": return NumberKind.Mobile;
+                case "fax_work": return options.TypePreference == TypePreference.Home ? NumberKind.HomeFax : NumberKind.WorkFax;
+                default: return NumberKind.Other;
+            }
         }
 
         private static void SetNumber(Contact contact, PhoneType type, string value, bool preferred, List<string> overflow)

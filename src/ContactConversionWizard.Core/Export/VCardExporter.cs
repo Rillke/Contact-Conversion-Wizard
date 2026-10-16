@@ -39,11 +39,24 @@ namespace ContactConversionWizard.Core.Export
                 sb.Append("FN:").Append(Escaping.VCard(contact.CombinedName)).Append("\r\n");
                 if (company != "") { sb.Append("ORG:").Append(company).Append(";\r\n"); }
 
-                AppendTel(sb, "HOME", numbers.Home, preferred == PhoneType.Home);
-                AppendTel(sb, "WORK", numbers.Work, preferred == PhoneType.Work);
-                AppendTel(sb, "CELL", numbers.Mobile, preferred == PhoneType.Mobile);
-                if (numbers.HomeFax != "") { sb.Append("TEL;type=HOME;type=FAX:").Append(numbers.HomeFax).Append("\r\n"); }
-                if (numbers.WorkFax != "") { sb.Append("TEL;type=WORK;type=FAX:").Append(numbers.WorkFax).Append("\r\n"); }
+                if (context.Options.MultipleNumbersPerType)
+                {
+                    // every number with its own type, several per type are allowed in vCards
+                    List<TypedNumber> all = CleanAll(context, contact);
+                    int preferredIndex = PreferredIndex(all, contact);
+                    for (int i = 0; i < all.Count; i++)
+                    {
+                        AppendTel(sb, VCardType(all[i].Kind), all[i].Number, i == preferredIndex);
+                    }
+                }
+                else
+                {
+                    AppendTel(sb, "HOME", numbers.Home, preferred == PhoneType.Home);
+                    AppendTel(sb, "WORK", numbers.Work, preferred == PhoneType.Work);
+                    AppendTel(sb, "CELL", numbers.Mobile, preferred == PhoneType.Mobile);
+                    if (numbers.HomeFax != "") { sb.Append("TEL;type=HOME;type=FAX:").Append(numbers.HomeFax).Append("\r\n"); }
+                    if (numbers.WorkFax != "") { sb.Append("TEL;type=WORK;type=FAX:").Append(numbers.WorkFax).Append("\r\n"); }
+                }
 
                 if (!(street == "" && zip == "" && city == ""))
                 {
@@ -68,6 +81,19 @@ namespace ContactConversionWizard.Core.Export
             var document = new StringBuilder();
             entries.AppendTo(document);
             return new ExportResult(document.ToString(), TextEncodings.Utf8NoBom, entries.Count);
+        }
+
+        private static string VCardType(NumberKind kind)
+        {
+            switch (kind)
+            {
+                case NumberKind.Home: return "HOME";
+                case NumberKind.Work: return "WORK";
+                case NumberKind.Mobile: return "CELL";
+                case NumberKind.HomeFax: return "HOME;type=FAX";
+                case NumberKind.WorkFax: return "WORK;type=FAX";
+                default: return "VOICE";
+            }
         }
 
         private static void AppendTel(StringBuilder sb, string type, string number, bool preferred)
