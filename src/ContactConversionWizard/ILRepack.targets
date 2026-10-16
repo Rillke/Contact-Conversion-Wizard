@@ -1,0 +1,20 @@
+<Project>
+  <!--
+    Release builds on Windows merge the referenced libraries into the executable,
+    so that the program can be distributed as a single .exe file.
+  -->
+  <Target Name="MergeAssemblies" AfterTargets="Build" Condition="'$(Configuration)' == 'Release' and '$(OS)' == 'Windows_NT'">
+    <ItemGroup>
+      <MergeInput Include="$(OutputPath)$(TargetFileName)" />
+      <MergeInput Include="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.Extension)' == '.dll'" />
+    </ItemGroup>
+    <ILRepack
+        Parallel="true"
+        DebugInfo="true"
+        Internalize="false"
+        InputAssemblies="@(MergeInput)"
+        TargetKind="SameAsPrimaryAssembly"
+        LibraryPath="$(OutputPath)"
+        OutputFile="$(OutputPath)$(TargetFileName)" />
+  </Target>
+</Project>

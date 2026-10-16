@@ -1,3 +1,0 @@
-Version 3.81 (retrieved 2012-07-30)
-
-from: http://www.codeproject.com/KB/database/CsvReader.aspx
