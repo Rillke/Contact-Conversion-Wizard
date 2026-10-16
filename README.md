@@ -30,7 +30,7 @@ msbuild src/ContactConversionWizard -restore -p:Configuration=Release   # Window
 ```
 
 Release-Builds unter Windows fassen alle Bibliotheken mit [ILRepack](https://github.com/gluck/il-repack) zu einer einzigen `.exe` zusammen.
-Jeder Pull Request wird per [GitHub Actions](.github/workflows/ci.yml) gebaut und getestet. Beim Veröffentlichen eines Releases wird die `.exe` automatisch gebaut und angehängt.
+Jeder Pull Request wird per [GitHub Actions](.github/workflows/ci.yml) gebaut und getestet. Ein Release entsteht durch Pushen eines Tags wie `3.6.0.0` oder `3.6.0.0-alpha.1` ([Release-Workflow](.github/workflows/release.yml)): die `.exe` wird gebaut und mit Prüfsumme an das Release angehängt, Tags mit Suffix werden als experimentelle Vorabversion (Pre-release) veröffentlicht. Der Release-Text kommt aus `.github/release-notes/<tag>.md`.
 
 ## Screenshot
 
