@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using ContactConversionWizard.Core.Model;
 using ContactConversionWizard.Core.Text;
@@ -43,9 +44,12 @@ namespace ContactConversionWizard.Core.Export
 
                 foreach (Line line in lines)
                 {
-                    string text = line.Name + "\t" + contact.Company + "\t" + contact.LastName + "\t" + contact.FirstName + "\t" + "\t"
-                        + contact.Street + "\t" + contact.Zip + "\t" + contact.City + "\t" + "\t" + line.Phone + "\t" + line.Fax
-                        + "\t\t\t\t\tA\t\t" + line.Notes + "\t" + numbers.Mobile + "\t" + contact.Email + "\t" + "\r\n";
+                    string[] columns =
+                    {
+                        line.Name, contact.Company, contact.LastName, contact.FirstName, "", contact.Street, contact.Zip, contact.City, "",
+                        line.Phone, line.Fax, "", "", "", "", "A", "", line.Notes, numbers.Mobile, contact.Email, "",
+                    };
+                    string text = string.Join("\t", columns.Select(Escaping.SingleLine)) + "\r\n";
                     entries.Add(line.Name, text, contact.CombinedName);
                 }
             }

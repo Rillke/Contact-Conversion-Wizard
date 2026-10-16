@@ -31,7 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Google.GData.Contacts" Version="2.2.0" />
     <PackageReference Include="Microsoft.Office.Interop.Outlook" Version="15.0.4797.1004" />
     <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.48" PrivateAssets="all" />
   </ItemGroup>

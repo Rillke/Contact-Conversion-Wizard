@@ -7,7 +7,7 @@ Wie bei C#/.NET Programmen üblich ist der Contact Conversion Wizard auch unter 
 Anleitung Stand 11/2013:
 
 * Pakete "mono-core" und "mono-winforms" nachinstallieren über Suse Software-Verwaltung
-* Im Terminal: Mit "mozroots --import --ask-remove" SSL-Zertifikate für Mono holen und installieren (nur nötig für direkten Google Mail Import, sonst kann dieser Schritt übergangen werden)
+* Im Terminal: Mit "mozroots --import --ask-remove" SSL-Zertifikate für Mono holen und installieren (nur nötig für die Update-Prüfung, sonst kann dieser Schritt übergangen werden)
 * Im Terminal: exe file im Terminal starten mit "mono /path/to/ccw.exe"
 
 Das WinForms Fenster ohne ordentliches Theme ist zwar nicht unbedingt schön anzusehen, aber volle Funktionalität scheint mir gegeben zu sein. "&" Zeichen in der Tabelle wird nicht korrekt dargestellt (stattdessen "_"), im XML Ausgabefile war es allerdings ok. Sollte also eigentlich alles gehen. Outlook Import natürlich nicht mangels Outlook unter Linux.

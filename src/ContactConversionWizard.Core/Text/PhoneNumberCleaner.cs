@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace ContactConversionWizard.Core.Text
@@ -40,7 +41,8 @@ namespace ContactConversionWizard.Core.Text
                 {
                     warnings.Add("Warning: eMail '" + number + "' contains '<' and/or '>' characters. This is probably not a good idea!");
                 }
-                return number;
+                // control characters (e.g. line breaks) would break the structure of the exported files
+                return new string(number.Where(c => !char.IsControl(c)).ToArray()).Trim();
             }
 
             var buffer = new StringBuilder(number.Length);

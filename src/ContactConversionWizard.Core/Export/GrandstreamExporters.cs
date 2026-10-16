@@ -62,7 +62,7 @@ namespace ContactConversionWizard.Core.Export
         {
             if (number == "") { return; }
             sb.Append("        <Phone type=\"").Append(type).Append("\">\n")
-              .Append("            <phonenumber>").Append(number).Append("</phonenumber>\n")
+              .Append("            <phonenumber>").Append(Escaping.Xml(number)).Append("</phonenumber>\n")
               .Append("            <accountindex>0</accountindex>\n")
               .Append("        </Phone>\n");
         }
@@ -94,7 +94,7 @@ namespace ContactConversionWizard.Core.Export
                  + "        <LastName>" + name + "</LastName>\n"
                  + "        <FirstName></FirstName>\n"
                  + "        <Phone>\n"
-                 + "            <phonenumber>" + number + "</phonenumber>\n"
+                 + "            <phonenumber>" + Escaping.Xml(number) + "</phonenumber>\n"
                  + "            <accountindex>0</accountindex>\n"
                  + "        </Phone>\n"
                  + "    </Contact>\n";

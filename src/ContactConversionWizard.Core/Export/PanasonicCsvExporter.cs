@@ -27,7 +27,7 @@ namespace ContactConversionWizard.Core.Export
 
                 string name = NameFormatter.LimitLength(contact.CombinedName, MaxNameLength);
                 const string contactGroup = "1";
-                entries.Add(name, "\"" + name + "\"," + contactGroup + "," + string.Join(",", list) + "\n", contact.CombinedName);
+                entries.Add(name, Escaping.CsvQuoted(name) + "," + contactGroup + "," + string.Join(",", list.Select(n => n.Replace(",", ""))) + "\n", contact.CombinedName);
             }
 
             var document = new StringBuilder("; Panasonic Communications Co., Ltd. Phonebook DECT Version 2.00\r\n");

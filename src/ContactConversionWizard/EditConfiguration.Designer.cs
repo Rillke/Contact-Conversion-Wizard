@@ -40,17 +40,11 @@
             this.OPT_prefixNONFB = new System.Windows.Forms.CheckBox();
             this.checkBox_cleanSlash = new System.Windows.Forms.CheckBox();
             this.OPT_importOther = new System.Windows.Forms.CheckBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.lbl_gMail_login = new System.Windows.Forms.Label();
-            this.lbl_gMail_pass = new System.Windows.Forms.Label();
-            this.textBox_gLogin = new System.Windows.Forms.TextBox();
-            this.textBox_gPass = new System.Windows.Forms.TextBox();
             this.OPT_DUPren = new System.Windows.Forms.CheckBox();
             this.checkBox_checkVersion = new System.Windows.Forms.CheckBox();
             this.checkBox_cleanSpace = new System.Windows.Forms.CheckBox();
             this.checkBox_cleanSquareBrackets = new System.Windows.Forms.CheckBox();
             this.checkBox_cleanLetters = new System.Windows.Forms.CheckBox();
-            this.label_google_hint = new System.Windows.Forms.Label();
             this.checkBox_cleanaddzeroprefix = new System.Windows.Forms.CheckBox();
             this.label_Outlook = new System.Windows.Forms.Label();
             this.checkBox_OutlookEmptyNumber = new System.Windows.Forms.CheckBox();
@@ -172,57 +166,8 @@
             this.OPT_importOther.Name = "OPT_importOther";
             this.OPT_importOther.Size = new System.Drawing.Size(301, 30);
             this.OPT_importOther.TabIndex = 14;
-            this.OPT_importOther.Text = "Import additional phone numbers if a home or work number\r\nfield remains empty. So" +
-    "urce: Outlook:Other / Google:Main.\r\n";
+            this.OPT_importOther.Text = "Import additional phone numbers if a home or work number\r\nfield remains empty. Source: Outlook:Other.\r\n";
             this.OPT_importOther.UseVisualStyleBackColor = true;
-            // 
-            // label1
-            // 
-            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(12, 539);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(323, 20);
-            this.label1.TabIndex = 17;
-            this.label1.Text = "Google account for direct import/export";
-            // 
-            // lbl_gMail_login
-            // 
-            this.lbl_gMail_login.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.lbl_gMail_login.AutoSize = true;
-            this.lbl_gMail_login.Location = new System.Drawing.Point(17, 573);
-            this.lbl_gMail_login.Name = "lbl_gMail_login";
-            this.lbl_gMail_login.Size = new System.Drawing.Size(73, 13);
-            this.lbl_gMail_login.TabIndex = 18;
-            this.lbl_gMail_login.Text = "Google Login:";
-            // 
-            // lbl_gMail_pass
-            // 
-            this.lbl_gMail_pass.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.lbl_gMail_pass.AutoSize = true;
-            this.lbl_gMail_pass.Location = new System.Drawing.Point(17, 599);
-            this.lbl_gMail_pass.Name = "lbl_gMail_pass";
-            this.lbl_gMail_pass.Size = new System.Drawing.Size(93, 13);
-            this.lbl_gMail_pass.TabIndex = 19;
-            this.lbl_gMail_pass.Text = "Google Password:";
-            // 
-            // textBox_gLogin
-            // 
-            this.textBox_gLogin.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.textBox_gLogin.Location = new System.Drawing.Point(125, 570);
-            this.textBox_gLogin.Name = "textBox_gLogin";
-            this.textBox_gLogin.Size = new System.Drawing.Size(180, 20);
-            this.textBox_gLogin.TabIndex = 20;
-            // 
-            // textBox_gPass
-            // 
-            this.textBox_gPass.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.textBox_gPass.Location = new System.Drawing.Point(125, 597);
-            this.textBox_gPass.Name = "textBox_gPass";
-            this.textBox_gPass.Size = new System.Drawing.Size(180, 20);
-            this.textBox_gPass.TabIndex = 21;
-            this.textBox_gPass.UseSystemPasswordChar = true;
             // 
             // OPT_DUPren
             // 
@@ -276,16 +221,6 @@
             this.checkBox_cleanLetters.TabIndex = 28;
             this.checkBox_cleanLetters.Text = "Keep \"a-z\" and \"A-Z\"";
             this.checkBox_cleanLetters.UseVisualStyleBackColor = true;
-            // 
-            // label_google_hint
-            // 
-            this.label_google_hint.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label_google_hint.AutoSize = true;
-            this.label_google_hint.Location = new System.Drawing.Point(17, 620);
-            this.label_google_hint.Name = "label_google_hint";
-            this.label_google_hint.Size = new System.Drawing.Size(320, 13);
-            this.label_google_hint.TabIndex = 29;
-            this.label_google_hint.Text = "If you leave the password field empty, you will be asked each time.";
             // 
             // checkBox_cleanaddzeroprefix
             // 
@@ -354,24 +289,18 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(362, 643);
+            this.ClientSize = new System.Drawing.Size(362, 548);
             this.Controls.Add(this.checkBox_nextcloud_vfc_fix);
             this.Controls.Add(this.label_Nextcloud);
             this.Controls.Add(this.checkBox_OutlookEmptyName);
             this.Controls.Add(this.checkBox_OutlookEmptyNumber);
             this.Controls.Add(this.label_Outlook);
             this.Controls.Add(this.checkBox_cleanaddzeroprefix);
-            this.Controls.Add(this.label_google_hint);
             this.Controls.Add(this.checkBox_cleanLetters);
             this.Controls.Add(this.checkBox_cleanSquareBrackets);
             this.Controls.Add(this.checkBox_cleanSpace);
             this.Controls.Add(this.checkBox_checkVersion);
             this.Controls.Add(this.OPT_DUPren);
-            this.Controls.Add(this.textBox_gPass);
-            this.Controls.Add(this.textBox_gLogin);
-            this.Controls.Add(this.lbl_gMail_pass);
-            this.Controls.Add(this.lbl_gMail_login);
-            this.Controls.Add(this.label1);
             this.Controls.Add(this.OPT_importOther);
             this.Controls.Add(this.checkBox_cleanSlash);
             this.Controls.Add(this.OPT_prefixNONFB);
@@ -407,17 +336,11 @@
         private System.Windows.Forms.CheckBox OPT_prefixNONFB;
         private System.Windows.Forms.CheckBox checkBox_cleanSlash;
         private System.Windows.Forms.CheckBox OPT_importOther;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label lbl_gMail_login;
-        private System.Windows.Forms.Label lbl_gMail_pass;
-        private System.Windows.Forms.TextBox textBox_gLogin;
-        private System.Windows.Forms.TextBox textBox_gPass;
         private System.Windows.Forms.CheckBox OPT_DUPren;
         private System.Windows.Forms.CheckBox checkBox_checkVersion;
         private System.Windows.Forms.CheckBox checkBox_cleanSpace;
         private System.Windows.Forms.CheckBox checkBox_cleanSquareBrackets;
         private System.Windows.Forms.CheckBox checkBox_cleanLetters;
-        private System.Windows.Forms.Label label_google_hint;
         private System.Windows.Forms.CheckBox checkBox_cleanaddzeroprefix;
         private System.Windows.Forms.Label label_Outlook;
         private System.Windows.Forms.CheckBox checkBox_OutlookEmptyNumber;

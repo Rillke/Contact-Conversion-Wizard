@@ -30,9 +30,6 @@ namespace Contact_Conversion_Wizard
             checkBox_cleanLetters.Checked = !settings.Cleanup.RemoveLetters;
             checkBox_cleanaddzeroprefix.Checked = settings.Cleanup.AddZeroPrefix;
 
-            textBox_gLogin.Text = settings.GoogleLogin;
-            textBox_gPass.Text = settings.GooglePassword;
-
             checkBox_checkVersion.Checked = settings.CheckForUpdates;
         }
 
@@ -58,9 +55,6 @@ namespace Contact_Conversion_Wizard
             settings.Cleanup.RemoveSquareBrackets = !checkBox_cleanSquareBrackets.Checked;
             settings.Cleanup.RemoveLetters = !checkBox_cleanLetters.Checked;
             settings.Cleanup.AddZeroPrefix = checkBox_cleanaddzeroprefix.Checked;
-
-            settings.GoogleLogin = textBox_gLogin.Text;
-            settings.GooglePassword = textBox_gPass.Text;
 
             settings.CheckForUpdates = checkBox_checkVersion.Checked;
         }
