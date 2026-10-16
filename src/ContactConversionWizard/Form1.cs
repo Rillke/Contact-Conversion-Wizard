@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using ContactConversionWizard.Core.Updates;
 using System.Text;
 using System.Windows.Forms;
 using ContactConversionWizard.Core.Export;
@@ -38,10 +39,36 @@ namespace Contact_Conversion_Wizard
             // override the defaults with the saved configuration (if any)
             settings = AppSettings.Load(AppSettings.SettingsFile);
             ApplySettingsToControls();
+            RemoveLegacyGooglePassword();
 
             if (settings.CheckForUpdates)
             {
                 backgroundWorker_updateCheck.RunWorkerAsync();
+            }
+        }
+
+        /// <summary>
+        /// Versions up to 3.5.0.2 could store the Google password in clear text. The Google Contacts support has been
+        /// removed (Google switched off the used API), so the password is deleted from the configuration file.
+        /// </summary>
+        private void RemoveLegacyGooglePassword()
+        {
+            if (!settings.ContainsLegacyGooglePassword) { return; }
+
+            StoreControlsInSettings();
+            try
+            {
+                settings.Save(AppSettings.SettingsFile);
+                MessageBox.Show(
+                    "A previous version of this program stored your Google account password in clear text in" + Environment.NewLine
+                    + AppSettings.SettingsFile + Environment.NewLine + Environment.NewLine
+                    + "The password has now been removed from this file. If you use this password anywhere else, please consider changing it.",
+                    "Stored Google password removed", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
+            {
+                MessageBox.Show("Your Google password is stored in clear text in " + AppSettings.SettingsFile + " but the file could not be updated: " + ex.Message
+                    + Environment.NewLine + "Please delete the line starting with \"g_pass\" manually.");
             }
         }
 
@@ -187,10 +214,10 @@ namespace Contact_Conversion_Wizard
             // while the program is processing, the user must not be able to click any buttons
             Control[] controls =
             {
-                btn_read_Outlook, btn_read_FritzXML, btn_read_vCard, btn_read_FritzAdress, btn_read_genericCSV, btn_read_googleContacts,
+                btn_read_Outlook, btn_read_FritzXML, btn_read_vCard, btn_read_FritzAdress, btn_read_genericCSV,
                 btn_save_Outlook, btn_save_FritzXML, btn_save_vCard, btn_save_vCard_Gigaset, btn_save_FritzAdress, btn_save_SnomCSV7,
                 btn_save_SnomCSV8, btn_save_TalkSurfCSV, btn_save_AastraCSV, btn_save_GrandstreamGXV, btn_save_GrandstreamGXP,
-                btn_save_Auerswald, btn_save_googleContacts, btn_save_panasonicCSV, button_clear, button_config,
+                btn_save_Auerswald, btn_save_panasonicCSV, button_clear, button_config,
             };
             foreach (Control control in controls) { control.Enabled = !busy; }
             Cursor.Current = busy ? Cursors.WaitCursor : Cursors.Default;
@@ -409,51 +436,6 @@ namespace Contact_Conversion_Wizard
             RunImport(() => new CsvContactMapper(CreateImportOptions()).Map(rows, assignment));
         }
 
-        private void btn_read_googleContacts_Click(object sender, EventArgs e)
-        {
-            bool chooseGroups = ShiftPressed;
-            GoogleContactsConnector google = LoginToGoogle();
-            if (google == null) { return; }
-
-            List<string> groupIds = null;
-            if (chooseGroups)
-            {
-                using (var chooser = new ImportGroupsChooser("Please select the groups you want to import contacts from:", "Google Contact Group Chooser", google.GetGroups()))
-                {
-                    chooser.ShowDialog();
-                    groupIds = chooser.resultList.Select(group => group[1]).ToList();
-                }
-            }
-
-            RunImport(() => google.Import(CreateImportOptions(), settings.ImportOtherNumbers, groupIds));
-        }
-
-        private GoogleContactsConnector LoginToGoogle()
-        {
-            if (settings.GoogleLogin == "")
-            {
-                MessageBox.Show("Please configure Google login in the configuration menu first!");
-                return null;
-            }
-
-            string password = settings.GooglePassword != ""
-                ? settings.GooglePassword
-                : AskUser("Please enter the Google password for login " + settings.GoogleLogin + ":", "Enter Google Password", false, true);
-            if (string.IsNullOrEmpty(password)) { return null; }
-
-            try
-            {
-                return GoogleContactsConnector.Login(ProductName + " v" + ProductVersion, settings.GoogleLogin, password);
-            }
-            catch (Exception ex)
-            {
-                string message = ex.ToString();
-                int stack = message.IndexOf(" at ", StringComparison.Ordinal);
-                MessageBox.Show("Google login failed with the following exception:" + Environment.NewLine + Environment.NewLine + (stack > 0 ? message.Substring(0, stack) : message));
-                return null;
-            }
-        }
-
         #endregion
 
         #region Export
@@ -609,33 +591,6 @@ namespace Contact_Conversion_Wizard
             }
         }
 
-        private void btn_save_googleContacts_Click(object sender, EventArgs e)
-        {
-            ExportOptions options = CreateExportOptions();
-            if (options == null) { return; }
-
-            GoogleContactsConnector google = LoginToGoogle();
-            if (google == null) { return; }
-
-            disable_buttons(true);
-            try
-            {
-                var cleaner = new PhoneNumberCleaner(options.Cleanup, options.CountryPrefix);
-                foreach (string message in google.Export(contacts, cleaner, options.ApplyPrefixToAllFormats, options.TypePreference))
-                {
-                    MessageBox.Show(message);
-                }
-            }
-            catch (Exception ex) when (IsReportable(ex) || ex is Google.GData.Client.GDataRequestException)
-            {
-                MessageBox.Show("Writing to Google Contacts failed: " + ex.Message);
-            }
-            finally
-            {
-                disable_buttons(false);
-            }
-        }
-
         #endregion
 
         #region Website and update check
@@ -643,7 +598,7 @@ namespace Contact_Conversion_Wizard
         private void button_website_Click(object sender, EventArgs e)
         {
             Process.Start(ShiftPressed || button_website.ForeColor == System.Drawing.Color.Green
-                ? "https://github.com/Rillke/Contact-Conversion-Wizard/releases/latest"
+                ? ReleaseVersions.LatestReleasePageUrl
                 : "https://github.com/Rillke/Contact-Conversion-Wizard");
         }
 
@@ -658,46 +613,20 @@ namespace Contact_Conversion_Wizard
         {
             try
             {
-                string website = DoWebRequest("http://software.nv-systems.net/ccw/download");
-                website = website.Substring(website.IndexOf("Aktuelle Version", StringComparison.Ordinal));
-                const string marker = "/downloads/Contact%20Conversion%20Wizard%20v";
-                website = website.Substring(website.IndexOf(marker, StringComparison.Ordinal) + marker.Length);
-                string websiteVersion = website.Substring(0, website.IndexOf(".zip", StringComparison.Ordinal));
-
-                int comparison = string.CompareOrdinal(websiteVersion, ProductVersion);
-                e.Result = comparison > 0 ? "NEW:" + websiteVersion : comparison == 0 ? "SAME:" + websiteVersion : "OLDER:" + websiteVersion;
+                e.Result = UpdateCheck.GetLatestReleaseVersion(ProductVersion);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is WebException || ex is IOException || ex is FormatException)
             {
-                e.Result = "FAIL:" + ex.Message;
+                e.Result = null; // no network or GitHub not reachable: just don't show anything
             }
         }
 
         private void backgroundWorker_updateCheck_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            string result = e.Result as string ?? "";
-            if (result.StartsWith("OLDER:", StringComparison.Ordinal))
-            {
-                button_website.ForeColor = System.Drawing.Color.Red;
-            }
-            else if (result.StartsWith("NEW:", StringComparison.Ordinal))
+            if (e.Error == null && e.Result is Version latest && ReleaseVersions.IsNewer(latest, ProductVersion))
             {
                 button_website.ForeColor = System.Drawing.Color.Green;
-                button_website.Text = "Update to: v" + result.Substring(4);
-            }
-        }
-
-        private string DoWebRequest(string url)
-        {
-            var request = (HttpWebRequest)WebRequest.Create(url);
-            request.Accept = "text/html";
-            request.UserAgent = "User-Agent: Contact Conversion Wizard/" + ProductVersion;
-            request.Proxy = null;
-
-            using (var response = (HttpWebResponse)request.GetResponse())
-            using (var reader = new StreamReader(response.GetResponseStream()))
-            {
-                return reader.ReadToEnd();
+                button_website.Text = "Update to: v" + latest;
             }
         }
 

@@ -36,7 +36,7 @@ namespace ContactConversionWizard.Core.Export
                 {
                     string pictureName = options.PictureFileNameGenerator();
                     pictures.Add(new ExportedFile(pictureName, contact.Photo));
-                    imageUrl = "<imageURL>" + options.PicturePath + pictureName + "</imageURL>\n";
+                    imageUrl = "<imageURL>" + Escaping.Xml(options.PicturePath + pictureName) + "</imageURL>\n";
                 }
 
                 sb.Append("<contact>\n<category>").Append(contact.IsVip ? "1" : "0").Append("</category>\n<person>\n<realName>")
@@ -53,8 +53,8 @@ namespace ContactConversionWizard.Core.Export
 
                 if (options.IncludeFax)
                 {
-                    if (numbers.HomeFax != "") { sb.Append("<number type=\"fax_work\">").Append(numbers.HomeFax).Append("</number>\n"); }
-                    if (numbers.WorkFax != "") { sb.Append("<number type=\"fax_work\">").Append(numbers.WorkFax).Append("</number>\n"); }
+                    if (numbers.HomeFax != "") { sb.Append("<number type=\"fax_work\">").Append(Escaping.Xml(numbers.HomeFax)).Append("</number>\n"); }
+                    if (numbers.WorkFax != "") { sb.Append("<number type=\"fax_work\">").Append(Escaping.Xml(numbers.WorkFax)).Append("</number>\n"); }
                 }
 
                 sb.Append("</telephony>\n<services>\n");
@@ -85,7 +85,7 @@ namespace ContactConversionWizard.Core.Export
         {
             if (number == "") { return "<number type=\"" + type + "\" />\n"; }
             string attributes = preferredAttributes == null ? "" : " " + preferredAttributes;
-            return "<number type=\"" + type + "\"" + attributes + ">" + number + "</number>\n";
+            return "<number type=\"" + type + "\"" + attributes + ">" + Escaping.Xml(number) + "</number>\n";
         }
     }
 }

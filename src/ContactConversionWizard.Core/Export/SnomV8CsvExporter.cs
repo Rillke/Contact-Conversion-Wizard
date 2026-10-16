@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using ContactConversionWizard.Core.Model;
 using ContactConversionWizard.Core.Text;
@@ -80,9 +81,8 @@ namespace ContactConversionWizard.Core.Export
 
         private static string Line(string name, string number, string relation, string firstName, string lastName, string email, string type)
         {
-            const string sep = "\",\"";
-            return "\"" + name + sep + number + sep + relation + sep + "" + sep + firstName + sep + lastName + sep + "" + sep + ""
-                + sep + email + sep + "" + sep + "" + sep + "" + sep + "false" + sep + "" + sep + type + sep + "" + "\"\r\n";
+            string[] fields = { name, number, relation, "", firstName, lastName, "", "", email, "", "", "", "false", "", type, "" };
+            return string.Join(",", fields.Select(Escaping.CsvQuoted)) + "\r\n";
         }
     }
 }

@@ -78,10 +78,8 @@
             this.btn_read_genericCSV = new System.Windows.Forms.Button();
             this.btn_save_AastraCSV = new System.Windows.Forms.Button();
             this.btn_save_GrandstreamGXV = new System.Windows.Forms.Button();
-            this.btn_read_googleContacts = new System.Windows.Forms.Button();
             this.btn_save_GrandstreamGXP = new System.Windows.Forms.Button();
             this.btn_save_Auerswald = new System.Windows.Forms.Button();
-            this.btn_save_googleContacts = new System.Windows.Forms.Button();
             this.btn_save_panasonicCSV = new System.Windows.Forms.Button();
             this.btn_save_vCard_Gigaset = new System.Windows.Forms.Button();
             this.combo_typeprefer = new System.Windows.Forms.ComboBox();
@@ -626,19 +624,6 @@
             this.btn_save_GrandstreamGXV.UseVisualStyleBackColor = true;
             this.btn_save_GrandstreamGXV.Click += new System.EventHandler(this.btn_save_GrandstreamGXV_Click);
             // 
-            // btn_read_googleContacts
-            // 
-            this.btn_read_googleContacts.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_read_googleContacts.Location = new System.Drawing.Point(4, 222);
-            this.btn_read_googleContacts.Name = "btn_read_googleContacts";
-            this.btn_read_googleContacts.Size = new System.Drawing.Size(167, 35);
-            this.btn_read_googleContacts.TabIndex = 29;
-            this.btn_read_googleContacts.Text = "Google Contacts";
-            this.toolTip1.SetToolTip(this.btn_read_googleContacts, "Directly imports contacts from a Google Mail Account\r\n\r\nHold SHIFT to select the " +
-        "groups you want to import from!\r\n");
-            this.btn_read_googleContacts.UseVisualStyleBackColor = true;
-            this.btn_read_googleContacts.Click += new System.EventHandler(this.btn_read_googleContacts_Click);
-            // 
             // btn_save_GrandstreamGXP
             // 
             this.btn_save_GrandstreamGXP.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -665,19 +650,6 @@
             this.toolTip1.SetToolTip(this.btn_save_Auerswald, "CSV Export for Auerswald\r\n\r\nFile Format is Non-Unicode with Unix Linefeeds.\r\n");
             this.btn_save_Auerswald.UseVisualStyleBackColor = true;
             this.btn_save_Auerswald.Click += new System.EventHandler(this.btn_save_Auerswald_Click);
-            // 
-            // btn_save_googleContacts
-            // 
-            this.btn_save_googleContacts.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn_save_googleContacts.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_save_googleContacts.Location = new System.Drawing.Point(836, 374);
-            this.btn_save_googleContacts.Name = "btn_save_googleContacts";
-            this.btn_save_googleContacts.Size = new System.Drawing.Size(167, 35);
-            this.btn_save_googleContacts.TabIndex = 34;
-            this.btn_save_googleContacts.Text = "Google Contacts";
-            this.toolTip1.SetToolTip(this.btn_save_googleContacts, "Export for Google Contacts");
-            this.btn_save_googleContacts.UseVisualStyleBackColor = true;
-            this.btn_save_googleContacts.Click += new System.EventHandler(this.btn_save_googleContacts_Click);
             // 
             // btn_save_panasonicCSV
             // 
@@ -870,12 +842,10 @@
             this.ClientSize = new System.Drawing.Size(1004, 582);
             this.Controls.Add(this.btn_save_vCard_Gigaset);
             this.Controls.Add(this.btn_save_panasonicCSV);
-            this.Controls.Add(this.btn_save_googleContacts);
             this.Controls.Add(this.btn_save_Auerswald);
             this.Controls.Add(this.btn_save_GrandstreamGXP);
             this.Controls.Add(this.button_forum);
             this.Controls.Add(this.button_website);
-            this.Controls.Add(this.btn_read_googleContacts);
             this.Controls.Add(this.btn_save_GrandstreamGXV);
             this.Controls.Add(this.button_config);
             this.Controls.Add(this.btn_save_AastraCSV);
@@ -957,7 +927,6 @@
         private System.Windows.Forms.Button button_7270;
         private System.Windows.Forms.Button button_7390;
         private System.Windows.Forms.Button btn_save_GrandstreamGXV;
-        private System.Windows.Forms.Button btn_read_googleContacts;
         private System.Windows.Forms.DataGridViewTextBoxColumn Fullname;
         private System.Windows.Forms.DataGridViewTextBoxColumn MyColLastname;
         private System.Windows.Forms.DataGridViewTextBoxColumn MyColFirstname;
@@ -980,7 +949,6 @@
         private System.ComponentModel.BackgroundWorker backgroundWorker_updateCheck;
         private System.Windows.Forms.Button btn_save_GrandstreamGXP;
         private System.Windows.Forms.Button btn_save_Auerswald;
-        private System.Windows.Forms.Button btn_save_googleContacts;
         private System.Windows.Forms.Button btn_save_panasonicCSV;
         private System.Windows.Forms.Button btn_save_vCard_Gigaset;
     }

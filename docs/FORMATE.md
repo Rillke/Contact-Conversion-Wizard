@@ -7,7 +7,7 @@
 * vCard: (getestet mit vCard Export Dateien von "MacOS 10.6 Adressbuch" /  "Google Mail/Contacts" / "jFritz Adressbuch"
 * Fritz!Adr Adressbuche-Exportdateien (Erstellen bitte über Datei => Exportieren => in Datei exportieren => Text-Tabstopp-getrennt)
 * CSV Dateien aller Art  über den Generic CSV Import (z.B. für das Addressbuch von Windows Live Mail oder Export-CSV Dateien von Webmail Diensten wie GMX)
-* Google Contacts: Direkter Import von GMail Konten (direkt über Google API v3)
+* Google Contacts: bitte in Google Contacts als vCard exportieren und diese Datei importieren (der direkte Zugriff über die abgeschaltete Google API v3 wurde entfernt)
 
 ## Unterstützte Export-Formate
 
@@ -22,7 +22,7 @@
 * Aastra: CSV Dateien für Aastra Telefone
 * Grandstream: XML Dateien für Grandstream Telefone (in 2 Varianten: 1 Telefonnummer pro Kontakteintrag für GXP Telefone, mehrere Telefonnummern pro Kontakteintrag für GXV Telefone)
 * Auerswald: CSV Dateien für Auerswald Telefonanlagen
-* Google Contacts Export, exportiert direkt per Google API in die Kontaktdatenbank
+* Google Contacts: bitte als vCard exportieren und diese Datei in Google Contacts importieren
 
 ## Hinweise
 

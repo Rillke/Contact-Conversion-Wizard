@@ -74,7 +74,7 @@ namespace ContactConversionWizard.Core.Export
         protected override Encoding FileEncoding => TextEncodings.Utf8NoBom;
 
         protected override string FormatLine(string name, string number, PhoneType type, Contact contact, string speedDialNumber)
-            => "\"" + name + "\",\"" + number + "\"\r\n";
+            => Escaping.CsvQuoted(name) + "," + Escaping.CsvQuoted(number) + "\r\n";
     }
 
     /// <summary>Gigaset Talk&amp;Surf: <c>Name,Number</c>, names limited to 16 characters (ISO-8859-1).</summary>
@@ -88,7 +88,7 @@ namespace ContactConversionWizard.Core.Export
         protected override Encoding FileEncoding => TextEncodings.Latin1;
 
         // Talk&Surf cannot handle commas in names
-        protected override string PrepareName(string combinedName) => combinedName.Replace(",", "");
+        protected override string PrepareName(string combinedName) => Escaping.SingleLine(combinedName).Replace(",", "").Replace("\"", "");
 
         protected override string FormatLine(string name, string number, PhoneType type, Contact contact, string speedDialNumber)
             => name + "," + number + "\r\n";
@@ -104,7 +104,7 @@ namespace ContactConversionWizard.Core.Export
         protected override string Header => "";
         protected override Encoding FileEncoding => TextEncodings.Utf8NoBom;
 
-        protected override string AdjustName(string name) => name.Replace(",", " ");
+        protected override string AdjustName(string name) => Escaping.SingleLine(name).Replace(",", " ").Replace("\"", " ");
 
         protected override string GetKey(string name, PhoneType type) => name + "#" + type;
 
@@ -130,7 +130,7 @@ namespace ContactConversionWizard.Core.Export
             return base.Export(contacts, context);
         }
 
-        protected override string AdjustName(string name) => name.Replace(";", " ");
+        protected override string AdjustName(string name) => Escaping.SingleLine(name).Replace(";", " ").Replace("\"", " ");
 
         protected override string GetSpeedDialNumber(Contact contact)
         {

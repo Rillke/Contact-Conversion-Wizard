@@ -47,7 +47,7 @@ namespace ContactConversionWizard.Core.Export
         {
             Resolve(speedDial, out string number, out string vanity);
             if (number == "") { return ""; }
-            return " quickdial=\"" + number + "\"" + (vanity != "" ? " vanity=\"" + vanity + "\"" : "");
+            return " quickdial=\"" + Text.Escaping.Xml(number) + "\"" + (vanity != "" ? " vanity=\"" + Text.Escaping.Xml(vanity) + "\"" : "");
         }
     }
 }

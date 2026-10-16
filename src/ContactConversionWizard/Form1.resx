@@ -177,10 +177,8 @@ The exported file may be VCARD 2.1 compliant and is UTF8-without-BOM-encoded.</v
     <value>vCard Import: Affects selection of Address and eMail
 Fritz!Adr Import: Affects whether Phone/Fax Nr. are imported into Home or Work fields
 Outlook Import: Affects whether Other Phone numbers are preferrably put in Home or Work
-Google Import: Affects whether Main Phone numbers are preferrably put in Home or Work
 
 vCard Export: Affects export of Address as either Work or Home Adress
-Google Export: Affects export of Address as either Work or Home Adress
 
 Other Import/Export Methods than those above: This option has no effect.</value>
   </data>

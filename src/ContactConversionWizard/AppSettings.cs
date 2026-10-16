@@ -25,9 +25,6 @@ namespace Contact_Conversion_Wizard
 
         public NumberCleanupOptions Cleanup { get; } = new NumberCleanupOptions();
 
-        public string GoogleLogin { get; set; } = "";
-        public string GooglePassword { get; set; } = "";
-
         /// <summary>Selections of the combo boxes of the main window, stored as their display text.</summary>
         public string NameStyle { get; set; }
         public string TypePreference { get; set; }
@@ -36,6 +33,9 @@ namespace Contact_Conversion_Wizard
         public string CountryPrefix { get; set; }
         public string PictureExport { get; set; }
         public string FritzPicturePath { get; set; }
+
+        /// <summary>True if the loaded file still contains the clear text Google password of older versions.</summary>
+        public bool ContainsLegacyGooglePassword { get; private set; }
 
         public static AppSettings Load(string path)
         {
@@ -70,8 +70,7 @@ namespace Contact_Conversion_Wizard
             settings.CountryPrefix = config.GetString("combo_prefix");
             settings.PictureExport = config.GetString("combo_picexport");
             settings.FritzPicturePath = config.GetString("fritzPicPath");
-            settings.GoogleLogin = config.GetString("g_login", "");
-            settings.GooglePassword = config.GetString("g_pass", "");
+            settings.ContainsLegacyGooglePassword = !string.IsNullOrEmpty(config.GetString("g_pass"));
 
             return settings;
         }
@@ -106,8 +105,8 @@ namespace Contact_Conversion_Wizard
             config.Set("combo_prefix", CountryPrefix);
             config.Set("combo_picexport", PictureExport);
             config.Set("fritzPicPath", FritzPicturePath);
-            config.Set("g_login", GoogleLogin);
-            config.Set("g_pass", GooglePassword);
+            // "g_login" and "g_pass" (the Google account of the removed Google Contacts support) are intentionally
+            // not written again, so that the password that older versions stored in clear text gets deleted.
 
             Directory.CreateDirectory(Path.GetDirectoryName(path));
             config.Save(path);
